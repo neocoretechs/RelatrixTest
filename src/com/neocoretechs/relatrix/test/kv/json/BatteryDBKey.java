@@ -12,7 +12,7 @@ import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.RelatrixKVJson;
 
 import com.neocoretechs.relatrix.key.IndexResolver;
-import com.neocoretechs.rocksack.session.BufferedMap;
+
 
 /**
  * The set of tests verifies the lower level {@link DBKey} functions in the {@link  Relatrix}
@@ -47,7 +47,9 @@ public class BatteryDBKey {
 		//battery1AR17(argv);
 		//battery1(argv);
 		//battery1AR4(argv);
-		battery1AR7(argv);
+		//battery1AR7(argv);
+		//battery1AR8(argv);
+		battery1AR9(argv);
 		//battery1AR17(argv);
 		 System.out.println("BatteryDBKey TEST BATTERY COMPLETE.");
 		
@@ -104,7 +106,7 @@ public class BatteryDBKey {
 	}
 
 	/**
-	 * Testing of Iterator<?> its = RelatrixKV.keySet;
+	 * Testing of Iterator and Stream submap and transformations
 	 * @param argv
 	 * @throws Exception
 	 */
@@ -191,6 +193,182 @@ public class BatteryDBKey {
 			throw new Exception("KV BATTERY1AR7 unexpected number of keys "+i);
 		}
 		System.out.println("KV BATTERY1AR7 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
+	}
+
+	/**
+	 * Testing of Iterator and Stream headmap and transformations
+	 * @param argv
+	 * @throws Exception
+	 */
+	public static void battery1AR8(String[] argv) throws Exception {
+		max = 49699;
+		long tims = System.currentTimeMillis();
+		JSONObject jo = new JSONObject(x50k);
+		Comparable<?> jkey = RelatrixKVJson.getObject(jo);
+		Iterator<?> its = RelatrixKVJson.findHeadMap(jkey);
+		Iterator<?> itst = RelatrixKVJson.getStringIterator(its);
+		System.out.println("KV Battery1AR8");
+		System.out.println("=============== String Headmap Iterator ======================");
+		while(itst.hasNext()) {
+			Object y = itst.next();
+			++i;
+			System.out.println(i+".) "+y);
+		}
+		if( i != max ) {
+			System.out.println("KV BATTERY1AR8 unexpected number of keys "+i);
+			throw new Exception("KV BATTERY1AR8 unexpected number of keys "+i);
+		}
+		System.out.println("=============== String Headmap K/V Iterator ======================");
+		i = 0;
+		its = RelatrixKVJson.findHeadMapKV(jkey);
+		itst = RelatrixKVJson.getStringMapIterator(its);
+		while(itst.hasNext()) {
+			Object y = itst.next();
+			++i;
+			System.out.println(i+".) "+y);
+		}
+		if( i != max ) {
+			System.out.println("KV BATTERY1AR8 unexpected number of keys "+i);
+			throw new Exception("KV BATTERY1AR8 unexpected number of keys "+i);
+		}
+		System.out.println("=============== JSONObject Headmap Iterator ======================");
+		i = 0;
+		its = RelatrixKVJson.findHeadMap(jkey);
+		itst = RelatrixKVJson.getJsonIterator(its);
+		while(itst.hasNext()) {
+			Object y = itst.next();
+			++i;
+			System.out.println(i+".) "+y);
+		}
+		if( i != max ) {
+			System.out.println("KV BATTERY1AR8 unexpected number of keys "+i);
+			throw new Exception("KV BATTERY1AR8 unexpected number of keys "+i);
+		}
+		System.out.println("=============== String Headmap Stream ======================");
+		i = 0;
+		Stream<?> sts = RelatrixKVJson.findHeadMapStream(jkey);
+		Stream<?> stst = RelatrixKVJson.getStringStream(sts);
+		stst.forEachOrdered(e-> {++i;System.out.println(i+".) "+e);});
+		if( i != max ) {
+			System.out.println("KV BATTERY1AR8 unexpected number of keys "+i);
+			throw new Exception("KV BATTERY1AR8 unexpected number of keys "+i);
+		}
+		System.out.println("=============== String Headmap K/V Stream ======================");
+		i = 0;
+		sts = RelatrixKVJson.findHeadMapKVStream(jkey);
+		stst = RelatrixKVJson.getStringMapStream(sts);
+		stst.forEachOrdered(e-> {++i;System.out.println(i+".) "+e);});
+		if( i != max ) {
+			System.out.println("KV BATTERY1AR8 unexpected number of keys "+i);
+			throw new Exception("KV BATTERY1AR8 unexpected number of keys "+i);
+		}
+		System.out.println("=============== JSONObject Headmap Stream ======================");
+		i = 0;
+		sts = RelatrixKVJson.findHeadMapStream(jkey);
+		stst = RelatrixKVJson.getJsonStream(sts);
+		stst.forEachOrdered(e-> {++i;System.out.println(i+".) "+e);});
+		if( i != max ) {
+			System.out.println("KV BATTERY1AR8 unexpected number of keys "+i);
+			throw new Exception("KV BATTERY1AR8 unexpected number of keys "+i);
+		}
+		System.out.println("=============== JSONObject Headmap K/V Stream ======================");
+		i = 0;
+		sts = RelatrixKVJson.findHeadMapKVStream(jkey);
+		stst = RelatrixKVJson.getJsonMapStream(sts);
+		stst.forEachOrdered(e-> {++i;System.out.println(i+".) "+e);});
+		if( i != max ) {
+			System.out.println("KV BATTERY1AR8 unexpected number of keys "+i);
+			throw new Exception("KV BATTERY1AR8 unexpected number of keys "+i);
+		}
+		System.out.println("KV BATTERY1AR8 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
+	}
+	
+	/**
+	 * Testing of Iterator and Stream tailmap and transformations
+	 * @param argv
+	 * @throws Exception
+	 */
+	public static void battery1AR9(String[] argv) throws Exception {
+		max = 25301;
+		long tims = System.currentTimeMillis();
+		JSONObject jo = new JSONObject(x75k);
+		Comparable<?> jkey = RelatrixKVJson.getObject(jo);
+		Iterator<?> its = RelatrixKVJson.findTailMap(jkey);
+		Iterator<?> itst = RelatrixKVJson.getStringIterator(its);
+		System.out.println("KV Battery1AR9");
+		System.out.println("=============== String Tailmap Iterator ======================");
+		while(itst.hasNext()) {
+			Object y = itst.next();
+			++i;
+			System.out.println(i+".) "+y);
+		}
+		if( i != max ) {
+			System.out.println("KV BATTERY1AR9 unexpected number of keys "+i);
+			throw new Exception("KV BATTERY1AR9 unexpected number of keys "+i);
+		}
+		System.out.println("=============== String Tailmap K/V Iterator ======================");
+		i = 0;
+		its = RelatrixKVJson.findTailMapKV(jkey);
+		itst = RelatrixKVJson.getStringMapIterator(its);
+		while(itst.hasNext()) {
+			Object y = itst.next();
+			++i;
+			System.out.println(i+".) "+y);
+		}
+		if( i != max ) {
+			System.out.println("KV BATTERY1AR9 unexpected number of keys "+i);
+			throw new Exception("KV BATTERY1AR9 unexpected number of keys "+i);
+		}
+		System.out.println("=============== JSONObject Tailmap Iterator ======================");
+		i = 0;
+		its = RelatrixKVJson.findTailMap(jkey);
+		itst = RelatrixKVJson.getJsonIterator(its);
+		while(itst.hasNext()) {
+			Object y = itst.next();
+			++i;
+			System.out.println(i+".) "+y);
+		}
+		if( i != max ) {
+			System.out.println("KV BATTERY1AR9 unexpected number of keys "+i);
+			throw new Exception("KV BATTERY1AR9 unexpected number of keys "+i);
+		}
+		System.out.println("=============== String Tailmap Stream ======================");
+		i = 0;
+		Stream<?> sts = RelatrixKVJson.findTailMapStream(jkey);
+		Stream<?> stst = RelatrixKVJson.getStringStream(sts);
+		stst.forEachOrdered(e-> {++i;System.out.println(i+".) "+e);});
+		if( i != max ) {
+			System.out.println("KV BATTERY1AR9 unexpected number of keys "+i);
+			throw new Exception("KV BATTERY1AR9 unexpected number of keys "+i);
+		}
+		System.out.println("=============== String Tailmap K/V Stream ======================");
+		i = 0;
+		sts = RelatrixKVJson.findTailMapKVStream(jkey);
+		stst = RelatrixKVJson.getStringMapStream(sts);
+		stst.forEachOrdered(e-> {++i;System.out.println(i+".) "+e);});
+		if( i != max ) {
+			System.out.println("KV BATTERY1AR9 unexpected number of keys "+i);
+			throw new Exception("KV BATTERY1AR9 unexpected number of keys "+i);
+		}
+		System.out.println("=============== JSONObject Tailmap Stream ======================");
+		i = 0;
+		sts = RelatrixKVJson.findTailMapStream(jkey);
+		stst = RelatrixKVJson.getJsonStream(sts);
+		stst.forEachOrdered(e-> {++i;System.out.println(i+".) "+e);});
+		if( i != max ) {
+			System.out.println("KV BATTERY1AR9 unexpected number of keys "+i);
+			throw new Exception("KV BATTERY1AR9 unexpected number of keys "+i);
+		}
+		System.out.println("=============== JSONObject Tailmap K/V Stream ======================");
+		i = 0;
+		sts = RelatrixKVJson.findTailMapKVStream(jkey);
+		stst = RelatrixKVJson.getJsonMapStream(sts);
+		stst.forEachOrdered(e-> {++i;System.out.println(i+".) "+e);});
+		if( i != max ) {
+			System.out.println("KV BATTERY1AR9 unexpected number of keys "+i);
+			throw new Exception("KV BATTERY1AR9 unexpected number of keys "+i);
+		}
+		System.out.println("KV BATTERY1AR9 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 
 	/**
