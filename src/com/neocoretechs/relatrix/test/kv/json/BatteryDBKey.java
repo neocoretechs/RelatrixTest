@@ -44,11 +44,11 @@ public class BatteryDBKey {
 		}
 		RelatrixKVJson.getInstance().setTablespace(argv[0]);
 		IndexResolver.setLocal();
-		//battery1AR17(argv);
-		//battery1(argv);
-		//battery1AR4(argv);
-		//battery1AR7(argv);
-		//battery1AR8(argv);
+		battery1AR17(argv);
+		battery1(argv);
+		battery1AR4(argv);
+		battery1AR7(argv);
+		battery1AR8(argv);
 		battery1AR9(argv);
 		//battery1AR17(argv);
 		 System.out.println("BatteryDBKey TEST BATTERY COMPLETE.");
@@ -202,6 +202,7 @@ public class BatteryDBKey {
 	 */
 	public static void battery1AR8(String[] argv) throws Exception {
 		max = 49699;
+		i = 0;
 		long tims = System.currentTimeMillis();
 		JSONObject jo = new JSONObject(x50k);
 		Comparable<?> jkey = RelatrixKVJson.getObject(jo);
@@ -290,6 +291,7 @@ public class BatteryDBKey {
 	 */
 	public static void battery1AR9(String[] argv) throws Exception {
 		max = 25301;
+		i = 0;
 		long tims = System.currentTimeMillis();
 		JSONObject jo = new JSONObject(x75k);
 		Comparable<?> jkey = RelatrixKVJson.getObject(jo);
