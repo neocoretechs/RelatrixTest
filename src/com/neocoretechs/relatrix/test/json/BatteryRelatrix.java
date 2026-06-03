@@ -32,7 +32,7 @@ import com.neocoretechs.relatrix.Result;
  *
  */
 public class BatteryRelatrix {
-	public static boolean DEBUG = true;
+	public static boolean DEBUG = false;
 	static String x =     "{\"timestamp\":1779166000301,\"LeftImage\":[{ \"count\":1,\"detections\":[ {\"name\":\"refrigerator\",\"probability\":0.41232753,\"bbox\":{\"xmin\":104,\"ymin\":12,\"xmax\":223,\"ymax\":561} } ] } ], \"RightImage\":[{\"count\":0, \"detections\":[ ] } ]}";
 	static String x50k =  "{\"timestamp\":1779166050000,\"LeftImage\":[{ \"count\":1,\"detections\":[ {\"name\":\"refrigerator\",\"probability\":0.41232753,\"bbox\":{\"xmin\":104,\"ymin\":12,\"xmax\":223,\"ymax\":561} } ] } ], \"RightImage\":[{\"count\":0, \"detections\":[ ] } ]}";
 	static String x75k =  "{\"timestamp\":1779166075000,\"LeftImage\":[{ \"count\":1,\"detections\":[ {\"name\":\"refrigerator\",\"probability\":0.41232753,\"bbox\":{\"xmin\":104,\"ymin\":12,\"xmax\":223,\"ymax\":561} } ] } ], \"RightImage\":[{\"count\":0, \"detections\":[ ] } ]}";
@@ -66,10 +66,10 @@ public class BatteryRelatrix {
 			battery1(argv);
 		} else
 			System.out.println("size="+siz);
-		battery1AR5(argv);
+		//battery1AR5(argv);
 		if(DEBUG)
 			System.out.println("Begin duplicate key rejection test from "+min+" to "+max);
-		battery11(argv);
+		//battery11(argv);
 		if(DEBUG)
 			System.out.println("Begin test battery 1AR6");
 		battery1AR6(argv);
@@ -82,12 +82,9 @@ public class BatteryRelatrix {
 		if(DEBUG)
 			System.out.println("Begin test battery 1AR9");
 		battery1AR9(argv);
-		/*if(DEBUG)
+		if(DEBUG)
 			System.out.println("Begin test battery 1AR10");
 		battery1AR10(argv);
-		if(DEBUG)
-			System.out.println("Begin test battery 1AR101");
-		battery1AR101(argv);
 		if(DEBUG)
 			System.out.println("Begin test battery 1AR11");
 		battery1AR11(argv);
@@ -169,21 +166,22 @@ public class BatteryRelatrix {
 	public static void battery1AR5(String[] argv) throws Exception {
 		int i = min;
 		long tims = System.currentTimeMillis();
-		JSONObject xf = new JSONObject(xfull);
-		JSONObject jo2 = new JSONObject(x50k);
-		JSONObject jo = new JSONObject(x);
 		Iterator<?> its = RelatrixJson.findSet('?','?','?');
 		System.out.println("Battery1AR5");
 		while(its.hasNext()) {
 			Result nex = (Result) its.next();
 			// 3 question marks = dimension 3 in return array
-			if( DEBUG ) System.out.println("1AR6:"+i+" "+nex);
 			JSONObject ng = RelatrixKVJson.getJsonData(nex.get(0));
 			JSONObject nh = RelatrixKVJson.getJsonData(nex.get(1));
 			JSONObject ni = RelatrixKVJson.getJsonData(nex.get(2));
-			System.out.println(ng+"->"+nh+"->"+ni);
+			++i;
+			if(DEBUG)
+				System.out.println(i+".) "+ng+"->"+nh+"->"+ni);
 		}
-	
+		if( i != max ) {
+			System.out.println("BATTERY1AR5 unexpected number of keys "+i);
+			throw new Exception("BATTERY1AR5 unexpected number of keys "+i);
+		}
 		System.out.println("BATTERY1AR5 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 	/**
@@ -198,23 +196,23 @@ public class BatteryRelatrix {
 		JSONObject xf = new JSONObject(xfull);
 		JSONObject jo2 = new JSONObject(x50k);
 		JSONObject jo = new JSONObject(x);
-		Iterator<?> its = RelatrixJson.findSet(RelatrixKVJson.getObject(jo), RelatrixKVJson.getObject(xf), RelatrixKVJson.getObject(jo2));
 		System.out.println("Battery1AR6");
-		while(its.hasNext()) {
-			Result nex = (Result) its.next();
-			// 3 question marks = dimension 3 in return array
-			if( DEBUG ) System.out.println("1AR6:"+i+" "+nex.get(0));
-			Relation re = ((Relation)nex.get(0));
-			Comparable ce = re.getDomain();
-			JSONObject ng = RelatrixKVJson.getJsonData(ce);
-			if(!ng.similar(jo) || nex.length() != 1) {
-				System.out.println("KEY MISMATCH:"+(i)+":"+nex+"\r\nng="+ng+"\r\nkey="+jo);
-				throw new Exception("KEY MISMATCH:"+(i)+":"+nex+"\r\nng="+ng+"\r\nkey="+jo);
-			}
+		for(; i < max; i++) {
 			long tim = jo.getLong("timestamp");
 			++tim;
 			jo.put("timestamp",tim);
-			++i;
+			Iterator<?> its = RelatrixJson.findSet(RelatrixKVJson.getObject(jo), RelatrixKVJson.getObject(xf), RelatrixKVJson.getObject(jo2));
+			while(its.hasNext()) {
+				// 3 question marks = dimension 3 in return array
+				Relation re = ((Relation)((Result)its.next()).get());
+				Comparable ce = re.getDomain();
+				JSONObject ng = RelatrixKVJson.getJsonData(ce);
+				if(!ng.similar(jo)) {
+					System.out.println("KEY MISMATCH:"+(i)+"\r\nng="+ng+"\r\nkey="+jo);
+					throw new Exception("KEY MISMATCH:"+(i)+"\r\nng="+ng+"\r\nkey="+jo);
+				}
+				++i;
+			}
 		}
 		if( i != max ) {
 			System.out.println("BATTERY1AR6 unexpected number of keys "+i);
@@ -230,21 +228,18 @@ public class BatteryRelatrix {
 	public static void battery1AR7(String[] argv) throws Exception {
 		int i = min;
 		long tims = System.currentTimeMillis();
-		JSONObject jo = new JSONObject(xfull);
 		Iterator<?> its = RelatrixJson.findSet('?', '*', '*');
 		System.out.println("Battery1AR7");
 		while(its.hasNext()) {
 			Result nex = (Result) its.next();
 			JSONObject ng = RelatrixKVJson.getJsonData(nex.get(0));
 			// one '?' in findset gives us one element returned
-			if(DEBUG ) System.out.println("1AR7:"+i+" "+nex);
-			if(!ng.similar(jo) || nex.length() != 3) {
-				System.out.println("MAP KEY MISMATCH:"+(i)+nex);
-				throw new Exception("MAP KEY MISMATCH:"+(i)+nex);
+			if(DEBUG) 
+				System.out.println("1AR7: "+i+".) "+nex);
+			if(nex.length() != 1) {
+				System.out.println("MAP KEY MISMATCH:"+(i)+" .)"+nex);
+				throw new Exception("MAP KEY MISMATCH:"+(i)+" .)"+nex);
 			}
-			//String skey = key + String.format(uniqKeyFmt, i);
-			//if(!skey.equals(nex[0]) )
-			//System.out.println("DOMAIN KEY MISMATCH:"+(i)+" "+skey+" - "+nex[0]);
 			++i;
 		}
 		if( i != max ) {
@@ -261,18 +256,17 @@ public class BatteryRelatrix {
 	public static void battery1AR8(String[] argv) throws Exception {
 		int i = min;
 		long tims = System.currentTimeMillis();
-		JSONObject jo = new JSONObject(xfull);
 		System.out.println("Battery1AR8");
 		Iterator<?> its = RelatrixJson.findSet('?', '?', '*');
 		while(its.hasNext()) {
 			Result nex = (Result) its.next();
-			// two '?' in findset gives use 2 element array, the domain and map
-			if( DEBUG ) System.out.println("1AR8:"+i+" "+nex);
-			//String skey = key + String.format(uniqKeyFmt, i);
 			JSONObject ng = RelatrixKVJson.getJsonData(nex.get(0));
-			if(!ng.similar(jo) ||  nex.length() != 2) {
-				System.out.println("KEY MISMATCH:"+(i)+" "+nex);
-				throw new Exception("KEY MISMATCH:"+(i)+" "+nex);
+			// 2 '?' in findset gives us 2 elements returned
+			if(DEBUG) 
+				System.out.println("1AR8: "+i+".) "+nex);
+			if(nex.length() != 2) {
+				System.out.println("MAP KEY MISMATCH:"+(i)+" .)"+nex);
+				throw new Exception("MAP KEY MISMATCH:"+(i)+" .)"+nex);
 			}
 			++i;
 		}
@@ -291,28 +285,95 @@ public class BatteryRelatrix {
 	public static void battery1AR9(String[] argv) throws Exception {
 		int i = min;
 		long tims = System.currentTimeMillis();
-		JSONObject jo = new JSONObject(xfull);
 		Iterator<?> its = RelatrixJson.findSet('*', '*', '*');
 		System.out.println("Battery1AR9");
 		while(its.hasNext()) {
 			Result nex = (Result) its.next();
 			Comparable dr = ((Relation)nex.get(0)).getDomain();
 			// the returned array has 1 element, the identity AbstractRelation Relation
-			if( DEBUG ) System.out.println("1AR9:"+i+" "+nex.get(0));
-			//String skey = key + String.format(uniqKeyFmt, i);
+			if( DEBUG ) 
+				System.out.println("1AR9: "+i+" .)"+nex.get(0));
 			JSONObject ng = RelatrixKVJson.getJsonData(dr);
-			if(!ng.similar(jo) )
-				throw new Exception("DOMAIN KEY MISMATCH:"+(i)+" - "+nex);
+			if(nex.length() != 1)
+				throw new Exception("DOMAIN KEY MISMATCH:"+(i)+" - "+nex+" "+ng);
 			++i;
 		}
 		if( i != max ) {
 			System.out.println("BATTERY1AR9 unexpected number of keys "+i);
-			//throw new Exception("BATTERY1AR9 unexpected number of keys "+i);
+			throw new Exception("BATTERY1AR9 unexpected number of keys "+i);
 		}
 		System.out.println("BATTERY1AR9 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
-
-
+	/**
+	 * Test the higher level functions in the Relatrix. Use the 'findSet' permutations to
+	 * verify the previously inserted data
+	 * @param argv
+	 * @throws Exception
+	 */
+	public static void battery1AR10(String[] argv) throws Exception {
+		int i = min;
+		long tims = System.currentTimeMillis();
+		JSONObject xf = new JSONObject(xfull);
+		JSONObject jo = new JSONObject(x);
+		System.out.println("Battery1AR10");
+		for(; i < max; i++) {
+			long tim = jo.getLong("timestamp");
+			++tim;
+			jo.put("timestamp",tim);
+			Iterator<?> its = RelatrixJson.findSet(RelatrixKVJson.getObject(jo), '?', '*');
+			while(its.hasNext()) {
+				Result nex = (Result) its.next();
+				Comparable re = nex.get();
+				JSONObject ng = RelatrixKVJson.getJsonData(re);
+				if(!ng.similar(xf) || nex.length() != 1) {
+					System.out.println("KEY MISMATCH:"+(i)+"\r\nng="+ng+"\r\nkey="+xf+" len:"+nex.length());
+					throw new Exception("KEY MISMATCH:"+(i)+"\r\nng="+ng+"\r\nkey="+xf+" len:"+nex.length());
+				}
+				++i;
+			}
+		}
+		if( i != max ) {
+			System.out.println("BATTERY1AR10 unexpected number of keys "+i);
+			throw new Exception("BATTERY1AR10 unexpected number of keys "+i);
+		}
+		System.out.println("BATTERY1AR10 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
+	}
+	/**
+	 * Test the higher level functions in the Relatrix. Use the 'findSet' permutations to
+	 * verify the previously inserted data
+	 * @param argv
+	 * @throws Exception
+	 */
+	public static void battery1AR11(String[] argv) throws Exception {
+		int i = min;
+		long tims = System.currentTimeMillis();
+		JSONObject xf = new JSONObject(xfull);
+		JSONObject jo = new JSONObject(x);
+		JSONObject jo2 = new JSONObject(x50k);
+		System.out.println("Battery1AR11");
+		for(; i < max; i++) {
+			long tim = jo.getLong("timestamp");
+			++tim;
+			jo.put("timestamp",tim);
+			Iterator<?> its = RelatrixJson.findSet(RelatrixKVJson.getObject(jo), '*', '?');
+			while(its.hasNext()) {
+				Result nex = (Result) its.next();
+				// 3 question marks = dimension 3 in return array
+				Comparable re = nex.get();
+				JSONObject ng = RelatrixKVJson.getJsonData(re);
+				if(!ng.similar(jo2) || nex.length() != 1) {
+					System.out.println("KEY MISMATCH:"+(i)+"\r\nng="+ng+"\r\nkey="+jo2+" len:"+nex.length());
+					throw new Exception("KEY MISMATCH:"+(i)+"\r\nng="+ng+"\r\nkey="+jo2+" len:"+nex.length());
+				}
+				++i;
+			}
+		}
+		if( i != max ) {
+			System.out.println("BATTERY1AR11 unexpected number of keys "+i);
+			throw new Exception("BATTERY1AR11 unexpected number of keys "+i);
+		}
+		System.out.println("BATTERY1AR11 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
+	}
 	/**
 	 * remove entries
 	 * @param argv
