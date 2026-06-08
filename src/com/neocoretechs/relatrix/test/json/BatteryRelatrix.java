@@ -66,10 +66,13 @@ public class BatteryRelatrix {
 			battery1(argv);
 		} else
 			System.out.println("size="+siz);
-		//battery1AR5(argv);
+	
 		if(DEBUG)
 			System.out.println("Begin duplicate key rejection test from "+min+" to "+max);
-		//battery11(argv);
+		battery11(argv);
+		if(DEBUG)
+			System.out.println("Begin test battery 1AR5");	
+		battery1AR5(argv);
 		if(DEBUG)
 			System.out.println("Begin test battery 1AR6");
 		battery1AR6(argv);
