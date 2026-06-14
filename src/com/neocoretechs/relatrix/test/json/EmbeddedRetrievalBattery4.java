@@ -266,7 +266,6 @@ public class EmbeddedRetrievalBattery4 {
 			// samplesize is dictated by hi and low range
 			ar3.add(c);
 		}
-		/*
 
 		// Now that we have built our sample arrays from retrieval, use the elements therein to retrieve further subsets based on the sample data and the concrete instances.
 		// This demonstrates how we use object instances in retrieval to retrieve subsets
@@ -275,29 +274,31 @@ public class EmbeddedRetrievalBattery4 {
 		for(int j = 0; j < ar3.size(); j++) {
 			displayLine = 0;
 			System.out.println("9."+j+") findSubSet(<obj>,<obj>,<obj>) using ="+
-					((Result)ar3.get(j)).get(0)+",("+((Result)ar3.get(j)).get(0).getClass().getName()+"),"+
-					((Result)ar3.get(j)).get(1)+",("+((Result)ar3.get(j)).get(1).getClass().getName()+"),"+
-					((Result)ar3.get(j)).get(2)+",("+((Result)ar3.get(j)).get(2).getClass().getName());
-			it = Relatrix.findSubSet(((Result)ar3.get(j)).get(0), ((Result)ar3.get(j)).get(1), ((Result)ar3.get(j)).get(2));
+					Arrays.toString(RelatrixJson.tupleResolver((Result)ar3.get(j)))+
+					"("+((Result)ar3.get(j)).get(0).getClass().getName()+"),"+
+					",("+((Result)ar3.get(j)).get(1).getClass().getName()+"),"+
+					",("+((Result)ar3.get(j)).get(2).getClass().getName());
+			it = RelatrixJson.findSubSet(((Result)ar3.get(j)).get(0), ((Result)ar3.get(j)).get(1), ((Result)ar3.get(j)).get(2));
 			while(it.hasNext()) {
 				Object o = it.next();
 				Result c = (Result)o;
 				displayCtrl();
 				if(DISPLAY)
-					System.out.println(displayLine+"="+c);
+					System.out.println(displayLine+"="+Arrays.toString(RelatrixJson.tupleResolver(c)));
 			}
 			displayLine=0;
 			//RelatrixHeadsetIterator.DEBUG = true;
-			System.out.println("10."+j+") findSubSet(*,*,<obj>,String.class, String.class) using range="+((Result)ar3.get(j)).get(3));		
-			it = Relatrix.findSubSet('*', '*', ((Result)ar3.get(j)).get(3), String.class, String.class);
+			System.out.println("10."+j+") findSubSet(*,*,<obj>,"+xClass+"," +xfClass+") using range="+((Result)ar3.get(j)).get(3));		
+			it = RelatrixJson.findSubSet('*', '*', ((Result)ar3.get(j)).get(3), xClass, xfClass);
 			while(it.hasNext()) {
 				Object o = it.next();
 				Result c = (Result)o;
 				displayCtrl();
 				if(DISPLAY || DISPLAYALL)
-					System.out.println(displayLine+"="+c);
+					System.out.println(displayLine+"="+Arrays.toString(RelatrixJson.tupleResolver(c)));
 			}
 		}
+		/*
 		System.out.println("----------");
 		System.out.println("Begin 1 instance match 2 wildcard testing");
 		for(int j = 0; j < ar.size(); j++) {
