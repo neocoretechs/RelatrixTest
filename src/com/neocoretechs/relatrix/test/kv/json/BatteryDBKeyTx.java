@@ -71,7 +71,7 @@ public class BatteryDBKeyTx {
 
 		for(int i = min; i < max; i++) {
 			try {
-				RelatrixKVJsonTransaction.store(xid, String.valueOf(jo), i);
+				RelatrixKVJsonTransaction.store(xid, jo, i);
 				long tim = jo.getLong("timestamp");
 				++tim;
 				jo.put("timestamp",tim);

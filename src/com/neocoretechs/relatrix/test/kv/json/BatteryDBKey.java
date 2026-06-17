@@ -69,7 +69,7 @@ public class BatteryDBKey {
 
 		for(int i = min; i < max; i++) {
 			try {
-				RelatrixKVJson.store(String.valueOf(jo), i);
+				RelatrixKVJson.store(jo, i);
 				long tim = jo.getLong("timestamp");
 				++tim;
 				jo.put("timestamp",tim);
