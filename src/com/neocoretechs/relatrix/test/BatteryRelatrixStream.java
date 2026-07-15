@@ -42,7 +42,7 @@ public class BatteryRelatrixStream {
 	* Main test fixture driver
 	*/
 	public static void main(String[] argv) throws Exception {
-		Relatrix.setTablespace(argv[0]);
+		Relatrix.getInstance();
 		AbstractRelation.displayLevel = displayLevels.VERBOSE;
 		System.out.println("BatteryRelatrixStream");
 		if(argv.length > 2 && argv[1].equals("max")) {

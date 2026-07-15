@@ -21,7 +21,6 @@ import com.neocoretechs.rocksack.TransactionId;
  * as examples of Relatrix processing.
  * NOTES:
  * A database unique to this test module should be used.
- * program argument is node server is running on, which was started on port designated by command line arg 2, with database of your choice
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2023
  */
 public class BatteryRelatrixKVTransaction {
@@ -36,11 +35,7 @@ public class BatteryRelatrixKVTransaction {
 	* Main test fixture driver
 	*/
 	public static void main(String[] argv) throws Exception {
-		if(argv.length < 1) {
-			System.out.println("Usage: java com.neocoretechs.relatrix.test.kv.BatteryRelatrixKVTransaction <directory_path_to_tablespace>");
-			System.exit(1);
-		}
-		RelatrixKVTransaction.setTablespace(argv[0]);
+		RelatrixKVTransaction.getInstance();
 		TransactionId xid = RelatrixKVTransaction.getTransactionId();
 		battery1(xid);	
 		battery11(xid);

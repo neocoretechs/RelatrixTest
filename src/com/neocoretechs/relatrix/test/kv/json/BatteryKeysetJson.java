@@ -9,8 +9,7 @@ import java.util.Random;
 import org.json.JSONObject;
 
 import com.neocoretechs.rocksack.iterator.Entry;
-import com.neocoretechs.relatrix.Relation;
-import com.neocoretechs.relatrix.RelatrixJson;
+
 import com.neocoretechs.relatrix.RelatrixKVJson;
 import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.key.IndexInstanceTableJson;
@@ -18,12 +17,14 @@ import com.neocoretechs.relatrix.key.IndexInstanceTableInterface;
 import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.key.KeySet;
 import com.neocoretechs.relatrix.key.PrimaryKeySet;
+import com.neocoretechs.relatrix.parallel.ExecutionContextHolder;
+import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 
 /**
  * The set of tests verifies the lower level {@link KeySet} functions in the {@link  RelatrixJson}
  * NOTES:
  * A database unique to this test module should be used.
- * program argument is database i.e. C:/users/you/Relatrix/TestDB2
+ * tablespace is specified via system cmdl property
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2016,2017,2026
  *
  */
@@ -37,23 +38,19 @@ public class BatteryKeysetJson {
 	static ArrayList<KeySet> keys = new ArrayList<KeySet>();
 	static ArrayList<KeySet> findkeys = new ArrayList<KeySet>();
 	static IndexInstanceTableInterface indexTable = new IndexInstanceTableJson();
-	static String x =     "{\"timestamp\":1779166000301,\"LeftImage\":[{ \"count\":1,\"detections\":[ {\"name\":\"refrigerator\",\"probability\":0.41232753,\"bbox\":{\"xmin\":104,\"ymin\":12,\"xmax\":223,\"ymax\":561} } ] } ], \"RightImage\":[{\"count\":0, \"detections\":[ ] } ]}";
-	static String x50k =  "{\"timestamp\":1779166050000,\"LeftImage\":[{ \"count\":1,\"detections\":[ {\"name\":\"refrigerator\",\"probability\":0.41232753,\"bbox\":{\"xmin\":104,\"ymin\":12,\"xmax\":223,\"ymax\":561} } ] } ], \"RightImage\":[{\"count\":0, \"detections\":[ ] } ]}";
-	static String x75k =  "{\"timestamp\":1779166075000,\"LeftImage\":[{ \"count\":1,\"detections\":[ {\"name\":\"refrigerator\",\"probability\":0.41232753,\"bbox\":{\"xmin\":104,\"ymin\":12,\"xmax\":223,\"ymax\":561} } ] } ], \"RightImage\":[{\"count\":0, \"detections\":[ ] } ]}";
-	static String xfull = "{\"timestamp\":1779749659999,\"LeftImage\":[{ \"count\":1, \"detections\":[ { \"name\":\"toilet\", \"probability\":0.35266665,  \"bbox\":{\"xmin\":288,\"ymin\":289,\"xmax\":320,\"ymax\":390} } ] } ], \"RightImage\":[{ \"count\":1, \"detections\":[ { \"name\":\"toilet\", \"probability\":0.29021525, \"bbox\":{\"xmin\":282,\"ymin\":289,\"xmax\":315,\"ymax\":391} } ] } ]}";
+	static String x =     "{\"timestamp\":1779166030000,\"LeftImage\":[{ \"count\":1,\"detections\":[ {\"name\":\"refrigerator\"}]}]}";
+	static String x50k =  "{\"timestamp\":1779166050000,\"RightImage\":[{\"count\":0, \"affections\":[ {\"name\":\"alligator\"}]}]}";
+	static String xfull = "{\"timestamp\":1779166070000,\"LeftImage\":[{ \"count\":1, \"erections\":[ { \"name\":\"toilet\"}]}]}";
+
 	static JSONObject xf = new JSONObject(xfull);
-	static JSONObject jo2 = new JSONObject(x50k);
-	static JSONObject jo = new JSONObject(x);
-	static Class<?> xfClass, joClass, jo2Class;
+	static JSONObject xo50 = new JSONObject(x50k);
+	static JSONObject xo = new JSONObject(x);
+	static Class<?> xfClass, xoClass, xo50Class;
 	/**
 	* Main test fixture driver
 	*/
 	public static void main(String[] argv) throws Exception {
-		if(argv.length < 1) {
-			System.out.println("Usage: java com.neocoretechs.relatrix.test.kv.BatteryKeyset <directory_tablespace_path>");
-			System.exit(1);
-		}
-		RelatrixJson.setTablespace(argv[0]);
+		RelatrixKVJson.getInstance();
 		//battery1AR17(argv);
 		battery1(argv);
 		battery2(argv);
@@ -80,12 +77,15 @@ public class BatteryKeysetJson {
 		long tims = System.currentTimeMillis();
 		int dupes = 0;
 		int recs = 0;
-		KeySet fkey = null;
-		xfClass = RelatrixKVJson.getClassType(xf);
-		jo2Class = RelatrixKVJson.getClassType(jo2);
-		joClass = RelatrixKVJson.getClassType(jo);
+		JSONObject jox = new JSONObject(x);
+		JSONObject jo2 = new JSONObject(x50k);
+		IndexResolver resolver = null;
+		if(ExecutionContextHolder.CONTEXT.isBound()) {
+		        ParallelExecutionContext ctx = ExecutionContextHolder.CONTEXT.get();
+		        resolver = ctx.resolver();
+		} else
+			throw new RuntimeException("IndexResolver not bound to context.");
 		for(i = min; i < max; i++) {
-			JSONObject jox = new JSONObject(x);
 			long tim = jox.getLong("timestamp");
 			++tim;
 			jox.put("timestamp",tim);
@@ -93,14 +93,14 @@ public class BatteryKeysetJson {
 			++tim;
 			jo2.put("timestamp",tim);
 			PrimaryKeySet pks = new PrimaryKeySet();
-			pks.setDomainKey(IndexResolver.getIndexInstanceTable().getKey(jox));
-			pks.setMapKey(IndexResolver.getIndexInstanceTable().getKey(jo2));
+			pks.setDomainKey(resolver.getIndexInstanceTable().getKey(jox));
+			pks.setMapKey(resolver.getIndexInstanceTable().getKey(jo2));
 			// check for domain/map match
 			// Enforce categorical structure; domain->map function uniquely determines range.
 			// If the search winds up at the key or the key is empty or the domain->map exists, the key
 			// cannot be inserted
 			//if(Relatrix.isPrimaryKey(RelatrixKV.nearest(identity), identity)) {
-			if(DBKey.isValid(pks.getDomainKey()) && DBKey.isValid(pks.getMapKey()) && RelatrixJson.get(pks) != null) {
+			if(DBKey.isValid(pks.getDomainKey()) && DBKey.isValid(pks.getMapKey()) && RelatrixKVJson.get(pks) != null) {
 				//throw new DuplicateKeyException("Duplicate key for relationship:"+identity);
 				System.out.println("Duplicate key for relationship:"+pks);
 				++dupes;
@@ -113,7 +113,7 @@ public class BatteryKeysetJson {
 			identity.setRangeKey(DBKey.newKey(indexTable,xf)); // form it as template for duplicate key search
 			// re-create it, now that we know its valid, in a form that stores the components with DBKeys
 			// and maintains the classes stores in IndexInstanceTable for future commit.
-			IndexResolver.getIndexInstanceTable().put(identity);
+			resolver.getIndexInstanceTable().put(identity);
 			if( DEBUG  )
 				System.out.println("Relatrix.store stored :"+identity);
 			++recs;
@@ -122,8 +122,9 @@ public class BatteryKeysetJson {
 	}
 	
 	private static void battery2(String[] argv) throws IllegalAccessException, ClassNotFoundException, IOException {
+		JSONObject jox = new JSONObject(x);
+		JSONObject jo2 = new JSONObject(x50k);
 		for(int i = min; i < max; i++) {
-			JSONObject jox = new JSONObject(x);
 			long tim = jox.getLong("timestamp");
 			++tim;
 			jox.put("timestamp",tim);

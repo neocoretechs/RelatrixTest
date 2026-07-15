@@ -47,7 +47,7 @@ public class EmbeddedStreamRetrievalBatteryTransaction3 {
 	*/
 	public static void main(String[] argv) throws Exception {
 		 //System.out.println("Analysis of all");
-		RelatrixTransaction.setTablespace(argv[0]);
+		RelatrixTransaction.getInstance();
 		AbstractRelation.displayLevel = AbstractRelation.displayLevels.VERBOSE;
 		xid = RelatrixTransaction.getTransactionId();
 		if(argv.length == 2 && argv[1].equals("init")) {

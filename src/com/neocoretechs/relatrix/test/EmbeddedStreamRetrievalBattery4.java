@@ -50,7 +50,7 @@ public class EmbeddedStreamRetrievalBattery4 {
 	*/
 	public static void main(String[] argv) throws Exception {
 		System.out.println("Substream Provides a persistent collection iterator of keys 'from' element inclusive, 'to' element exclusive of the keys specified");
-		Relatrix.setTablespace(argv[0]);
+		Relatrix.getInstance();
 		AbstractRelation.displayLevel = AbstractRelation.displayLevels.MINIMAL;
 		if(argv.length == 2 && argv[1].equals("init")) {
 				battery1AR17(argv);

@@ -75,7 +75,7 @@ public class EmbeddedRetrievalBattery5 {
 	*/
 	public static void main(String[] argv) throws Exception {
 		System.out.println("Sub Provides a persistent collection stream of keys 'from' element inclusive, 'to' element exclusive of the keys specified");
-		RelatrixJson.setTablespace(argv[0]);
+		RelatrixJson.getInstance();
 		AbstractRelation.displayLevel = AbstractRelation.displayLevels.MINIMAL;
 		xfClass = RelatrixKVJson.getClassType(xf);
 		x50Class = RelatrixKVJson.getClassType(xo50);

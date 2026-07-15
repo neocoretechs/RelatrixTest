@@ -47,7 +47,7 @@ public class BatteryRelatrix {
 	 * Main test fixture driver
 	 */
 	public static void main(String[] argv) throws Exception {
-		RelatrixJson.setTablespace(argv[0]);
+		RelatrixJson.getInstance();
 		AbstractRelation.displayLevel = displayLevels.VERBOSE;
 		if(argv.length > 2 && argv[1].equals("max")) {
 			System.out.println("Setting max items to "+argv[2]);

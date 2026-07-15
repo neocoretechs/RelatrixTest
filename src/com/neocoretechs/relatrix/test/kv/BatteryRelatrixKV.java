@@ -17,8 +17,6 @@ import com.neocoretechs.relatrix.RelatrixKV;
  * Of course, you can substitute any class for the Strings here providing its Comparable.
  * NOTES:
  * A database unique to this test module should be used.
- * program argument is database i.e. C:/users/you/Relatrix/TestDB2 
- * C:/users/you/Relatrix should be valid path. C:/users/you/Relatrix/TestDB2java.lang.String will be created.
  * @author Jonathan Groff (C) NeoCoreTechs 2020,2024
  */
 public class BatteryRelatrixKV {
@@ -31,36 +29,32 @@ public class BatteryRelatrixKV {
 	* Main test fixture driver
 	*/
 	public static void main(String[] argv) throws Exception {
-		if(argv.length < 1) {
-			System.out.println("Usage: java com.neocoretechs.relatrix.test.kv.BatteryRelatrixKV <directory_tablespace_path>");
-			System.exit(1);
-		}
-		RelatrixKV.setTablespace(argv[0]);
-		if(argv.length == 2 && argv[1].equals("init")) {
+		RelatrixKV.getInstance();
+		if(argv.length == 0 && argv[0].equals("init")) {
 				System.out.println("Cleaning DB");
-				battery1AR17(argv);		
+				battery1AR17();		
 		}
 		int j = (int) RelatrixKV.size(String.class);
 		if(j == 0) {
-			battery1(argv);
-			battery11(argv);
+			battery1();
+			battery11();
 		}
-		battery1AR5(argv);
-		battery1AR6(argv);
-		battery1AR7(argv);
-		battery1AR8(argv);
-		battery1AR9(argv);
-		battery1AR10(argv);
-		battery1AR101(argv);
-		battery1AR11(argv);
-		battery1AR12(argv);
-		battery1AR13(argv);
-		battery1AR14(argv);
-		battery1AR15(argv);
-		battery1AR16(argv);
-		if(argv.length == 2 && argv[1].equals("init")) {
-			battery1AR17(argv);
-			battery18(argv);
+		battery1AR5();
+		battery1AR6();
+		battery1AR7();
+		battery1AR8();
+		battery1AR9();
+		battery1AR10();
+		battery1AR101();
+		battery1AR11();
+		battery1AR12();
+		battery1AR13();
+		battery1AR14();
+		battery1AR15();
+		battery1AR16();
+		if(argv.length > 0 && argv[0].equals("init")) {
+			battery1AR17();
+			battery18();
 		}
 		System.out.println("BatteryRelatrixKV TEST BATTERY COMPLETE.");
 		
@@ -68,10 +62,9 @@ public class BatteryRelatrixKV {
 	/**
 	 * Loads up on keys, should be 0 to max-1, or min, to max -1
 	 * Ensure that we start with known baseline number of keys
-	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery1(String[] argv) throws Exception {
+	public static void battery1() throws Exception {
 		System.out.println("KV Battery1 ");
 		long tims = System.currentTimeMillis();
 		int dupes = 0;
@@ -89,10 +82,9 @@ public class BatteryRelatrixKV {
 	
 	/**
 	 * Tries to store partial key that should match existing keys, should reject all
-	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery11(String[] argv) throws Exception {
+	public static void battery11() throws Exception {
 		System.out.println("KV Battery11 ");
 		long tims = System.currentTimeMillis();
 		int dupes = 0;
@@ -114,10 +106,9 @@ public class BatteryRelatrixKV {
 	}
 	/**
 	 * Testing of Iterator<?> its = RelatrixKV.keySet;
-	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery1AR5(String[] argv) throws Exception {
+	public static void battery1AR5() throws Exception {
 		int i = min;
 		long tims = System.currentTimeMillis();
 		Iterator<?> its = RelatrixKV.findHeadMap((Comparable<?>) RelatrixKV.lastKey(String.class));
@@ -134,16 +125,15 @@ public class BatteryRelatrixKV {
 	 * Returns a Set view of the mappings contained in this map. 
 	 * The set's iterator returns the entries in ascending key order. 
 	 * The set is backed by the map, so changes to the map are reflected in the set, and vice-versa.
-	 *  If the map is modified while an iteration over the set is in progress (except through the iterator's 
-	 *  own remove operation, or through the setValue operation on a map entry returned by the iterator) the results
-	 *   of the iteration are undefined. The set supports element removal, which removes the corresponding mapping from the map, 
-	 *   via the Iterator.remove, Set.remove, removeAll, retainAll and clear operations. 
-	 *   It does not support the add or addAll operations.
-	 *   from battery1 we should have 0 to max, say 1000 keys of length 100
-	 * @param argv
+	 * If the map is modified while an iteration over the set is in progress (except through the iterator's 
+	 * own remove operation, or through the setValue operation on a map entry returned by the iterator) the results
+	 * of the iteration are undefined. The set supports element removal, which removes the corresponding mapping from the map, 
+	 * via the Iterator.remove, Set.remove, removeAll, retainAll and clear operations. 
+	 * It does not support the add or addAll operations.
+	 * from battery1 we should have 0 to max, say 1000 keys of length 100
 	 * @throws Exception
 	 */
-	public static void battery1AR6(String[] argv) throws Exception {
+	public static void battery1AR6() throws Exception {
 		int i = min;
 		long tims = System.currentTimeMillis();
 		Iterator<?> its = RelatrixKV.entrySet(String.class);
@@ -164,10 +154,9 @@ public class BatteryRelatrixKV {
 	}
 	/**
 	 * Testing of Iterator<?> its = RelatrixKV.keySet;
-	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery1AR7(String[] argv) throws Exception {
+	public static void battery1AR7() throws Exception {
 		int i = min;
 		long tims = System.currentTimeMillis();
 		Iterator<?> its = RelatrixKV.keySet(String.class);
@@ -187,10 +176,9 @@ public class BatteryRelatrixKV {
 		 System.out.println("KV BATTERY1AR7 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 	/**
-	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery1AR8(String[] argv) throws Exception {
+	public static void battery1AR8() throws Exception {
 		int i = min;
 		long tims = System.currentTimeMillis();
 		String fkey = String.format(uniqKeyFmt, i);
@@ -212,10 +200,9 @@ public class BatteryRelatrixKV {
 	/**
 	 * 
 	 * Testing of first(), and firstValue
-	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery1AR9(String[] argv) throws Exception {
+	public static void battery1AR9() throws Exception {
 		int i = min;
 		long tims = System.currentTimeMillis();
 		Object k = RelatrixKV.firstKey(String.class); // first key
@@ -234,10 +221,9 @@ public class BatteryRelatrixKV {
 
 	/**
 	 * test last and lastKey
-	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery1AR10(String[] argv) throws Exception {
+	public static void battery1AR10() throws Exception {
 		int i = max-1;
 		long tims = System.currentTimeMillis();
 		Object k = RelatrixKV.lastKey(String.class); // key
@@ -255,10 +241,9 @@ public class BatteryRelatrixKV {
 	}
 	/**
 	* test size
-	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery1AR101(String[] argv) throws Exception {
+	public static void battery1AR101() throws Exception {
 		int i = max;
 		long tims = System.currentTimeMillis();
 		long bits = RelatrixKV.size(String.class);
@@ -271,10 +256,9 @@ public class BatteryRelatrixKV {
 	}
 	/**
 	 * findMap test, basically tailmap returning keys
-	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery1AR11(String[] argv) throws Exception {
+	public static void battery1AR11() throws Exception {
 		long tims = System.currentTimeMillis();
 		int i = min;
 		String fkey = String.format(uniqKeyFmt, i);
@@ -293,10 +277,9 @@ public class BatteryRelatrixKV {
 	}
 	/**
 	 * findMapKV tailmapKV
-	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery1AR12(String[] argv) throws Exception {
+	public static void battery1AR12() throws Exception {
 		long tims = System.currentTimeMillis();
 		int i = min;
 		String fkey = String.format(uniqKeyFmt, i);
@@ -317,10 +300,9 @@ public class BatteryRelatrixKV {
 	
 	/**
 	 * findMapKV findHeadMap - Returns a view of the portion of this map whose keys are strictly less than toKey.
-	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery1AR13(String[] argv) throws Exception {
+	public static void battery1AR13() throws Exception {
 		long tims = System.currentTimeMillis();
 		int i = max;
 		String fkey = String.format(uniqKeyFmt, i);
@@ -342,10 +324,9 @@ public class BatteryRelatrixKV {
 	
 	/**
 	 *  findHeadMapKV
-	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery1AR14(String[] argv) throws Exception {
+	public static void battery1AR14() throws Exception {
 		long tims = System.currentTimeMillis();
 		int i = max;
 		String fkey = String.format(uniqKeyFmt, i);
@@ -367,10 +348,9 @@ public class BatteryRelatrixKV {
 	
 	/**
 	 * findSubMap findSubMap - Returns a view of the portion of this map whose keys range from fromKey, inclusive, to toKey, exclusive.
-	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery1AR15(String[] argv) throws Exception {
+	public static void battery1AR15() throws Exception {
 		long tims = System.currentTimeMillis();
 		int i = min;
 		int j = max;
@@ -394,10 +374,9 @@ public class BatteryRelatrixKV {
 	
 	/**
 	 * findSubMap findSubMapKV - Returns a view of the portion of this map whose keys range from fromKey, inclusive, to toKey, exclusive.
-	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery1AR16(String[] argv) throws Exception {
+	public static void battery1AR16() throws Exception {
 		long tims = System.currentTimeMillis();
 		int i = min;
 		int j = max;
@@ -421,10 +400,9 @@ public class BatteryRelatrixKV {
 	}
 	/**
 	 * remove entries
-	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery1AR17(String[] argv) throws Exception {
+	public static void battery1AR17() throws Exception {
 		long tims = System.currentTimeMillis();
 		long s = RelatrixKV.size(String.class);
 		System.out.println("CleanDB of size:"+s);
@@ -453,10 +431,9 @@ public class BatteryRelatrixKV {
 	}
 	/**
 	 * Loads up on keys, should be 0 to max-1, or min, to max -1
-	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery18(String[] argv) throws Exception {
+	public static void battery18() throws Exception {
 		System.out.println("KV Battery18 ");
 		int max1 = max - 50000;
 		long tims = System.currentTimeMillis();

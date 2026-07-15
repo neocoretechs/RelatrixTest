@@ -6,7 +6,7 @@ import com.neocoretechs.relatrix.Relatrix;
 import com.neocoretechs.relatrix.Result;
 
 /**
- * program argument is database i.e. C:/users/you/Relatrix/TestDB2, domain wildcard, map wildcard, range wildcard
+ * program argument is database i.e. domain wildcard, map wildcard, range wildcard
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2021
  *
  */
@@ -17,8 +17,8 @@ public class QueryDB {
 	* Dump key/value store
 	*/
 	public static void main(String[] argv) throws Exception {
-		Relatrix.setTablespace(argv[0]);
-		dump1(argv[1],argv[2],argv[3]);
+		Relatrix.getInstance();
+		dump1(argv[0],argv[1],argv[2]);
 		System.out.println("Dump COMPLETE.");
 		System.exit(0);
 	}

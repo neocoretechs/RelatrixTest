@@ -38,7 +38,7 @@ public class EmbeddedStreamRetrievalBattery {
 	*/
 	public static void main(String[] argv) throws Exception {
 		 //System.out.println("Analysis of all");
-		Relatrix.setTablespace(argv[0]);
+		Relatrix.getInstance();
 		AbstractRelation.displayLevel = AbstractRelation.displayLevels.MINIMAL;
 		if(argv.length == 2 && argv[1].equals("init")) {
 				battery1AR17(argv);

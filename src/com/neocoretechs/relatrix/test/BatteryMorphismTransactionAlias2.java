@@ -6,8 +6,6 @@ import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 
-
-
 import com.neocoretechs.rocksack.iterator.Entry;
 
 import com.neocoretechs.relatrix.RelatrixTransaction;
@@ -17,22 +15,22 @@ import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.key.KeySet;
 import com.neocoretechs.relatrix.key.PrimaryKeySet;
+import com.neocoretechs.relatrix.parallel.ExecutionContextHolder;
+import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 import com.neocoretechs.relatrix.Relation;
 import com.neocoretechs.relatrix.AbstractRelation;
 import com.neocoretechs.rocksack.Alias;
-import com.neocoretechs.relatrix.Relatrix;
+
 import com.neocoretechs.relatrix.RelatrixKVTransaction;
 
 /**
- * The set of tests verifies the Alias, and {@link KeySet} and {@link PrimaryKeySet} functions in the {@link RelatrixTransaction} <p/>
+ * The set of tests verifies the Alias, and {@link KeySet} and {@link PrimaryKeySet} functions in the {@link RelatrixTransaction} <p>
  * Verifies the {@link IndexResolver} and storage of the main {@link DBKey} identity and {@link Relation} tables,
- * which also partially tests the abstract {@link AbstractRelation} class.<p/>
+ * which also partially tests the abstract {@link AbstractRelation} class.<p>
  * We are going to load up a table of Relation instances and a map of [DBKey,Relation] that mirrors the
  * DBKey identity class table that we prepare as we store the initial dataset, and use these to compare the stored data
  * throughout the balance of testing.
  * NOTES:
- * A database unique to this test module should be used.
- * program argument is tablespace in which the alias is created i.e. C:/users/you/Relatrix/
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2016,2017
  */
 public class BatteryMorphismTransactionAlias2 {
@@ -51,45 +49,39 @@ public class BatteryMorphismTransactionAlias2 {
 	* Main test fixture driver
 	*/
 	public static void main(String[] argv) throws Exception {
-		if(argv.length < 1) {
-			System.out.println("Usage: java com.neocoretechs.relatrix.test.BatteryMorphismTransactionAlias2 <directory_tablespace_path>");
-			System.exit(1);
-		}
-		String tablespace = argv[0];
-		if(!tablespace.endsWith("/"))
-			tablespace += "/";
-		RelatrixTransaction.setAlias(alias1,tablespace+alias1);
+		RelatrixTransaction.getInstance();
+		RelatrixTransaction.setAlias(alias1,RelatrixTransaction.getTableSpace()+alias1);
 		xid = RelatrixTransaction.getTransactionId();
-		battery1AR17(argv);
-		battery1(argv);
+		battery1AR17();
+		battery1();
 		// load keys table from Relation class instance, which is the concrete subclass of PrimaryKeySet
-		battery1AR4(argv);
-		battery1AR44(argv);
-		battery1AR5(argv);
-		battery1AR55(argv);
-		battery1AR101(argv);
+		battery1AR4();
+		battery1AR44();
+		battery1AR5();
+		battery1AR55();
+		battery1AR101();
 		// now do alternate keys table loadout retrieving from DBKey class and repeat tests comparing tables with stored data
 		keys.clear();
-		battery1AR4A(argv);
-		battery1AR44(argv);
+		battery1AR4A();
+		battery1AR44();
 		// 5 and 55 dont involve keys table, only dbtable
-		battery1AR101(argv);
+		battery1AR101();
 		// and perform balance of testing
-		battery1AR12(argv);
-		battery1AR14(argv);
+		battery1AR12();
+		battery1AR14();
 		RelatrixTransaction.commit(alias1,xid);
 		RelatrixTransaction.endTransaction(xid);
-		//battery1AR17(argv);
+		//battery1AR17();
 		 System.out.println("BatteryMorphismTransaction2 TEST BATTERY COMPLETE.");
 		 System.exit(0);	
 	}
 	/**
 	 * Loads up on keys, should be 0 to max-1, or min, to max -1
 	 * Ensure that we start with known baseline number of keys
-	 * @param argv
+	 * @param 
 	 * @throws Exception
 	 */
-	public static void battery1(String[] argv) throws Exception {
+	public static void battery1() throws Exception {
 		System.out.println(alias1+" Battery1 "+xid);
 		long tims = System.currentTimeMillis();
 		long timx = System.currentTimeMillis();
@@ -140,10 +132,10 @@ public class BatteryMorphismTransactionAlias2 {
 	
 	/**
 	 * check order of DBKey
-	 * @param argv
+	 * @param 
 	 * @throws Exception
 	 */
-	public static void battery1AR4(String[] argv) throws Exception {
+	public static void battery1AR4() throws Exception {
 		int cnt = 0;
 		long tims = System.currentTimeMillis();
 		Relation prev = (Relation) RelatrixTransaction.firstKey(alias1,xid,Relation.class);
@@ -182,10 +174,10 @@ public class BatteryMorphismTransactionAlias2 {
 	}
 	/**
 	 * Alternate test to load keys table from DBKey
-	 * @param argv
+	 * @param 
 	 * @throws Exception
 	 */
-	public static void battery1AR4A(String[] argv) throws Exception {
+	public static void battery1AR4A() throws Exception {
 		int cnt = 0;
 		long tims = System.currentTimeMillis();
 		DBKey prev = (DBKey) RelatrixTransaction.firstKey(alias1,xid,DBKey.class);
@@ -233,10 +225,10 @@ public class BatteryMorphismTransactionAlias2 {
 	 * and compares the instance data to the mirror table.
 	 * Make sure we can resolve the stored keys via IndexResolver. Iterates the keys table we built earlier,
 	 * uses the resolver to get the Relation pointed to by iterated DBKey.
-	 * @param argv
+	 * @param 
 	 * @throws Exception
 	 */
-	public static void battery1AR44(String[] argv) throws Exception {
+	public static void battery1AR44() throws Exception {
 		int cnt = 0;
 		long tims = System.currentTimeMillis();
 		System.out.println(alias1+" Battery1AR44 "+xid);
@@ -264,9 +256,15 @@ public class BatteryMorphismTransactionAlias2 {
 			System.out.println("...Continuing test with IndexResolver at "+(System.currentTimeMillis()-tims)+" ms.");
 			cnt = 0;
 			its = keys.iterator();
+			IndexResolver resolver = null;
+			if(ExecutionContextHolder.CONTEXT.isBound()) {
+			        ParallelExecutionContext ctx = ExecutionContextHolder.CONTEXT.get();
+			        resolver = ctx.resolver();
+			} else
+				throw new RuntimeException("IndexResolver not bound to context.");
 			while(its.hasNext()) {
 				Relation nex = (Relation) its.next();
-				pk = (Relation) IndexResolver.getIndexInstanceTable().get(alias1,xid,nex.getIdentity()); 
+				pk = (Relation) resolver.getIndexInstanceTable().get(alias1,xid,nex.getIdentity()); 
 				// if we didnt resolve it, see if its in the table we built that mirrors what should be in db
 				if( pk == null ) {
 					if(dbtable.get(nex.getIdentity()) != null)
@@ -329,19 +327,25 @@ public class BatteryMorphismTransactionAlias2 {
 	/**
 	 * Testing of Iterator<?> its = RelatrixKV.entrySet on Relation
 	 * we then get by index from IndexInstanceTable, giving us an instance, then compare it to iterated element.
-	 * @param argv
+	 * @param 
 	 * @throws Exception
 	 */
-	public static void battery1AR5(String[] argv) throws Exception {
+	public static void battery1AR5() throws Exception {
 		int cnt = 0;
 		Object i;
 		long tims = System.currentTimeMillis();
 		Iterator<?> its = RelatrixTransaction.entrySet(alias1,xid,Relation.class);
 		System.out.println(alias1+" Battery1AR5 "+xid);
+		IndexResolver resolver = null;
+		if(ExecutionContextHolder.CONTEXT.isBound()) {
+		        ParallelExecutionContext ctx = ExecutionContextHolder.CONTEXT.get();
+		        resolver = ctx.resolver();
+		} else
+			throw new RuntimeException("IndexResolver not bound to context.");
 		if(its != null) {
 			while(its.hasNext()) {
 				Entry nex = (Entry) its.next();
-				i = IndexResolver.getIndexInstanceTable().get(alias1, xid,(DBKey) nex.getValue()); 
+				i = resolver.getIndexInstanceTable().get(alias1, xid,(DBKey) nex.getValue()); 
 				if( i == null ) {
 					if(dbtable.get(nex.getValue()) != null)
 						System.out.println("Found element in dbtable");
@@ -368,19 +372,25 @@ public class BatteryMorphismTransactionAlias2 {
 	 * Should produce a set of morphisms with resolved identities etc.
 	 * we then get by index from IndexInstanceTable, giving us an instance, then compare it to iterated element.
 	 * Compare resolved identity to tables to verify those as well
-	 * @param argv
+	 * @param 
 	 * @throws Exception
 	 */
-	public static void battery1AR55(String[] argv) throws Exception {
+	public static void battery1AR55() throws Exception {
 		int cnt = 0;
 		Object i;
 		long tims = System.currentTimeMillis();
 		Iterator<?> its = RelatrixTransaction.entrySet(alias1, xid, Relation.class);
 		System.out.println(alias1+" Battery1AR55 "+xid);
 		if(its != null) {
+			IndexResolver resolver = null;
+			if(ExecutionContextHolder.CONTEXT.isBound()) {
+			        ParallelExecutionContext ctx = ExecutionContextHolder.CONTEXT.get();
+			        resolver = ctx.resolver();
+			} else
+				throw new RuntimeException("IndexResolver not bound to context.");
 			while(its.hasNext()) {
 				Entry nex = (Entry) its.next();
-				i = IndexResolver.getIndexInstanceTable().get(alias1,xid,(DBKey) nex.getValue()); 
+				i = resolver.getIndexInstanceTable().get(alias1,xid,(DBKey) nex.getValue()); 
 				if( i == null ) {
 					if(dbtable.get(nex.getValue()) != null)
 						System.out.println("Found element in dbtable");
@@ -415,10 +425,10 @@ public class BatteryMorphismTransactionAlias2 {
 
 	/**
 	* test size
-	 * @param argv
+	 * @param 
 	 * @throws Exception
 	 */
-	public static void battery1AR101(String[] argv) throws Exception {
+	public static void battery1AR101() throws Exception {
 		int i = max;
 		long tims = System.currentTimeMillis();
 		long bits = RelatrixTransaction.size(alias1,xid,Relation.class);
@@ -432,21 +442,27 @@ public class BatteryMorphismTransactionAlias2 {
 
 	/**
 	 * findMapKV tailmapKV
-	 * @param argv
+	 * @param 
 	 * @throws Exception
 	 */
-	public static void battery1AR12(String[] argv) throws Exception {
+	public static void battery1AR12() throws Exception {
 		int cnt = 0;
 		long tims = System.currentTimeMillis();
 		Comparable c = (Comparable) RelatrixTransaction.firstKey(alias1,xid,Relation.class);
 		if( c != null ) {
 			Iterator<?> its = RelatrixKVTransaction.findTailMapKV(alias1,xid,c);
 			System.out.println(alias1+" Battery1AR12 "+xid);
+			IndexResolver resolver = null;
+			if(ExecutionContextHolder.CONTEXT.isBound()) {
+			        ParallelExecutionContext ctx = ExecutionContextHolder.CONTEXT.get();
+			        resolver = ctx.resolver();
+			} else
+				throw new RuntimeException("IndexResolver not bound to context.");
 			while(its.hasNext()) {
 				Comparable nex = (Comparable) its.next();
 				Map.Entry<Relation, DBKey> nexe = (Map.Entry<Relation,DBKey>)nex;
-				DBKey db = IndexResolver.getIndexInstanceTable().getKey(alias1,xid,nexe.getKey()); // get the DBKey for this instance integer
-				Relation keyset = (Relation) IndexResolver.getIndexInstanceTable().get(alias1,xid,nexe.getValue());
+				DBKey db = resolver.getIndexInstanceTable().getKey(alias1,xid,nexe.getKey()); // get the DBKey for this instance integer
+				Relation keyset = (Relation) resolver.getIndexInstanceTable().get(alias1,xid,nexe.getValue());
 				if(nexe.getKey().compareTo(keyset) != 0 || nexe.getValue().compareTo(db) != 0) {
 					// Map.Entry
 					System.out.println("COMPARISON KEY MISMATCH:"+nex+" ["+db+","+keyset+"]");
@@ -465,20 +481,26 @@ public class BatteryMorphismTransactionAlias2 {
 	/**
 	 * findHeadMapKV for Relation instances, perform getByInstance on key of each iterated entry
 	 * and compare the DBKey of iterated entry to resolved key
-	 * @param argv
+	 * @param 
 	 * @throws Exception
 	 */
-	public static void battery1AR14(String[] argv) throws Exception {
+	public static void battery1AR14() throws Exception {
 		int cnt = 0;
 		long tims = System.currentTimeMillis();
 		Comparable c = (Comparable) RelatrixTransaction.lastKey(alias1,xid,Relation.class);
 		if(c != null) {
 			Iterator<?> its = RelatrixKVTransaction.findHeadMapKV(alias1,xid,c);
 			System.out.println(alias1+" Battery1AR14 "+xid);
+			IndexResolver resolver = null;
+			if(ExecutionContextHolder.CONTEXT.isBound()) {
+			        ParallelExecutionContext ctx = ExecutionContextHolder.CONTEXT.get();
+			        resolver = ctx.resolver();
+			} else
+				throw new RuntimeException("IndexResolver not bound to context.");
 			while(its.hasNext()) {
 				Comparable nex = (Comparable) its.next();
 				Map.Entry<Relation,DBKey> nexe = (Map.Entry<Relation,DBKey>)nex;
-				DBKey db = IndexResolver.getIndexInstanceTable().getKey(alias1,xid,nexe.getKey()); // get the DBKey for this instance 
+				DBKey db = resolver.getIndexInstanceTable().getKey(alias1,xid,nexe.getKey()); // get the DBKey for this instance 
 				if(nexe.getValue().compareTo(db) != 0) {
 					// Map.Entry
 					System.out.println("RESOLVED KEY MISMATCH:"+nex+" with resolved key "+db);
@@ -496,10 +518,10 @@ public class BatteryMorphismTransactionAlias2 {
 	
 	/**
 	 * remove entries
-	 * @param argv
+	 * @param 
 	 * @throws Exception
 	 */
-	public static void battery1AR17(String[] argv) throws Exception {
+	public static void battery1AR17() throws Exception {
 		long tims = System.currentTimeMillis();
 		int i = 0;
 		long s = RelatrixTransaction.size(alias1,xid);

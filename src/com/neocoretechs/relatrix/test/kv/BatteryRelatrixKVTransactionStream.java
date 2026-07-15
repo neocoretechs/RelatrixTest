@@ -13,7 +13,7 @@ import com.neocoretechs.relatrix.client.RemoteStream;
 
 
 /**
- * Yes, this should be a nice JUnit fixture someday. Test of KV transaction server stream ops.
+ * Test of KV transaction server stream ops.
  * The static constant fields in the class control the key generation for the tests
  * In general, the keys and values are formatted according to uniqKeyFmt to produce
  * a series of canonically correct sort order strings for the DB in the range of min to max vals
@@ -23,7 +23,6 @@ import com.neocoretechs.relatrix.client.RemoteStream;
  * This test the client side Java 8 streams obtained from the server
  * NOTES:
  * A database unique to this test module should be used.
- * program argument is local server, remote server, remote port
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2023
  *
  */
@@ -41,11 +40,7 @@ public class BatteryRelatrixKVTransactionStream {
 	* Main test fixture driver
 	*/
 	public static void main(String[] argv) throws Exception {
-		if(argv.length < 1) {
-			System.out.println("Usage: java com.neocoretechs.relatrix.test.kv.BatteryRelatrixKVTransactionStream <directory_tablespace_path>");
-			System.exit(1);
-		}
-		RelatrixKVTransaction.setTablespace(argv[0]);
+		RelatrixKVTransaction.getInstance();
 		TransactionId xid = RelatrixKVTransaction.getTransactionId();
 		battery1(xid);	// build and store
 		battery11(xid);  // build and store

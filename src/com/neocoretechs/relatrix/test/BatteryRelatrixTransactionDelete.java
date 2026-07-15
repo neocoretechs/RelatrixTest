@@ -44,7 +44,7 @@ public class BatteryRelatrixTransactionDelete {
 	* Main test fixture driver
 	*/
 	public static void main(String[] argv) throws Exception {
-		RelatrixTransaction.setTablespace(argv[0]);
+		RelatrixTransaction.getInstance();
 		xid = RelatrixTransaction.getTransactionId();
 		AbstractRelation.displayLevel = displayLevels.VERBOSE;
 		if(argv.length > 2 && argv[1].equals("max")) {

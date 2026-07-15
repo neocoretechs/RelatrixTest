@@ -16,16 +16,17 @@ import com.neocoretechs.relatrix.RangeDomainMap;
 import com.neocoretechs.relatrix.RangeMapDomain;
 import com.neocoretechs.relatrix.RelatrixTransaction;
 import com.neocoretechs.relatrix.Relation;
+
 import com.neocoretechs.relatrix.DomainRangeMap;
 import com.neocoretechs.relatrix.Result;
 import com.neocoretechs.rocksack.TransactionId;
 
 /**
- * The set of tests verifies the findSet relation function in the {@link  RelatrixTransaction}<p/>
- * Create a series of nested relations and then verify that they are properly located when a reference to them is provided.<p/>
+ * The set of tests verifies the findSet relation function in the {@link  RelatrixTransaction}<p>
+ * Create a series of nested relations and then verify that they are properly located when a reference to them is provided.<p>
  * This represents sets of deeply nested relations introducing a heavy demand in a transaction context. 
  * NOTES:
- * program argument is tablespace i.e. C:/users/you/Relatrix/ [ [init] [max nnn] ]
+ * program argument is  [ [init] [max nnn] ]
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2024
  *
  */
@@ -45,23 +46,21 @@ public class BatteryRelatrixFindRelatedAliasTransaction {
 	*/
 	public static void main(String[] argv) throws Exception {
 		AbstractRelation.displayLevel = displayLevels.MINIMAL;
-		String tablespace = argv[0];
-		if(!tablespace.endsWith("/"))
-			tablespace += "/";
-		RelatrixTransaction.setAlias(alias1,tablespace+alias1);
-		RelatrixTransaction.setAlias(alias2,tablespace+alias2);
-		RelatrixTransaction.setAlias(alias3,tablespace+alias3);
+		RelatrixTransaction.getInstance();
+		RelatrixTransaction.setAlias(alias1,RelatrixTransaction.getTableSpace()+alias1);
+		RelatrixTransaction.setAlias(alias2,RelatrixTransaction.getTableSpace()+alias2);
+		RelatrixTransaction.setAlias(alias3,RelatrixTransaction.getTableSpace()+alias3);
 		xid = RelatrixTransaction.getTransactionId();
 
-		if(argv.length > 2 && argv[1].equals("max")) {
-			System.out.println("Setting max items to "+argv[2]);
-			max = Integer.parseInt(argv[2]);
+		if(argv.length > 0 && argv[0].equals("max")) {
+			System.out.println("Setting max items to "+argv[0]);
+			max = Integer.parseInt(argv[0]);
 		} else {
-			if(argv.length > 1 && argv[1].equals("init")) {
+			if(argv.length > 0 && argv[0].equals("init")) {
 				System.out.println("Initialize database to zero items, then terminate...");
-				battery1AR17(argv, alias1, xid);
-				battery1AR17(argv, alias2, xid);
-				battery1AR17(argv, alias3, xid);
+				battery1AR17(alias1, xid);
+				battery1AR17(alias2, xid);
+				battery1AR17(alias3, xid);
 				System.exit(0);
 			}
 		}
@@ -69,15 +68,15 @@ public class BatteryRelatrixFindRelatedAliasTransaction {
 		if(RelatrixTransaction.size(alias1, xid) == 0) {
 			if(DEBUG)
 				System.out.println("Zero items, Begin insertion from "+min+" to "+max);
-			battery1(argv, alias1, xid);
-			battery1(argv, alias2, xid);
-			battery1(argv, alias3, xid);
+			battery1(alias1, xid);
+			battery1(alias2, xid);
+			battery1(alias3, xid);
 		}
 		if(DEBUG)
 			System.out.println("Begin test battery 1AR6");
-		battery1AR6(argv, alias1, xid);
-		battery1AR6(argv, alias2, xid);
-		battery1AR6(argv, alias3, xid);
+		battery1AR6(alias1, xid);
+		battery1AR6(alias2, xid);
+		battery1AR6(alias3, xid);
 
 		System.out.println("TEST BATTERY COMPLETE.");
 		System.exit(0);
@@ -89,7 +88,7 @@ public class BatteryRelatrixFindRelatedAliasTransaction {
 	 * @param xid2 
 	 * @throws Exception
 	 */
-	public static void battery1(String[] argv, Alias alias12, TransactionId xid2) throws Exception {
+	public static void battery1(Alias alias12, TransactionId xid2) throws Exception {
 		System.out.println(xid2+" Battery1 "+alias12);
 		long tims = System.currentTimeMillis();
 		long timt = System.currentTimeMillis();
@@ -131,7 +130,7 @@ public class BatteryRelatrixFindRelatedAliasTransaction {
 	 * @param xid2 
 	 * @throws Exception
 	 */
-	public static void battery1AR6(String[] argv, Alias alias12, TransactionId xid2) throws Exception {
+	public static void battery1AR6(Alias alias12, TransactionId xid2) throws Exception {
 		i = min;
 		long tims = System.currentTimeMillis();
 		System.out.println(xid2+" Battery1AR6 "+alias12);
@@ -158,7 +157,7 @@ public class BatteryRelatrixFindRelatedAliasTransaction {
 	 * @param xid2 
 	 * @throws Exception
 	 */
-	public static void battery1AR17(String[] argv, Alias alias12, TransactionId xid2) throws Exception {
+	public static void battery1AR17(Alias alias12, TransactionId xid2) throws Exception {
 		long tims = System.currentTimeMillis();
 		System.out.println(alias12+" CleanDB DMR size="+RelatrixTransaction.size(alias12,xid2));
 		System.out.println("CleanDB DRM size="+RelatrixTransaction.size(alias12,xid2,DomainRangeMap.class));

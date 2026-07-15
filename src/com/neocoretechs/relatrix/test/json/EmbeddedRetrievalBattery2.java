@@ -65,7 +65,7 @@ public class EmbeddedRetrievalBattery2 {
 	*/
 	public static void main(String[] argv) throws Exception {
 		 //System.out.println("Analysis of all");
-		RelatrixJson.setTablespace(argv[0]);
+		RelatrixJson.getInstance();
 		AbstractRelation.displayLevel = AbstractRelation.displayLevels.VERBOSE;
 		xfClass = RelatrixKVJson.getClassType(xf);
 		xo50Class = RelatrixKVJson.getClassType(xo50);

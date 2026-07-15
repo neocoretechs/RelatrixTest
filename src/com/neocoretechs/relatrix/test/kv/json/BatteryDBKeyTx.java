@@ -17,7 +17,7 @@ import com.neocoretechs.rocksack.TransactionId;
  * The set of tests verifies the lower level {@link DBKey} functions in the {@link  Relatrix}
  * NOTES:
  * A database unique to this test module should be used.
- * program argument is database i.e. C:/users/you/Relatrix/TestDB2
+ * tablespace is specified via system cmdl property
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2016,2017
  *
  */
@@ -38,13 +38,8 @@ public class BatteryDBKeyTx {
 	* Main test fixture driver
 	*/
 	public static void main(String[] argv) throws Exception {
-		if(argv.length < 1) {
-			System.out.println("Usage: java com.neocoretechs.relatrix.test.kv.BatteryDBKey <directory_tablespace_path>");
-			System.exit(1);
-		}
-		RelatrixKVJsonTransaction.getInstance().setTablespace(argv[0]);
+		RelatrixKVJsonTransaction.getInstance();
 		xid = RelatrixKVJsonTransaction.getTransactionId();
-		IndexResolver.setLocal();
 		battery1AR17(argv);
 		battery1(argv);
 		battery1AR4(argv);
@@ -95,7 +90,7 @@ public class BatteryDBKeyTx {
 		Comparable prev = (Comparable)o;
 		System.out.println("first key:"+RelatrixKVJsonTransaction.getData((Comparable) o));
 		Object p = RelatrixKVJsonTransaction.lastKey(xid, c);
-		Iterator<?> its = RelatrixKVJsonTransaction.findTailMapKV(xid,(Comparable<?>) o);
+		Iterator<?> its = RelatrixKVJsonTransaction.findTailMapKV(xid, o);
 		System.out.println("KV Battery1AR4");
 		while(its.hasNext()) {
 			Map.Entry<Comparable,Object> nex = (Map.Entry<Comparable,Object>) its.next();
@@ -128,9 +123,7 @@ public class BatteryDBKeyTx {
 		long tims = System.currentTimeMillis();
 		JSONObject jo = new JSONObject(x50k);
 		JSONObject jo75k = new JSONObject(x75k);
-		Comparable<?> jkey = RelatrixKVJsonTransaction.getObject(jo, xid);
-		Comparable<?> jto = RelatrixKVJsonTransaction.getObject(jo75k, xid);
-		Iterator<?> its = RelatrixKVJsonTransaction.findSubMap(xid, jkey, jto);
+		Iterator<?> its = RelatrixKVJsonTransaction.findSubMap(xid, jo, jo75k);
 		Iterator<?> itst = RelatrixKVJsonTransaction.getStringIterator(its);
 		System.out.println("KV Battery1AR7");
 		System.out.println("=============== String Submap Iterator ======================");
@@ -145,7 +138,7 @@ public class BatteryDBKeyTx {
 		}
 		System.out.println("=============== String Submap K/V Iterator ======================");
 		i = 0;
-		its = RelatrixKVJsonTransaction.findSubMapKV(xid, jkey, jto);
+		its = RelatrixKVJsonTransaction.findSubMapKV(xid, jo, jo75k);
 		itst = RelatrixKVJsonTransaction.getStringMapIterator(its);
 		while(itst.hasNext()) {
 			Object y = itst.next();
@@ -158,7 +151,7 @@ public class BatteryDBKeyTx {
 		}
 		System.out.println("=============== JSONObject Submap Iterator ======================");
 		i = 0;
-		its = RelatrixKVJsonTransaction.findSubMap(xid, jkey, jto);
+		its = RelatrixKVJsonTransaction.findSubMap(xid, jo, jo75k);
 		itst = RelatrixKVJsonTransaction.getJsonIterator(its);
 		while(itst.hasNext()) {
 			Object y = itst.next();
@@ -171,7 +164,7 @@ public class BatteryDBKeyTx {
 		}
 		System.out.println("=============== String Submap Stream ======================");
 		i = 0;
-		Stream<?> sts = RelatrixKVJsonTransaction.findSubMapStream(xid, jkey, jto);
+		Stream<?> sts = RelatrixKVJsonTransaction.findSubMapStream(xid, jo, jo75k);
 		Stream<?> stst = RelatrixKVJsonTransaction.getStringStream(sts);
 		stst.forEachOrdered(e-> {++i;System.out.println(i+".) "+e);});
 		if( i != max ) {
@@ -180,7 +173,7 @@ public class BatteryDBKeyTx {
 		}
 		System.out.println("=============== String Submap K/V Stream ======================");
 		i = 0;
-		sts = RelatrixKVJsonTransaction.findSubMapKVStream(xid, jkey, jto);
+		sts = RelatrixKVJsonTransaction.findSubMapKVStream(xid, jo, jo75k);
 		stst = RelatrixKVJsonTransaction.getStringMapStream(sts);
 		stst.forEachOrdered(e-> {++i;System.out.println(i+".) "+e);});
 		if( i != max ) {
@@ -189,7 +182,7 @@ public class BatteryDBKeyTx {
 		}
 		System.out.println("=============== JSONObject Submap Stream ======================");
 		i = 0;
-		sts = RelatrixKVJsonTransaction.findSubMapStream(xid, jkey, jto);
+		sts = RelatrixKVJsonTransaction.findSubMapStream(xid, jo, jo75k);
 		stst = RelatrixKVJsonTransaction.getJsonStream(sts);
 		stst.forEachOrdered(e-> {++i;System.out.println(i+".) "+e);});
 		if( i != max ) {
@@ -198,7 +191,7 @@ public class BatteryDBKeyTx {
 		}
 		System.out.println("=============== JSONObject Submap K/V Stream ======================");
 		i = 0;
-		sts = RelatrixKVJsonTransaction.findSubMapKVStream(xid, jkey, jto);
+		sts = RelatrixKVJsonTransaction.findSubMapKVStream(xid, jo, jo75k);
 		stst = RelatrixKVJsonTransaction.getJsonMapStream(sts);
 		stst.forEachOrdered(e-> {++i;System.out.println(i+".) "+e);});
 		if( i != max ) {
@@ -218,8 +211,7 @@ public class BatteryDBKeyTx {
 		i = 0;
 		long tims = System.currentTimeMillis();
 		JSONObject jo = new JSONObject(x50k);
-		Comparable<?> jkey = RelatrixKVJsonTransaction.getObject(jo, xid);
-		Iterator<?> its = RelatrixKVJsonTransaction.findHeadMap(xid, jkey);
+		Iterator<?> its = RelatrixKVJsonTransaction.findHeadMap(xid, jo);
 		Iterator<?> itst = RelatrixKVJsonTransaction.getStringIterator(its);
 		System.out.println("KV Battery1AR8");
 		System.out.println("=============== String Headmap Iterator ======================");
@@ -234,7 +226,7 @@ public class BatteryDBKeyTx {
 		}
 		System.out.println("=============== String Headmap K/V Iterator ======================");
 		i = 0;
-		its = RelatrixKVJsonTransaction.findHeadMapKV(xid,jkey);
+		its = RelatrixKVJsonTransaction.findHeadMapKV(xid,jo);
 		itst = RelatrixKVJsonTransaction.getStringMapIterator(its);
 		while(itst.hasNext()) {
 			Object y = itst.next();
@@ -247,7 +239,7 @@ public class BatteryDBKeyTx {
 		}
 		System.out.println("=============== JSONObject Headmap Iterator ======================");
 		i = 0;
-		its = RelatrixKVJsonTransaction.findHeadMap(xid, jkey);
+		its = RelatrixKVJsonTransaction.findHeadMap(xid, jo);
 		itst = RelatrixKVJsonTransaction.getJsonIterator(its);
 		while(itst.hasNext()) {
 			Object y = itst.next();
@@ -260,7 +252,7 @@ public class BatteryDBKeyTx {
 		}
 		System.out.println("=============== String Headmap Stream ======================");
 		i = 0;
-		Stream<?> sts = RelatrixKVJsonTransaction.findHeadMapStream(xid, jkey);
+		Stream<?> sts = RelatrixKVJsonTransaction.findHeadMapStream(xid, jo);
 		Stream<?> stst = RelatrixKVJsonTransaction.getStringStream(sts);
 		stst.forEachOrdered(e-> {++i;System.out.println(i+".) "+e);});
 		if( i != max ) {
@@ -269,7 +261,7 @@ public class BatteryDBKeyTx {
 		}
 		System.out.println("=============== String Headmap K/V Stream ======================");
 		i = 0;
-		sts = RelatrixKVJsonTransaction.findHeadMapKVStream(xid, jkey);
+		sts = RelatrixKVJsonTransaction.findHeadMapKVStream(xid, jo);
 		stst = RelatrixKVJsonTransaction.getStringMapStream(sts);
 		stst.forEachOrdered(e-> {++i;System.out.println(i+".) "+e);});
 		if( i != max ) {
@@ -278,7 +270,7 @@ public class BatteryDBKeyTx {
 		}
 		System.out.println("=============== JSONObject Headmap Stream ======================");
 		i = 0;
-		sts = RelatrixKVJsonTransaction.findHeadMapStream(xid, jkey);
+		sts = RelatrixKVJsonTransaction.findHeadMapStream(xid, jo);
 		stst = RelatrixKVJsonTransaction.getJsonStream(sts);
 		stst.forEachOrdered(e-> {++i;System.out.println(i+".) "+e);});
 		if( i != max ) {
@@ -287,7 +279,7 @@ public class BatteryDBKeyTx {
 		}
 		System.out.println("=============== JSONObject Headmap K/V Stream ======================");
 		i = 0;
-		sts = RelatrixKVJsonTransaction.findHeadMapKVStream(xid, jkey);
+		sts = RelatrixKVJsonTransaction.findHeadMapKVStream(xid, jo);
 		stst = RelatrixKVJsonTransaction.getJsonMapStream(sts);
 		stst.forEachOrdered(e-> {++i;System.out.println(i+".) "+e);});
 		if( i != max ) {
@@ -307,8 +299,7 @@ public class BatteryDBKeyTx {
 		i = 0;
 		long tims = System.currentTimeMillis();
 		JSONObject jo = new JSONObject(x75k);
-		Comparable<?> jkey = RelatrixKVJsonTransaction.getObject(jo, xid);
-		Iterator<?> its = RelatrixKVJsonTransaction.findTailMap(xid, jkey);
+		Iterator<?> its = RelatrixKVJsonTransaction.findTailMap(xid, jo);
 		Iterator<?> itst = RelatrixKVJsonTransaction.getStringIterator(its);
 		System.out.println("KV Battery1AR9");
 		System.out.println("=============== String Tailmap Iterator ======================");
@@ -323,7 +314,7 @@ public class BatteryDBKeyTx {
 		}
 		System.out.println("=============== String Tailmap K/V Iterator ======================");
 		i = 0;
-		its = RelatrixKVJsonTransaction.findTailMapKV(xid, jkey);
+		its = RelatrixKVJsonTransaction.findTailMapKV(xid, jo);
 		itst = RelatrixKVJsonTransaction.getStringMapIterator(its);
 		while(itst.hasNext()) {
 			Object y = itst.next();
@@ -336,7 +327,7 @@ public class BatteryDBKeyTx {
 		}
 		System.out.println("=============== JSONObject Tailmap Iterator ======================");
 		i = 0;
-		its = RelatrixKVJsonTransaction.findTailMap(xid, jkey);
+		its = RelatrixKVJsonTransaction.findTailMap(xid, jo);
 		itst = RelatrixKVJsonTransaction.getJsonIterator(its);
 		while(itst.hasNext()) {
 			Object y = itst.next();
@@ -349,7 +340,7 @@ public class BatteryDBKeyTx {
 		}
 		System.out.println("=============== String Tailmap Stream ======================");
 		i = 0;
-		Stream<?> sts = RelatrixKVJsonTransaction.findTailMapStream(xid, jkey);
+		Stream<?> sts = RelatrixKVJsonTransaction.findTailMapStream(xid, jo);
 		Stream<?> stst = RelatrixKVJsonTransaction.getStringStream(sts);
 		stst.forEachOrdered(e-> {++i;System.out.println(i+".) "+e);});
 		if( i != max ) {
@@ -358,7 +349,7 @@ public class BatteryDBKeyTx {
 		}
 		System.out.println("=============== String Tailmap K/V Stream ======================");
 		i = 0;
-		sts = RelatrixKVJsonTransaction.findTailMapKVStream(xid, jkey);
+		sts = RelatrixKVJsonTransaction.findTailMapKVStream(xid, jo);
 		stst = RelatrixKVJsonTransaction.getStringMapStream(sts);
 		stst.forEachOrdered(e-> {++i;System.out.println(i+".) "+e);});
 		if( i != max ) {
@@ -367,7 +358,7 @@ public class BatteryDBKeyTx {
 		}
 		System.out.println("=============== JSONObject Tailmap Stream ======================");
 		i = 0;
-		sts = RelatrixKVJsonTransaction.findTailMapStream(xid, jkey);
+		sts = RelatrixKVJsonTransaction.findTailMapStream(xid, jo);
 		stst = RelatrixKVJsonTransaction.getJsonStream(sts);
 		stst.forEachOrdered(e-> {++i;System.out.println(i+".) "+e);});
 		if( i != max ) {
@@ -376,7 +367,7 @@ public class BatteryDBKeyTx {
 		}
 		System.out.println("=============== JSONObject Tailmap K/V Stream ======================");
 		i = 0;
-		sts = RelatrixKVJsonTransaction.findTailMapKVStream(xid, jkey);
+		sts = RelatrixKVJsonTransaction.findTailMapKVStream(xid, jo);
 		stst = RelatrixKVJsonTransaction.getJsonMapStream(sts);
 		stst.forEachOrdered(e-> {++i;System.out.println(i+".) "+e);});
 		if( i != max ) {
@@ -395,7 +386,6 @@ public class BatteryDBKeyTx {
 		long tims = System.currentTimeMillis();
 		JSONObject jo = new JSONObject(x);
 		Class<?> c = RelatrixKVJsonTransaction.getClassType(jo, xid);
-		int j = min;
 		long s = RelatrixKVJsonTransaction.size(xid, c);
 		System.out.println("Cleaning DB "+c+" of "+s+" elements.");
 		Iterator<?> it = RelatrixKVJsonTransaction.keySet(xid, c);
@@ -405,7 +395,7 @@ public class BatteryDBKeyTx {
 			++i;
 			Object fkey = it.next();
 			System.out.println(i+".) "+fkey);
-			RelatrixKVJsonTransaction.remove(xid, (Comparable) fkey);
+			RelatrixKVJsonTransaction.remove(xid, fkey);
 			if((System.currentTimeMillis()-timx) > 5000) {
 				System.out.println("Key "+i+" "+fkey);
 				timx = System.currentTimeMillis();

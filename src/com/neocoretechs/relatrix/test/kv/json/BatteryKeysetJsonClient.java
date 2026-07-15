@@ -1,4 +1,4 @@
-package com.neocoretechs.relatrix.test.kv;
+package com.neocoretechs.relatrix.test.kv.json;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -6,12 +6,14 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
 
+import org.json.JSONObject;
+
 import com.neocoretechs.rocksack.iterator.Entry;
-import com.neocoretechs.relatrix.Relatrix;
-import com.neocoretechs.relatrix.RelatrixKV;
+
+import com.neocoretechs.relatrix.client.json.RelatrixKVClientJson;
+
 import com.neocoretechs.relatrix.key.DBKey;
-import com.neocoretechs.relatrix.key.IndexInstanceTable;
-import com.neocoretechs.relatrix.key.IndexInstanceTableInterface;
+
 import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.key.KeySet;
 import com.neocoretechs.relatrix.key.PrimaryKeySet;
@@ -19,28 +21,36 @@ import com.neocoretechs.relatrix.parallel.ExecutionContextHolder;
 import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 
 /**
- * The set of tests verifies the lower level {@link KeySet} functions in the {@link  Relatrix}
+ * The set of tests verifies the lower level {@link KeySet} functions in the {@link  RelatrixKVClientJson}
  * NOTES:
  * A database unique to this test module should be used.
- * @author Jonathan Groff Copyright (C) NeoCoreTechs 2016,2017
+ * @author Jonathan Groff Copyright (C) NeoCoreTechs 2016,2017,2026
  *
  */
-public class BatteryKeyset {
-	public static boolean DEBUG = false;
+public class BatteryKeysetJsonClient {
+	public static boolean DEBUG = true;
 	static KeySet keyset;
-	static String uniqKeyFmt = "%0100d"; // base + counter formatted with this gives equal length strings for canonical ordering
+	static int i;
 	static int min = 0;
 	static int max = 10000;
 	static int numDelete = 100; // for delete test
 	static ArrayList<KeySet> keys = new ArrayList<KeySet>();
 	static ArrayList<KeySet> findkeys = new ArrayList<KeySet>();
-	static IndexInstanceTableInterface indexTable = new IndexInstanceTable();
+	static String x =     "{\"timestamp\":1779166030000,\"LeftImage\":[{ \"count\":1,\"detections\":[ {\"name\":\"refrigerator\"}]}]}";
+	static String x50k =  "{\"timestamp\":1779166050000,\"RightImage\":[{\"count\":0, \"affections\":[ {\"name\":\"alligator\"}]}]}";
+	static String xfull = "{\"timestamp\":1779166070000,\"LeftImage\":[{ \"count\":1, \"erections\":[ { \"name\":\"toilet\"}]}]}";
+
+	static JSONObject xf = new JSONObject(xfull);
+	static JSONObject xo50 = new JSONObject(x50k);
+	static JSONObject xo = new JSONObject(x);
+	static Class<?> xfClass, xoClass, xo50Class;
+	
+	static RelatrixKVClientJson rc;
 	/**
 	* Main test fixture driver
 	*/
 	public static void main(String[] argv) throws Exception {
-
-		RelatrixKV.getInstance();
+		rc = new RelatrixKVClientJson(argv[0], Integer.parseInt(argv[1]));
 		//battery1AR17();
 		battery1();
 		battery2();
@@ -53,13 +63,12 @@ public class BatteryKeyset {
 		battery1AR12();
 		battery1AR14();
 		//battery1AR17();
-		 System.out.println("BatteryKeyset TEST BATTERY COMPLETE.");
+		 System.out.println("BatteryKeysetJson TEST BATTERY COMPLETE.");
 		
 	}
 	/**
 	 * Loads up on keys, should be 0 to max-1, or min, to max -1
 	 * Ensure that we start with known baseline number of keys
-	 * @param argv
 	 * @throws Exception
 	 */
 	public static void battery1() throws Exception {
@@ -67,40 +76,43 @@ public class BatteryKeyset {
 		long tims = System.currentTimeMillis();
 		int dupes = 0;
 		int recs = 0;
-		KeySet fkey = null;
-		String d = null;
-		String m = null;
-		String r = null;
+		JSONObject jox = new JSONObject(x);
+		JSONObject jo2 = new JSONObject(x50k);
+		/*String className = RelatrixTypeSynthesizer.generateMorphicClassName(jox,RelatrixTypeSynthesizer.morphicClassPrefix);
+       	byte[] b = JsonRecordClassGenerator.buildJsonRecordClassBytes(className);   	
+		HandlerClassLoader.setBytesInRepository(className, b);*/
 		IndexResolver resolver = null;
 		if(ExecutionContextHolder.CONTEXT.isBound()) {
 		        ParallelExecutionContext ctx = ExecutionContextHolder.CONTEXT.get();
 		        resolver = ctx.resolver();
 		} else
 			throw new RuntimeException("IndexResolver not bound to context.");
-		for(int i = min; i < max; i++) {
-			d = String.format(uniqKeyFmt, i);
-			m = String.format(uniqKeyFmt, i+1);
-			r = String.format(uniqKeyFmt, i+2);
-	
+		for(i = min; i < max; i++) {
+			long tim = jox.getLong("timestamp");
+			++tim;
+			jox.put("timestamp",tim);
+			tim = jo2.getLong("timestamp");
+			++tim;
+			jo2.put("timestamp",tim);
 			PrimaryKeySet pks = new PrimaryKeySet();
-			pks.setDomainKey(resolver.getIndexInstanceTable().getKey(d));
-			pks.setMapKey(resolver.getIndexInstanceTable().getKey(m));
+			pks.setDomainKey(resolver.getIndexInstanceTable().getKey(jox.toString()));
+			pks.setMapKey(resolver.getIndexInstanceTable().getKey(jo2.toString()));
 			// check for domain/map match
 			// Enforce categorical structure; domain->map function uniquely determines range.
 			// If the search winds up at the key or the key is empty or the domain->map exists, the key
 			// cannot be inserted
 			//if(Relatrix.isPrimaryKey(RelatrixKV.nearest(identity), identity)) {
-			if(DBKey.isValid(pks.getDomainKey()) && DBKey.isValid(pks.getMapKey()) && RelatrixKV.get(pks) != null) {
+			if(DBKey.isValid(pks.getDomainKey()) && DBKey.isValid(pks.getMapKey()) && rc.get(pks) != null) {
 				//throw new DuplicateKeyException("Duplicate key for relationship:"+identity);
 				System.out.println("Duplicate key for relationship:"+pks);
 				++dupes;
 				continue;
 			}
 			KeySet identity = new KeySet();
-			identity.setDomainKey(DBKey.newKey(indexTable, d));
-			identity.setMapKey(DBKey.newKey(indexTable, m));
+			identity.setDomainKey(DBKey.newKey(resolver.getIndexInstanceTable(), jox.toString()));
+			identity.setMapKey(DBKey.newKey(resolver.getIndexInstanceTable(), jo2.toString()));
 			//identity.setRangeKey(DBKey.nullDBKey);
-			identity.setRangeKey(DBKey.newKey(indexTable,r)); // form it as template for duplicate key search
+			identity.setRangeKey(DBKey.newKey(resolver.getIndexInstanceTable(),xf.toString())); // form it as template for duplicate key search
 			// re-create it, now that we know its valid, in a form that stores the components with DBKeys
 			// and maintains the classes stores in IndexInstanceTable for future commit.
 			resolver.getIndexInstanceTable().put(identity);
@@ -112,12 +124,24 @@ public class BatteryKeyset {
 	}
 	
 	private static void battery2() throws IllegalAccessException, ClassNotFoundException, IOException {
+		JSONObject jox = new JSONObject(x);
+		JSONObject jo2 = new JSONObject(x50k);
+		IndexResolver resolver = null;
+		if(ExecutionContextHolder.CONTEXT.isBound()) {
+		        ParallelExecutionContext ctx = ExecutionContextHolder.CONTEXT.get();
+		        resolver = ctx.resolver();
+		} else
+			throw new RuntimeException("IndexResolver not bound to context.");
 		for(int i = min; i < max; i++) {
-			String d = String.format(uniqKeyFmt, i);
-			String m = String.format(uniqKeyFmt, i+1);
+			long tim = jox.getLong("timestamp");
+			++tim;
+			jox.put("timestamp",tim);
+			tim = jo2.getLong("timestamp");
+			++tim;
+			jo2.put("timestamp",tim);
 			KeySet identity = new KeySet();
-			identity.setDomainKey(indexTable.getKey(d));
-			identity.setMapKey(indexTable.getKey(m));
+			identity.setDomainKey(resolver.getIndexInstanceTable().getKey(jox.toString()));
+			identity.setMapKey(resolver.getIndexInstanceTable().getKey(jo2.toString()));
 			identity.setRangeKey(DBKey.nullDBKey);
 			//PrimaryKeySet pks = new PrimaryKeySet(identity);
 			// check for domain/map match
@@ -127,7 +151,7 @@ public class BatteryKeyset {
 			//Object o = RelatrixKV.nearest(identity);
 			//if(!Relatrix.isPrimaryKey(o, identity))
 				//System.out.println("FAILED to find:"+identity+" found key="+o);
-			Iterator<?> it = RelatrixKV.findTailMapKV(identity);
+			Iterator<?> it = rc.findTailMapKV(identity);
 			int cnt = 0;
 			while(it.hasNext()) {
 				Object o = it.next();
@@ -150,8 +174,8 @@ public class BatteryKeyset {
 	public static void battery1AR4() throws Exception {
 		int cnt = 0;
 		long tims = System.currentTimeMillis();
-		KeySet prev = (KeySet) RelatrixKV.firstKey(KeySet.class);
-		Iterator<?> its = RelatrixKV.findTailMapKV((Comparable) prev);
+		KeySet prev = (KeySet) rc.firstKey(KeySet.class);
+		Iterator<?> its = rc.findTailMapKV((Comparable) prev);
 		System.out.println("Battery1AR4");
 		KeySet first = ((Map.Entry<KeySet,DBKey>)its.next()).getKey();
 		findkeys.add(first); // skip first key we just got
@@ -184,7 +208,7 @@ public class BatteryKeyset {
 			// Enforce categorical structure; domain->map function uniquely determines range.
 			// If the search winds up at the key or the key is empty or the domain->map exists, the key
 			// cannot be inserted
-			if(RelatrixKV.nearest(ident) == null) {
+			if(rc.nearest(ident) == null) {
 				if(DEBUG)
 					System.out.println("Didnt find "+ident);
 				else
@@ -206,11 +230,17 @@ public class BatteryKeyset {
 		int cnt = 0;
 		Object i;
 		long tims = System.currentTimeMillis();
-		Iterator<?> its = RelatrixKV.entrySet(KeySet.class);
+		Iterator<?> its = rc.entrySet(KeySet.class);
 		System.out.println("Battery1AR5");
+		IndexResolver resolver = null;
+		if(ExecutionContextHolder.CONTEXT.isBound()) {
+		        ParallelExecutionContext ctx = ExecutionContextHolder.CONTEXT.get();
+		        resolver = ctx.resolver();
+		} else
+			throw new RuntimeException("IndexResolver not bound to context.");
 		while(its.hasNext()) {
 			Entry nex = (Entry) its.next();
-			i =  indexTable.get((DBKey) nex.getValue()); 
+			i =  resolver.getIndexInstanceTable().get((DBKey) nex.getValue()); 
 			if(((Comparable)i).compareTo(nex.getKey()) != 0) {
 				System.out.println("RANGE KEY MISMATCH: "+nex);
 				throw new Exception("RANGE KEY MISMATCH: "+nex);
@@ -230,7 +260,7 @@ public class BatteryKeyset {
 	public static void battery1AR9() throws Exception {
 		int i = min;
 		long tims = System.currentTimeMillis();
-		Comparable k = (Comparable) RelatrixKV.firstKey(KeySet.class); // first key
+		Comparable k = (Comparable) rc.firstKey(KeySet.class); // first key
 		((KeySet)k).getDomainKey();
 		((KeySet)k).getMapKey();
 		((KeySet)k).getRangeKey();
@@ -251,7 +281,7 @@ public class BatteryKeyset {
 	public static void battery1AR10() throws Exception {
 		int i = max-1;
 		long tims = System.currentTimeMillis();
-		Comparable k = (Comparable) RelatrixKV.lastKey(KeySet.class); // key
+		Comparable k = (Comparable) rc.lastKey(KeySet.class); // key
 		((KeySet)k).getDomainKey();
 		((KeySet)k).getMapKey();
 		((KeySet)k).getRangeKey();
@@ -271,7 +301,7 @@ public class BatteryKeyset {
 	public static void battery1AR101() throws Exception {
 		int i = max;
 		long tims = System.currentTimeMillis();
-		long bits = RelatrixKV.size(KeySet.class);
+		long bits = rc.size(KeySet.class);
 		System.out.println("Battery1AR101 Size="+bits);
 		if( bits != keys.size() ) {
 			System.out.println("BATTERY1AR101 size mismatch "+bits+" should be:"+i);
@@ -288,16 +318,22 @@ public class BatteryKeyset {
 	public static void battery1AR12() throws Exception {
 		int cnt = 0;
 		long tims = System.currentTimeMillis();
-		Comparable c = (Comparable) RelatrixKV.firstKey(KeySet.class);
+		Comparable c = (Comparable) rc.firstKey(KeySet.class);
 		if( c != null ) {
-			Iterator<?> its = RelatrixKV.findTailMapKV(c);
+			Iterator<?> its = rc.findTailMapKV(c);
 			System.out.println("Battery1AR12");
-			int i = 0;
+			i = 0;
+			IndexResolver resolver = null;
+			if(ExecutionContextHolder.CONTEXT.isBound()) {
+			        ParallelExecutionContext ctx = ExecutionContextHolder.CONTEXT.get();
+			        resolver = ctx.resolver();
+			} else
+				throw new RuntimeException("IndexResolver not bound to context.");
 			while(its.hasNext()) {
 				Comparable nex = (Comparable) its.next();
 				Map.Entry<KeySet, DBKey> nexe = (Map.Entry<KeySet,DBKey>)nex;
-				DBKey db = indexTable.getKey(nexe.getKey()); // get the DBKey for this instance integer
-				KeySet keyset = (KeySet) indexTable.get(nexe.getValue());
+				DBKey db = resolver.getIndexInstanceTable().getKey(nexe.getKey()); // get the DBKey for this instance integer
+				KeySet keyset = (KeySet) resolver.getIndexInstanceTable().get(nexe.getValue());
 				if(nexe.getKey().compareTo(keyset) != 0 || nexe.getValue().compareTo(db) != 0) {
 					// Map.Entry
 					System.out.println("RANGE KEY MISMATCH:"+nex);
@@ -319,14 +355,20 @@ public class BatteryKeyset {
 	public static void battery1AR14() throws Exception {
 		int cnt = 0;
 		long tims = System.currentTimeMillis();
-		Comparable c = (Comparable) RelatrixKV.lastKey(KeySet.class);
+		Comparable c = (Comparable) rc.lastKey(KeySet.class);
 		if(c != null) {
-			Iterator<?> its = RelatrixKV.findHeadMapKV(c);
+			Iterator<?> its = rc.findHeadMapKV(c);
 			System.out.println("Battery1AR14");
+			IndexResolver resolver = null;
+			if(ExecutionContextHolder.CONTEXT.isBound()) {
+			        ParallelExecutionContext ctx = ExecutionContextHolder.CONTEXT.get();
+			        resolver = ctx.resolver();
+			} else
+				throw new RuntimeException("IndexResolver not bound to context.");
 			while(its.hasNext()) {
 				Comparable nex = (Comparable) its.next();
 				Map.Entry<KeySet,DBKey> nexe = (Map.Entry<KeySet,DBKey>)nex;
-				DBKey db = indexTable.getKey(nexe.getKey()); // get the DBKey for this instance 
+				DBKey db = resolver.getIndexInstanceTable().getKey(nexe.getKey()); // get the DBKey for this instance 
 				if(nexe.getValue().compareTo(db) != 0) {
 					// Map.Entry
 					System.out.println("RANGE KEY MISMATCH:"+nex);
@@ -348,44 +390,44 @@ public class BatteryKeyset {
 	public static void battery1AR17() throws Exception {
 		long tims = System.currentTimeMillis();
 		System.out.println("CleanDB");
-		long s = RelatrixKV.size(DBKey.class);
+		long s = rc.size(DBKey.class);
 		System.out.println("Cleaning DB of "+s+" elements.");
-		Iterator it = RelatrixKV.keySet(DBKey.class);
+		Iterator it = rc.keySet(DBKey.class);
 		long timx = System.currentTimeMillis();
 		for(int i = 0; i < s; i++) {
 			Object fkey = it.next();
-			RelatrixKV.remove((Comparable) fkey);
+			rc.remove((Comparable) fkey);
 			if((System.currentTimeMillis()-timx) > 5000) {
 				System.out.println("DBKey remove "+i+" "+fkey);
 				timx = System.currentTimeMillis();
 			}
 		}
 		// remove payload reverse index
-		s = RelatrixKV.size(KeySet.class);
-		it = RelatrixKV.keySet(KeySet.class);
+		s = rc.size(KeySet.class);
+		it = rc.keySet(KeySet.class);
 		timx = System.currentTimeMillis();
 		for(int i = 0; i < s; i++) {
 			Object fkey = it.next();
-			RelatrixKV.remove((Comparable) fkey);
+			rc.remove((Comparable) fkey);
 			if((System.currentTimeMillis()-timx) > 5000) {
 				System.out.println("KeySet remove "+i+" "+fkey);
 				timx = System.currentTimeMillis();
 			}
 		}
-		s = RelatrixKV.size(String.class);
-		it = RelatrixKV.keySet(String.class);
+		s = rc.size(String.class);
+		it = rc.keySet(String.class);
 		timx = System.currentTimeMillis();
 		for(int i = 0; i < s; i++) {
 			Object fkey = it.next();
-			RelatrixKV.remove((Comparable) fkey);
+			rc.remove((Comparable) fkey);
 			if((System.currentTimeMillis()-timx) > 5000) {
 				System.out.println("String remove "+i+" "+fkey);
 				timx = System.currentTimeMillis();
 			}
 		}
-		long siz = RelatrixKV.size(DBKey.class);
+		long siz = rc.size(DBKey.class);
 		if(siz > 0) {
-			Iterator<?> its = RelatrixKV.entrySet(DBKey.class);
+			Iterator<?> its = rc.entrySet(DBKey.class);
 			while(its.hasNext()) {
 				Comparable nex = (Comparable) its.next();
 				//System.out.println(i+"="+nex);

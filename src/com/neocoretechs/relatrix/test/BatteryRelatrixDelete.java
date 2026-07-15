@@ -15,16 +15,14 @@ import com.neocoretechs.relatrix.Relatrix;
 import com.neocoretechs.relatrix.Relation;
 import com.neocoretechs.relatrix.DomainRangeMap;
 import com.neocoretechs.relatrix.Result;
-import com.neocoretechs.relatrix.key.IndexResolver;
-
 
 /**
- * The set of tests verifies the delete functions in the {@link  Relatrix}<p/>
- * Create a series of nested relations and then verify that they are properly deleted when a reference to them was previously deleted.<p/>
+ * The set of tests verifies the delete functions in the {@link  Relatrix}<p>
+ * Create a series of nested relations and then verify that they are properly deleted when a reference to them was previously deleted.<p>
  * This represents sets of deeply nested relations introducing a heavy demand. 
  * NOTES:
  * A database unique to this test module should be used.
- * program argument is database i.e. C:/users/you/Relatrix/TestDB2 [ [init] [max nnn] ]
+ * [ [init] [max nnn] ]
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2024
  *
  */
@@ -43,29 +41,29 @@ public class BatteryRelatrixDelete {
 	* Main test fixture driver
 	*/
 	public static void main(String[] argv) throws Exception {
-		Relatrix.setTablespace(argv[0]);
+		Relatrix.getInstance();
 		AbstractRelation.displayLevel = displayLevels.VERBOSE;
-		if(argv.length > 2 && argv[1].equals("max")) {
-			System.out.println("Setting max items to "+argv[2]);
-			max = Integer.parseInt(argv[2]);
+		if(argv.length > 0 && argv[0].equals("max")) {
+			System.out.println("Setting max items to "+argv[0]);
+			max = Integer.parseInt(argv[0]);
 		} else {
-			if(argv.length > 1 && argv[1].equals("init")) {
+			if(argv.length > 0 && argv[0].equals("init")) {
 				System.out.println("Initialize database to zero items, then terminate...");
-				battery1AR17(argv);
+				battery1AR17();
 				System.exit(0);
 			}
 		}
 		if(Relatrix.size() == 0) {
 			if(DEBUG)
 				System.out.println("Zero items, Begin insertion from "+min+" to "+max);
-			battery1(argv);
+			battery1();
 			//if(DEBUG)
 			//	System.out.println("Begin duplicate key rejection test from "+min+" to "+max);
 			//battery11(argv);
 		}
 		if(DEBUG)
 			System.out.println("Begin test battery 1AR6 Nested Key Removal");
-		battery1AR6(argv);
+		battery1AR6();
 	
 		System.out.println("TEST BATTERY COMPLETE.");
 		System.exit(0);
@@ -75,7 +73,7 @@ public class BatteryRelatrixDelete {
 	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery1(String[] argv) throws Exception {
+	public static void battery1() throws Exception {
 		System.out.println("Battery1 ");
 		long tims = System.currentTimeMillis();
 		long timt = System.currentTimeMillis();
@@ -115,7 +113,7 @@ public class BatteryRelatrixDelete {
 	 * @param xid2 
 	 * @throws Exception
 	 */
-	public static void battery11(String[] argv) throws Exception {
+	public static void battery11() throws Exception {
 		System.out.println("Battery11 ");
 		long tims = System.currentTimeMillis();
 		long timt = System.currentTimeMillis();
@@ -158,7 +156,7 @@ public class BatteryRelatrixDelete {
 	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery1AR6(String[] argv) throws Exception {
+	public static void battery1AR6() throws Exception {
 		i = min;
 		long tims = System.currentTimeMillis();
 		System.out.println("Battery1AR6");
@@ -193,7 +191,7 @@ public class BatteryRelatrixDelete {
 	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery1AR17(String[] argv) throws Exception {
+	public static void battery1AR17() throws Exception {
 		long tims = System.currentTimeMillis();
 		System.out.println("CleanDB DMR size="+Relatrix.size(Relation.class));
 		System.out.println("CleanDB DRM size="+Relatrix.size(DomainRangeMap.class));

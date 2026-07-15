@@ -14,6 +14,8 @@ import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.key.IndexInstanceTable;
 import com.neocoretechs.relatrix.key.IndexInstanceTableInterface;
 import com.neocoretechs.relatrix.key.IndexResolver;
+import com.neocoretechs.relatrix.parallel.ExecutionContextHolder;
+import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 
 /**
  * The set of tests verifies the lower level {@link DBKey} functions in the {@link  Relatrix}
@@ -39,8 +41,8 @@ public class BatteryDBKey {
 			System.out.println("Usage: java com.neocoretechs.relatrix.test.kv.BatteryDBKey <directory_tablespace_path>");
 			System.exit(1);
 		}
-		RelatrixKV.setTablespace(argv[0]);
-		IndexResolver.setLocal();
+		RelatrixKV.getInstance();
+	
 		battery1AR17(argv);
 		battery1(argv);
 		battery1AR4(argv);
@@ -62,11 +64,16 @@ public class BatteryDBKey {
 		int recs = 0;
 		DBKey fkey = null;
 		//Integer payload = 0;
-
+		IndexResolver resolver = null;
+		if(ExecutionContextHolder.CONTEXT.isBound()) {
+		        ParallelExecutionContext ctx = ExecutionContextHolder.CONTEXT.get();
+		        resolver = ctx.resolver();
+		} else
+			throw new RuntimeException("IndexResolver not bound to context.");
 		for(int i = min; i < max; i++) {
 			//try {
 			Relation r = new Relation(i,i,i);
-			fkey = DBKey.newKey(IndexResolver.getIndexInstanceTable(), r); // puts to index and instance
+			fkey = DBKey.newKey(resolver.getIndexInstanceTable(), r); // puts to index and instance
 			RelatrixKV.store(fkey, new MapRangeDomain(r));
 			++recs;
 			//} catch(DuplicateKeyException dke) { ++dupes; }

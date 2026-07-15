@@ -42,7 +42,7 @@ public class BatteryRelatrixFindRelatedTransaction {
 	* Main test fixture driver
 	*/
 	public static void main(String[] argv) throws Exception {
-		RelatrixTransaction.setTablespace(argv[0]);
+		RelatrixTransaction.getInstance();
 		AbstractRelation.displayLevel = displayLevels.MINIMAL;
 		xid = RelatrixTransaction.getTransactionId();
 		if(argv.length > 2 && argv[1].equals("max")) {

@@ -12,7 +12,7 @@ import com.neocoretechs.relatrix.RelatrixKVTransaction;
 /**
  * Yes, this should be a nice JUnit fixture someday. Test of embedded KV server stream retrieval ops.
  * NOTE: rather than a database, specify only the PATH for the series of databases that will be 
- * designated ALIAS1java.lang.String, ALIAS2java.lang.String and ALIAS3java.lang.String<p/>
+ * designated ALIAS1java.lang.String, ALIAS2java.lang.String and ALIAS3java.lang.String<p>
  * The static constant fields in the class control the key generation for the tests
  * In general, the keys and values are formatted according to uniqKeyFmt to produce
  * a series of canonically correct sort order strings for the DB in the range of min to max vals
@@ -21,7 +21,8 @@ import com.neocoretechs.relatrix.RelatrixKVTransaction;
  * Of course, you can substitute any class for the Strings here providing its Comparable.
  * This tests the Java 8 streams obtained from the server
  * NOTES:
- * The database aliases define db names and program argument defines tablespace, alias is prepended for fully qualified tablespace names
+ * The database aliases define db names from tablespace, alias is prepended for fully qualified tablespace names
+ * tablespace system property must be set in cmdl.
  * C:/users/you/Relatrix should be valid path as program arg. C:/users/you/Relatrix/ALIAS1java.lang.String through ALIAS3... will be created.
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2023
  *
@@ -43,29 +44,23 @@ public class BatteryRelatrixKVStreamAlias {
 	* Main test fixture driver
 	*/
 	public static void main(String[] argv) throws Exception {
-		if(argv.length < 1) {
-			System.out.println("Usage: java com.neocoretechs.relatrix.test.kv.BatteryRelatrixKVStreamAlias <directory_tablespace_path>");
-			System.exit(1);
-		}
-		String tablespace = argv[0];
-		if(!tablespace.endsWith("/"))
-			tablespace += "/";
-		RelatrixKV.setAlias(alias1,tablespace+alias1);
-		RelatrixKV.setAlias(alias2,tablespace+alias2);
-		RelatrixKV.setAlias(alias3,tablespace+alias3);
-		battery1(argv);	// build and store
-		battery1AR6(argv);
-		battery1AR7(argv);
-		battery1AR11(argv);
-		battery1AR12(argv);
-		battery1AR13(argv);
-		battery1AR14(argv);
-		battery1AR15(argv);
-		battery1AR16(argv);
+		RelatrixKV.getInstance();
+		RelatrixKV.setAlias(alias1,RelatrixKV.getTableSpace()+alias1);
+		RelatrixKV.setAlias(alias2,RelatrixKV.getTableSpace()+alias2);
+		RelatrixKV.setAlias(alias3,RelatrixKV.getTableSpace()+alias3);
+		battery1();	// build and store
+		battery1AR6();
+		battery1AR7();
+		battery1AR11();
+		battery1AR12();
+		battery1AR13();
+		battery1AR14();
+		battery1AR15();
+		battery1AR16();
 		battery1AR17(alias1);
 		battery1AR17(alias2);
 		battery1AR17(alias3);
-		battery18(argv);
+		battery18();
 		System.out.println("BatteryRelatrixKVStreamAlias TEST BATTERY COMPLETE.");
 	}
 	/**
@@ -74,7 +69,7 @@ public class BatteryRelatrixKVStreamAlias {
 	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery1(String[] argv) throws Exception {
+	public static void battery1() throws Exception {
 		System.out.println("KV Battery1 ");
 		long tims = System.currentTimeMillis();
 		int dupes = 0;
@@ -137,7 +132,7 @@ public class BatteryRelatrixKVStreamAlias {
 	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery1AR6(String[] argv) throws Exception {
+	public static void battery1AR6() throws Exception {
 		i = min;
 		long tims = System.currentTimeMillis();
 		Stream stream1 = RelatrixKV.entrySetStream(alias1, String.class);
@@ -186,7 +181,7 @@ public class BatteryRelatrixKVStreamAlias {
 	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery1AR7(String[] argv) throws Exception {
+	public static void battery1AR7() throws Exception {
 		i = min;
 		long tims = System.currentTimeMillis();
 		Stream stream1 = RelatrixKV.keySetStream(alias1, String.class);
@@ -234,7 +229,7 @@ public class BatteryRelatrixKVStreamAlias {
 	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery1AR11(String[] argv) throws Exception {
+	public static void battery1AR11() throws Exception {
 		long tims = System.currentTimeMillis();
 		i = min;
 		String fkey = String.format(uniqKeyFmt, i);
@@ -281,7 +276,7 @@ public class BatteryRelatrixKVStreamAlias {
 	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery1AR12(String[] argv) throws Exception {
+	public static void battery1AR12() throws Exception {
 		long tims = System.currentTimeMillis();
 		i = min;
 		String fkey = String.format(uniqKeyFmt, i);
@@ -332,7 +327,7 @@ public class BatteryRelatrixKVStreamAlias {
 	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery1AR13(String[] argv) throws Exception {
+	public static void battery1AR13() throws Exception {
 		long tims = System.currentTimeMillis();
 		i = max;
 		String fkey = String.format(uniqKeyFmt, i);
@@ -382,7 +377,7 @@ public class BatteryRelatrixKVStreamAlias {
 	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery1AR14(String[] argv) throws Exception {
+	public static void battery1AR14() throws Exception {
 		long tims = System.currentTimeMillis();
 		i = max;
 		String fkey = String.format(uniqKeyFmt, i);
@@ -434,7 +429,7 @@ public class BatteryRelatrixKVStreamAlias {
 	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery1AR15(String[] argv) throws Exception {
+	public static void battery1AR15() throws Exception {
 		long tims = System.currentTimeMillis();
 		i = min;
 		j = max;
@@ -486,7 +481,7 @@ public class BatteryRelatrixKVStreamAlias {
 	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery1AR16(String[] argv) throws Exception {
+	public static void battery1AR16() throws Exception {
 		long tims = System.currentTimeMillis();
 		i = min;
 		j = max;
@@ -576,7 +571,7 @@ public class BatteryRelatrixKVStreamAlias {
 	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery18(String[] argv) throws Exception {
+	public static void battery18() throws Exception {
 		System.out.println("KV Battery18 ");
 		int max1 = max - 50000;
 		long tims = System.currentTimeMillis();

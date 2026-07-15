@@ -18,7 +18,7 @@ import com.neocoretechs.relatrix.key.IndexResolver;
  * The set of tests verifies the lower level {@link DBKey} functions in the {@link  Relatrix}
  * NOTES:
  * A database unique to this test module should be used.
- * program argument is database i.e. C:/users/you/Relatrix/TestDB2
+ * tablespace is specified via system cmdl property
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2016,2017
  *
  */
@@ -38,29 +38,23 @@ public class BatteryDBKey {
 	* Main test fixture driver
 	*/
 	public static void main(String[] argv) throws Exception {
-		if(argv.length < 1) {
-			System.out.println("Usage: java com.neocoretechs.relatrix.test.kv.BatteryDBKey <directory_tablespace_path>");
-			System.exit(1);
-		}
-		RelatrixKVJson.getInstance().setTablespace(argv[0]);
-		IndexResolver.setLocal();
-		battery1AR17(argv);
-		battery1(argv);
-		battery1AR4(argv);
-		battery1AR7(argv);
-		battery1AR8(argv);
-		battery1AR9(argv);
-		//battery1AR17(argv);
+		RelatrixKVJson.getInstance();
+		battery1AR17();
+		battery1();
+		battery1AR4();
+		battery1AR7();
+		battery1AR8();
+		battery1AR9();
+		//battery1AR17();
 		 System.out.println("BatteryDBKey TEST BATTERY COMPLETE.");
 		
 	}
 	/**
 	 * Loads up on keys, should be 0 to max-1, or min, to max -1
 	 * Ensure that we start with known baseline number of keys
-	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery1(String[] argv) throws Exception {
+	public static void battery1() throws Exception {
 		System.out.println("KV Battery1 ");
 		long tims = System.currentTimeMillis();
 		int dupes = 0;
@@ -83,7 +77,7 @@ public class BatteryDBKey {
 	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery1AR4(String[] argv) throws Exception {
+	public static void battery1AR4() throws Exception {
 		long tims = System.currentTimeMillis();
 		JSONObject jo = new JSONObject(x);
 		Class<?> c = RelatrixKVJson.getClassType(jo);
@@ -122,7 +116,7 @@ public class BatteryDBKey {
 	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery1AR7(String[] argv) throws Exception {
+	public static void battery1AR7() throws Exception {
 		max = 25000;
 		long tims = System.currentTimeMillis();
 		JSONObject jo = new JSONObject(x50k);
@@ -212,7 +206,7 @@ public class BatteryDBKey {
 	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery1AR8(String[] argv) throws Exception {
+	public static void battery1AR8() throws Exception {
 		max = 49699;
 		i = 0;
 		long tims = System.currentTimeMillis();
@@ -301,7 +295,7 @@ public class BatteryDBKey {
 	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery1AR9(String[] argv) throws Exception {
+	public static void battery1AR9() throws Exception {
 		max = 25301;
 		i = 0;
 		long tims = System.currentTimeMillis();
@@ -390,7 +384,7 @@ public class BatteryDBKey {
 	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery1AR17(String[] argv) throws Exception {
+	public static void battery1AR17() throws Exception {
 		long tims = System.currentTimeMillis();
 		JSONObject jo = new JSONObject(x);
 		Class<?> c = RelatrixKVJson.getClassType(jo);

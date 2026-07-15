@@ -14,15 +14,15 @@ import com.neocoretechs.relatrix.Relation;
 import com.neocoretechs.relatrix.DomainRangeMap;
 import com.neocoretechs.relatrix.Relatrix;
 import com.neocoretechs.relatrix.Result;
-import com.neocoretechs.relatrix.key.IndexResolver;
+
 
 /**
  * The set of tests verifies the higher level 'findSet' functions in the {@link  Relatrix}, which can be used
  * as examples of {@link Relatrix} processing. In general the tests compare the number of items retrieved 
  * against expected value since findSet retrieves items in no particular order.
  * NOTES:
- * A database unique to this test module should be used.
- * program argument is database i.e. C:/users/you/Relatrix/TestDB2 [ [init] [max nnn] ]
+
+ * program argument is  [ [init] [max nnn] ]
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2016,2017
  *
  */
@@ -40,60 +40,60 @@ public class BatteryRelatrix {
 	* Main test fixture driver
 	*/
 	public static void main(String[] argv) throws Exception {
-		Relatrix.setTablespace(argv[0]);
 		AbstractRelation.displayLevel = displayLevels.VERBOSE;
-		if(argv.length > 2 && argv[1].equals("max")) {
-			System.out.println("Setting max items to "+argv[2]);
-			max = Integer.parseInt(argv[2]);
+		Relatrix.getInstance();
+		if(argv.length > 0 && argv[1].equals("max")) {
+			System.out.println("Setting max items to "+argv[0]);
+			max = Integer.parseInt(argv[0]);
 		} else {
-			if(argv.length > 1 && argv[1].equals("init")) {
+			if(argv.length > 0 && argv[0].equals("init")) {
 				System.out.println("Initialize database to zero items, then terminate...");
-				battery1AR17(argv);
+				battery1AR17();
 				System.exit(0);
 			}
 		}
 		if(Relatrix.size() == 0) {
 			if(DEBUG)
 				System.out.println("Zero items, Begin insertion from "+min+" to "+max);
-			battery1(argv);
+			battery1();
 			if(DEBUG)
 				System.out.println("Begin duplicate key rejection test from "+min+" to "+max);
-			battery11(argv);
+			battery11();
 		}
 		if(DEBUG)
 			System.out.println("Begin test battery 1AR6");
-		battery1AR6(argv);
+		battery1AR6();
 		if(DEBUG)
 			System.out.println("Begin test battery 1AR7");
-		battery1AR7(argv);
+		battery1AR7();
 		if(DEBUG)
 			System.out.println("Begin test battery 1AR8");
-		battery1AR8(argv);
+		battery1AR8();
 		if(DEBUG)
 			System.out.println("Begin test battery 1AR9");
-		battery1AR9(argv);
+		battery1AR9();
 		if(DEBUG)
 			System.out.println("Begin test battery 1AR10");
-		battery1AR10(argv);
+		battery1AR10();
 		if(DEBUG)
 			System.out.println("Begin test battery 1AR101");
-		battery1AR101(argv);
+		battery1AR101();
 		if(DEBUG)
 			System.out.println("Begin test battery 1AR11");
-		battery1AR11(argv);
+		battery1AR11();
 		//if(DEBUG)
 		//	System.out.println("Begin test battery 1AR12");
-		//battery1AR12(argv);
+		//battery1AR12();
 	
 		System.out.println("TEST BATTERY COMPLETE.");
 		System.exit(0);
 	}
 	/**
 	 * Loads up on keys
-	 * @param argv
+	 * @param 
 	 * @throws Exception
 	 */
-	public static void battery1(String[] argv) throws Exception {
+	public static void battery1() throws Exception {
 		System.out.println("Battery1 ");
 		long tims = System.currentTimeMillis();
 		long timt = System.currentTimeMillis();
@@ -117,10 +117,10 @@ public class BatteryRelatrix {
 	/**
 	 * Tries to store partial key that should match existing keys, should reject all.
 	 * Domain/map determines unique key
-	 * @param argv
+	 * @param 
 	 * @throws Exception
 	 */
-	public static void battery11(String[] argv) throws Exception {
+	public static void battery11() throws Exception {
 		System.out.println("Battery11 ");
 		long tims = System.currentTimeMillis();
 		long timt = System.currentTimeMillis();
@@ -149,10 +149,10 @@ public class BatteryRelatrix {
 	/**
 	 * Test the higher level functions in the Relatrix. Use the 'findSet' permutations to
 	 * verify the previously inserted data
-	 * @param argv
+	 * @param 
 	 * @throws Exception
 	 */
-	public static void battery1AR6(String[] argv) throws Exception {
+	public static void battery1AR6() throws Exception {
 		int i = min;
 		long tims = System.currentTimeMillis();
 		Iterator<?> its = Relatrix.findSet('?', '?', '?');
@@ -181,10 +181,10 @@ public class BatteryRelatrix {
 	}
 	/**
 	 * Testing of Iterator<?> its = Relatrix.findSet('?', '*', '*');
-	 * @param argv
+	 * @param 
 	 * @throws Exception
 	 */
-	public static void battery1AR7(String[] argv) throws Exception {
+	public static void battery1AR7() throws Exception {
 		int i = min;
 		long tims = System.currentTimeMillis();
 		Iterator<?> its = Relatrix.findSet('?', '*', '*');
@@ -210,10 +210,10 @@ public class BatteryRelatrix {
 	}
 	/**
 	 * Testing of Iterator<?> its = Relatrix.findSet('?', '?', '*');
-	 * @param argv
+	 * @param 
 	 * @throws Exception
 	 */
-	public static void battery1AR8(String[] argv) throws Exception {
+	public static void battery1AR8() throws Exception {
 		int i = min;
 		long tims = System.currentTimeMillis();
 		Iterator<?> its = Relatrix.findSet('?', '?', '*');
@@ -239,10 +239,10 @@ public class BatteryRelatrix {
 	/**
 	 * 
 	 * Testing of Iterator<?> its = Relatrix.findSet('*', '*', '*');
-	 * @param argv
+	 * @param 
 	 * @throws Exception
 	 */
-	public static void battery1AR9(String[] argv) throws Exception {
+	public static void battery1AR9() throws Exception {
 		int i = min;
 		long tims = System.currentTimeMillis();
 		Iterator<?> its = Relatrix.findSet('*', '*', '*');
@@ -270,10 +270,10 @@ public class BatteryRelatrix {
 	/**
 	 * Iterator<?> its = Relatrix.findSet(fkey, "Has unit", '*');
 	 * Should return 1 element of which 'fkey' and "Has unit" are primary key
-	 * @param argv
+	 * @param 
 	 * @throws Exception
 	 */
-	public static void battery1AR10(String[] argv) throws Exception {
+	public static void battery1AR10() throws Exception {
 		int i = min;
 		long tims = System.currentTimeMillis();
 		String fkey = key + String.format(uniqKeyFmt, min);
@@ -305,10 +305,10 @@ public class BatteryRelatrix {
 	/**
 	 * Iterator<?> its = Relatrix.findSet(fkey, "Has unit", Long.valueOf(max));
 	 * Range value is max, so zero keys should be retrieved since we insert 0 to max-1
-	 * @param argv
+	 * @param 
 	 * @throws Exception
 	 */
-	public static void battery1AR101(String[] argv) throws Exception {
+	public static void battery1AR101() throws Exception {
 		int i = 0;
 		long tims = System.currentTimeMillis();
 		String fkey = key + String.format(uniqKeyFmt, max);
@@ -342,10 +342,10 @@ public class BatteryRelatrix {
 	 * Iterator<?> its = Relatrix.findSet(fkey, "Has time", '*');
 	 * map is 'Has time', which we never inserted, so no elements should come back
 	 * @param session
-	 * @param argv
+	 * @param 
 	 * @throws Exception
 	 */
-	public static void battery1AR11(String[] argv) throws Exception {
+	public static void battery1AR11() throws Exception {
 		long tims = System.currentTimeMillis();
 	
 		String fkey = key + String.format(uniqKeyFmt, min);
@@ -362,10 +362,10 @@ public class BatteryRelatrix {
 	 * Testing of remove. Remove the object and all its relationships.
 	 * Perform 3 findSet with removed key to verify its gone.
 	 * @param session
-	 * @param argv
+	 * @param 
 	 * @throws Exception
 	 */
-	public static void battery1AR12(String[] argv) throws Exception {
+	public static void battery1AR12() throws Exception {
 		long tims = System.currentTimeMillis();
 	
 		String fkey = key + String.format(uniqKeyFmt, min);
@@ -390,10 +390,10 @@ public class BatteryRelatrix {
 	
 	/**
 	 * remove entries
-	 * @param argv
+	 * @param 
 	 * @throws Exception
 	 */
-	public static void battery1AR17(String[] argv) throws Exception {
+	public static void battery1AR17() throws Exception {
 		long tims = System.currentTimeMillis();
 		System.out.println("CleanDB DMR size="+Relatrix.size(Relation.class));
 		System.out.println("CleanDB DRM size="+Relatrix.size(DomainRangeMap.class));

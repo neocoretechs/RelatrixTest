@@ -69,7 +69,7 @@ public class EmbeddedRetrievalBattery8 {
 	*/
 	public static void main(String[] argv) throws Exception {
 		 //System.out.println("Analysis of all");
-		RelatrixJsonTransaction.setTablespace(argv[0]);
+		RelatrixJsonTransaction.getInstance();
 		xid = RelatrixJsonTransaction.getTransactionId();
 		AbstractRelation.displayLevel = AbstractRelation.displayLevels.VERBOSE;
 		xfClass = RelatrixKVJsonTransaction.getClassType(xf, xid);

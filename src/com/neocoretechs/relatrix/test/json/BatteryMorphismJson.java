@@ -17,6 +17,8 @@ import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.key.KeySet;
 import com.neocoretechs.relatrix.key.PrimaryKeySet;
+import com.neocoretechs.relatrix.parallel.ExecutionContextHolder;
+import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 import com.neocoretechs.rocksack.iterator.Entry;
 
 /**
@@ -57,7 +59,7 @@ public class BatteryMorphismJson {
 				System.out.println("Usage: java com.neocoretechs.relatrix.test.BatteryMorphism <directory_tablespace_path>");
 				System.exit(1);
 			}
-			RelatrixJson.setTablespace(argv[0]);
+			RelatrixJson.getInstance();
 			battery1AR17(argv);
 			battery0(argv);
 		
@@ -244,9 +246,15 @@ public class BatteryMorphismJson {
 				System.out.println("...Continuing test with IndexResolver at "+(System.currentTimeMillis()-tims)+" ms.");
 				cnt = 0;
 				its = keys.iterator();
+				IndexResolver resolver = null;
+				if(ExecutionContextHolder.CONTEXT.isBound()) {
+				        ParallelExecutionContext ctx = ExecutionContextHolder.CONTEXT.get();
+				        resolver = ctx.resolver();
+				} else
+					throw new RuntimeException("IndexResolver not bound to context.");
 				while(its.hasNext()) {
 					Relation nex = (Relation) its.next();
-					pk = (Relation) IndexResolver.getIndexInstanceTable().get(nex.getIdentity()); 
+					pk = (Relation) resolver.getIndexInstanceTable().get(nex.getIdentity()); 
 					// if we didnt resolve it, see if its in the table we built that mirrors what should be in db
 					if( pk == null ) {
 						if(dbtable.get(nex.getIdentity()) != null)
@@ -292,10 +300,16 @@ public class BatteryMorphismJson {
 			long tims = System.currentTimeMillis();
 			Iterator<?> its = RelatrixKVJson.entrySet(Relation.class);
 			System.out.println("Battery1AR5");
+			IndexResolver resolver = null;
+			if(ExecutionContextHolder.CONTEXT.isBound()) {
+			        ParallelExecutionContext ctx = ExecutionContextHolder.CONTEXT.get();
+			        resolver = ctx.resolver();
+			} else
+				throw new RuntimeException("IndexResolver not bound to context.");
 			if(its != null) {
 				while(its.hasNext()) {
 					Entry nex = (Entry) its.next();
-					i = IndexResolver.getIndexInstanceTable().get((DBKey) nex.getValue()); 
+					i = resolver.getIndexInstanceTable().get((DBKey) nex.getValue()); 
 					if( i == null ) {
 						if(dbtable.get(nex.getValue()) != null)
 							System.out.println("Found element in dbtable");
@@ -332,9 +346,15 @@ public class BatteryMorphismJson {
 			Iterator<?> its = RelatrixJson.entrySet( Relation.class);
 			System.out.println("Battery1AR55");
 			if(its != null) {
+				IndexResolver resolver = null;
+				if(ExecutionContextHolder.CONTEXT.isBound()) {
+				        ParallelExecutionContext ctx = ExecutionContextHolder.CONTEXT.get();
+				        resolver = ctx.resolver();
+				} else
+					throw new RuntimeException("IndexResolver not bound to context.");
 				while(its.hasNext()) {
 					Entry nex = (Entry) its.next();
-					i = IndexResolver.getIndexInstanceTable().get((DBKey) nex.getValue()); 
+					i = resolver.getIndexInstanceTable().get((DBKey) nex.getValue()); 
 					if( i == null ) {
 						if(dbtable.get(nex.getValue()) != null)
 							System.out.println("Found element in dbtable");
@@ -396,11 +416,17 @@ public class BatteryMorphismJson {
 			if( c != null ) {
 				Iterator<?> its = RelatrixKVJson.findTailMapKV(c);
 				System.out.println("Battery1AR12");
+				IndexResolver resolver = null;
+				if(ExecutionContextHolder.CONTEXT.isBound()) {
+				        ParallelExecutionContext ctx = ExecutionContextHolder.CONTEXT.get();
+				        resolver = ctx.resolver();
+				} else
+					throw new RuntimeException("IndexResolver not bound to context.");
 				while(its.hasNext()) {
 					Comparable nex = (Comparable) its.next();
 					Map.Entry<Relation, DBKey> nexe = (Map.Entry<Relation,DBKey>)nex;
-					DBKey db = IndexResolver.getIndexInstanceTable().getKey(nexe.getKey()); // get the DBKey for this instance integer
-					Relation keyset = (Relation) IndexResolver.getIndexInstanceTable().get(nexe.getValue());
+					DBKey db = resolver.getIndexInstanceTable().getKey(nexe.getKey()); // get the DBKey for this instance integer
+					Relation keyset = (Relation) resolver.getIndexInstanceTable().get(nexe.getValue());
 					if(nexe.getKey().compareTo(keyset) != 0 || nexe.getValue().compareTo(db) != 0) {
 						// Map.Entry
 						System.out.println("COMPARISON KEY MISMATCH:"+nex+" ["+db+","+keyset+"]");
@@ -429,10 +455,16 @@ public class BatteryMorphismJson {
 			if(c != null) {
 				Iterator<?> its = RelatrixKVJson.findHeadMapKV(c);
 				System.out.println("Battery1AR14");
+				IndexResolver resolver = null;
+				if(ExecutionContextHolder.CONTEXT.isBound()) {
+				        ParallelExecutionContext ctx = ExecutionContextHolder.CONTEXT.get();
+				        resolver = ctx.resolver();
+				} else
+					throw new RuntimeException("IndexResolver not bound to context.");
 				while(its.hasNext()) {
 					Comparable nex = (Comparable) its.next();
 					Map.Entry<Relation,DBKey> nexe = (Map.Entry<Relation,DBKey>)nex;
-					DBKey db = IndexResolver.getIndexInstanceTable().getKey(nexe.getKey()); // get the DBKey for this instance 
+					DBKey db = resolver.getIndexInstanceTable().getKey(nexe.getKey()); // get the DBKey for this instance 
 					if(nexe.getValue().compareTo(db) != 0) {
 						// Map.Entry
 						System.out.println("RESOLVED KEY MISMATCH:"+nex+" with resolved key "+db);

@@ -20,12 +20,12 @@ import com.neocoretechs.relatrix.DomainRangeMap;
 import com.neocoretechs.relatrix.Result;
 
 /**
- * The set of tests verifies the findSet relation function in the {@link  Relatrix}<p/>
- * Create a series of nested relations and then verify that they are properly located when a reference to them is provided.<p/>
+ * The set of tests verifies the findSet relation function in the {@link  Relatrix}<p>
+ * Create a series of nested relations and then verify that they are properly located when a reference to them is provided.<p>
  * This represents sets of deeply nested relations introducing a heavy demand. 
  * NOTES:
  * A database unique to this test module should be used.
- * program argument is database i.e. C:/users/you/Relatrix/TestDB2 [ [init] [max nnn] ]
+ * program argument is [ [init] [max nnn] ]
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2024
  *
  */
@@ -41,37 +41,36 @@ public class BatteryRelatrixFindRelated {
 	* Main test fixture driver
 	*/
 	public static void main(String[] argv) throws Exception {
-		Relatrix.setTablespace(argv[0]);
+		Relatrix.getInstance();
 		AbstractRelation.displayLevel = displayLevels.MINIMAL;
-		if(argv.length > 2 && argv[1].equals("max")) {
-			System.out.println("Setting max items to "+argv[2]);
-			max = Integer.parseInt(argv[2]);
+		if(argv.length > 0 && argv[1].equals("max")) {
+			System.out.println("Setting max items to "+argv[0]);
+			max = Integer.parseInt(argv[0]);
 		} else {
-			if(argv.length > 1 && argv[1].equals("init")) {
+			if(argv.length > 0 && argv[0].equals("init")) {
 				System.out.println("Initialize database to zero items, then terminate...");
-				battery1AR17(argv);
+				battery1AR17();
 				System.exit(0);
 			}
 		}
 		if(Relatrix.size() == 0) {
 			if(DEBUG)
 				System.out.println("Zero items, Begin insertion from "+min+" to "+max);
-			battery1(argv);
+			battery1();
 		}
 		if(DEBUG)
 			System.out.println("Begin test battery 1AR6 Nested Key");
-		battery1AR6(argv);
-		battery1AR67(argv);
+		battery1AR6();
+		battery1AR67();
 	
 		System.out.println("TEST BATTERY COMPLETE.");
 		System.exit(0);
 	}
 	/**
 	 * Loads up on keys. Store a set of nested relationships for later retrieval.
-	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery1(String[] argv) throws Exception {
+	public static void battery1() throws Exception {
 		System.out.println("Battery1 ");
 		long tims = System.currentTimeMillis();
 		long timt = System.currentTimeMillis();
@@ -107,10 +106,9 @@ public class BatteryRelatrixFindRelated {
 	/**
 	 * Test the higher level functions in the Relatrix. Use the 'findSet' permutations to
 	 * verify the previously inserted data. Start from the relationship "leg "+sequence
-	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery1AR6(String[] argv) throws Exception {
+	public static void battery1AR6() throws Exception {
 		i = min;
 		long tims = System.currentTimeMillis();
 		System.out.println("Battery1AR6");
@@ -132,10 +130,9 @@ public class BatteryRelatrixFindRelated {
 	/**
 	 * Test the higher level functions in the Relatrix. Use the 'findSet' permutations to
 	 * verify the previously inserted data. Start from the relationship "dog "+sequence
-	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery1AR67(String[] argv) throws Exception {
+	public static void battery1AR67() throws Exception {
 		i = min;
 		long tims = System.currentTimeMillis();
 		System.out.println("Battery1AR67");
@@ -156,10 +153,9 @@ public class BatteryRelatrixFindRelated {
 	}
 	/**
 	 * remove entries
-	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery1AR17(String[] argv) throws Exception {
+	public static void battery1AR17() throws Exception {
 		long tims = System.currentTimeMillis();
 		System.out.println("CleanDB DMR size="+Relatrix.size(Relation.class));
 		System.out.println("CleanDB DRM size="+Relatrix.size(DomainRangeMap.class));

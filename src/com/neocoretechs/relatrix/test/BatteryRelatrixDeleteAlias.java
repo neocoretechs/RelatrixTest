@@ -16,15 +16,14 @@ import com.neocoretechs.relatrix.Relatrix;
 import com.neocoretechs.relatrix.Relation;
 import com.neocoretechs.relatrix.DomainRangeMap;
 import com.neocoretechs.relatrix.Result;
-import com.neocoretechs.relatrix.key.IndexResolver;
 
 /**
- * The set of tests verifies the delete functions in the {@link  Relatrix}<p/>
- * Create a series of nested relations and then verify that they are properly deleted when a reference to them was previously deleted.<p/>
+ * The set of tests verifies the delete functions in the {@link  Relatrix}<p>
+ * Create a series of nested relations and then verify that they are properly deleted when a reference to them was previously deleted.<p>
  * This represents sets of deeply nested relations introducing a heavy demand. 
  * NOTES:
  * A path unique to this test module should be used.
- * program argument is database i.e. C:/users/you/Relatrix/ [ [init] [max nnn] ]
+ * [init] [max nnn]
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2024
  *
  */
@@ -46,33 +45,31 @@ public class BatteryRelatrixDeleteAlias {
 	* Main test fixture driver
 	*/
 	public static void main(String[] argv) throws Exception {
-		Relatrix.setTablespace(argv[0]);
+		Relatrix.getInstance();
 		AbstractRelation.displayLevel = displayLevels.VERBOSE;
-		if(argv.length > 2 && argv[1].equals("max")) {
-			System.out.println("Setting max items to "+argv[2]);
-			max = Integer.parseInt(argv[2]);
+		if(argv.length > 0 && argv[0].equals("max")) {
+			System.out.println("Setting max items to "+argv[0]);
+			max = Integer.parseInt(argv[0]);
 		} else {
-			if(argv.length > 1 && argv[1].equals("init")) {
+			if(argv.length > 0 && argv[0].equals("init")) {
 				System.out.println("Initialize database to zero items, then terminate...");
-				battery1AR17(argv, alias1);
-				battery1AR17(argv, alias2);
-				battery1AR17(argv, alias3);
+				battery1AR17(alias1);
+				battery1AR17(alias2);
+				battery1AR17(alias3);
 				System.exit(0);
 			}
 		}
-		String tablespace = argv[0];
-		if(!tablespace.endsWith("/"))
-			tablespace += "/";
-		Relatrix.setAlias(alias1,tablespace+alias1);
-		Relatrix.setAlias(alias2,tablespace+alias2);
-		Relatrix.setAlias(alias3,tablespace+alias3);
+	
+		Relatrix.setAlias(alias1,Relatrix.getTableSpace()+alias1);
+		Relatrix.setAlias(alias2,Relatrix.getTableSpace()+alias2);
+		Relatrix.setAlias(alias3,Relatrix.getTableSpace()+alias3);
 		AbstractRelation.displayLevel = displayLevels.VERBOSE;
 		if(Relatrix.size(alias1) == 0) {
 			if(DEBUG)
 				System.out.println("Zero items, Begin insertion from "+min+" to "+max);
-			battery1(argv, alias1);
-			battery1(argv, alias2);
-			battery1(argv, alias3);
+			battery1(alias1);
+			battery1(alias2);
+			battery1(alias3);
 			if(DEBUG)
 				System.out.println("Begin duplicate key rejection test from "+min+" to "+max);
 			//battery11(argv, alias1);
@@ -81,9 +78,9 @@ public class BatteryRelatrixDeleteAlias {
 		}
 		if(DEBUG)
 			System.out.println("Begin test battery 1AR6");
-		battery1AR6(argv, alias1);
-		battery1AR6(argv, alias2);
-		battery1AR6(argv, alias3);
+		battery1AR6(alias1);
+		battery1AR6(alias2);
+		battery1AR6(alias3);
 	
 		System.out.println("TEST BATTERY COMPLETE.");
 		System.exit(0);
@@ -94,7 +91,7 @@ public class BatteryRelatrixDeleteAlias {
 	 * @param alias12 
 	 * @throws Exception
 	 */
-	public static void battery1(String[] argv, Alias alias12) throws Exception {
+	public static void battery1(Alias alias12) throws Exception {
 		System.out.println(alias12+" Battery1 ");
 		long tims = System.currentTimeMillis();
 		long timt = System.currentTimeMillis();
@@ -135,7 +132,7 @@ public class BatteryRelatrixDeleteAlias {
 	 * @param xid2 
 	 * @throws Exception
 	 */
-	public static void battery11(String[] argv, Alias alias12) throws Exception {
+	public static void battery11(Alias alias12) throws Exception {
 		System.out.println(alias12+" Battery11 ");
 		long tims = System.currentTimeMillis();
 		long timt = System.currentTimeMillis();
@@ -179,7 +176,7 @@ public class BatteryRelatrixDeleteAlias {
 	 * @param alias12 
 	 * @throws Exception
 	 */
-	public static void battery1AR6(String[] argv, Alias alias12) throws Exception {
+	public static void battery1AR6(Alias alias12) throws Exception {
 		i = min;
 		long tims = System.currentTimeMillis();
 		System.out.println(alias12+" Battery1AR6");
@@ -215,7 +212,7 @@ public class BatteryRelatrixDeleteAlias {
 	 * @param alias12 
 	 * @throws Exception
 	 */
-	public static void battery1AR17(String[] argv, Alias alias12) throws Exception {
+	public static void battery1AR17(Alias alias12) throws Exception {
 		long tims = System.currentTimeMillis();
 		System.out.println(alias12+" CleanDB DMR size="+Relatrix.size(alias12));
 		System.out.println("CleanDB DRM size="+Relatrix.size(alias12,DomainRangeMap.class));

@@ -15,7 +15,6 @@ import com.neocoretechs.relatrix.MapRangeDomain;
 import com.neocoretechs.relatrix.AbstractRelation;
 import com.neocoretechs.relatrix.RangeDomainMap;
 import com.neocoretechs.relatrix.RangeMapDomain;
-import com.neocoretechs.relatrix.RelatrixJsonTransaction;
 import com.neocoretechs.relatrix.RelatrixKVJsonTransaction;
 import com.neocoretechs.relatrix.Result;
 import com.neocoretechs.relatrix.Result2;
@@ -74,7 +73,7 @@ public class EmbeddedRetrievalBattery7 {
 	*/
 	public static void main(String[] argv) throws Exception {
 		System.out.println("Subset Provides a persistent collection iterator of keys 'from' element inclusive, 'to' element exclusive of the keys specified");
-		RelatrixJsonTransaction.setTablespace(argv[0]);
+		RelatrixJsonTransaction.getInstance();
 		xid = RelatrixJsonTransaction.getTransactionId();
 		AbstractRelation.displayLevel = AbstractRelation.displayLevels.MINIMAL;
 		xfClass = RelatrixKVJsonTransaction.getClassType(xf, xid);

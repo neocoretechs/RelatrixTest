@@ -8,7 +8,6 @@ import com.neocoretechs.relatrix.DomainRangeMap;
 import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.MapDomainRange;
 import com.neocoretechs.relatrix.MapRangeDomain;
-import com.neocoretechs.rocksack.session.DatabaseManager;
 import com.neocoretechs.relatrix.AbstractRelation;
 import com.neocoretechs.relatrix.RangeDomainMap;
 import com.neocoretechs.relatrix.RangeMapDomain;
@@ -16,18 +15,15 @@ import com.neocoretechs.relatrix.Relatrix;
 import com.neocoretechs.relatrix.Result;
 import com.neocoretechs.relatrix.AbstractRelation.displayLevels;
 
-
 /**
  * The set of tests verifies the higher level 'findSubSet' and 'findHeadSet' 'findTailSet'
- * retrieval functions in the {@link Relatrix}.<p/>
- * Yes, this should be a nice JUnit fixture someday
+ * retrieval functions in the {@link Relatrix}.<p>
  * The static constant fields in the class control the key generation for the tests
  * In general, the keys and values are formatted according to uniqKeyFmt to produce
  * a series of canonically correct sort order strings for the DB in the range of min to max vals.
  * In general, most of the battery testing relies on checking order against expected values, hence the importance of
  * canonical ordering in the sample strings.
  * NOTES:
- * program argument is database i.e. C:/users/you/Relatrix/TestDB2, which would create a series of database TestDB2 class tables
  * @author Jonathan Groff (C) Copyright NeoCoreTechs 2016,2017,2024
  *
  */
@@ -45,30 +41,30 @@ public class BatteryRelatrix2 {
 	* Main test fixture driver
 	*/
 	public static void main(String[] argv) throws Exception {
-		DatabaseManager.setTableSpaceDir(argv[0]);
+		Relatrix.getInstance();
 		//AbstractRelation.displayLevel = displayLevels.VERBOSE;
-		if(argv.length > 2 && argv[1].equals("max")) {
-			System.out.println("Setting max items to "+argv[2]);
-			max = Integer.parseInt(argv[2]);
+		if(argv.length > 0 && argv[0].equals("max")) {
+			System.out.println("Setting max items to "+argv[0]);
+			max = Integer.parseInt(argv[0]);
 		} else {
-			if(argv.length > 1 && argv[1].equals("init")) {
+			if(argv.length > 0 && argv[0].equals("init")) {
 				System.out.println("Initialize database to zero items, then terminate...");
-				battery1AR17(argv);
+				battery1AR17();
 				System.exit(0);
 			}
 		}
 		if(Relatrix.size() == 0) {
 			if(DEBUG)
 				System.out.println("Zero items, Begin insertion from "+min+" to "+max);
-			battery1(argv);
+			battery1();
 		}
 
-		battery1A1(argv);
-		battery1B(argv);
-		battery1C(argv);
-		battery1D(argv);
-		battery1E(argv);
-		battery1F(argv);
+		battery1A1();
+		battery1B();
+		battery1C();
+		battery1D();
+		battery1E();
+		battery1F();
 	
 		System.out.println("TEST BATTERY COMPLETE.");
 		System.exit(0);
@@ -79,7 +75,7 @@ public class BatteryRelatrix2 {
 	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery1(String[] argv) throws Exception {
+	public static void battery1() throws Exception {
 		System.out.println("Battery1 ");
 		long tims = System.currentTimeMillis();
 		int dupes = 0;
@@ -103,7 +99,7 @@ public class BatteryRelatrix2 {
 	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery1A1(String[] argv) throws Exception {
+	public static void battery1A1() throws Exception {
 		int i = max/2;
 		long tims = System.currentTimeMillis();
 		String skey = key + String.format(uniqKeyFmt, i);
@@ -130,7 +126,7 @@ public class BatteryRelatrix2 {
 	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery1B(String[] argv) throws Exception {
+	public static void battery1B() throws Exception {
 		int i = max/2;
 		int j = 0;
 		long tims = System.currentTimeMillis();
@@ -160,7 +156,7 @@ public class BatteryRelatrix2 {
 	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery1C(String[] argv) throws Exception {
+	public static void battery1C() throws Exception {
 		int i = max/2;
 		int j = 0;
 		long tims = System.currentTimeMillis();
@@ -190,7 +186,7 @@ public class BatteryRelatrix2 {
 	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery1D(String[] argv) throws Exception {
+	public static void battery1D() throws Exception {
 		int i = max/2;
 		int j = 0;
 		int range = 10;
@@ -224,7 +220,7 @@ public class BatteryRelatrix2 {
 	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery1E(String[] argv) throws Exception {
+	public static void battery1E() throws Exception {
 		int i = max/2;
 		int j = 0;
 		int range = 10;
@@ -253,7 +249,7 @@ public class BatteryRelatrix2 {
 	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery1F(String[] argv) throws Exception {
+	public static void battery1F() throws Exception {
 		int i = max/2;
 		int j = 0;
 		int range = 10;
@@ -283,7 +279,7 @@ public class BatteryRelatrix2 {
 	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery1AR17(String[] argv) throws Exception {
+	public static void battery1AR17() throws Exception {
 		long tims = System.currentTimeMillis();
 		System.out.println("CleanDB DMR size="+Relatrix.size(Relation.class));
 		System.out.println("CleanDB DRM size="+Relatrix.size(DomainRangeMap.class));

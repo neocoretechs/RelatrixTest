@@ -1,0 +1,1 @@
+java -ea -Dtablespace=D:/etc/Relatrix/testdb -cp \Progra~1\apache\apache-tomcat\lib\RockSack.jar;\Progra~1\apache\apache-tomcat\lib\Relatrix.jar;\Progra~1\apache\apache-tomcat\lib\rocksdbjni-9.10.0-win64.jar;\Progra~1\apache\apache-tomcat\lib\RelatrixTest.jar;\Progra~1\apache\apache-tomcat\lib\json.jar com.neocoretechs.relatrix.test.server.ServerRetrievalBattery1 %1 %2

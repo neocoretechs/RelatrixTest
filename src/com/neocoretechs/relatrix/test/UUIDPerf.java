@@ -10,7 +10,7 @@ import com.neocoretechs.relatrix.RelatrixKV;
 public class UUIDPerf {
 	private static int max = 100000;
 	public static void main(String[] args) throws IOException, IllegalAccessException, DuplicateKeyException, IllegalArgumentException, ClassNotFoundException {
-		RelatrixKV.setTablespace(args[0]);
+		RelatrixKV.getInstance();
 		long tim = System.currentTimeMillis();
 		for(int i = 0; i < max; i++) {
 			RelatrixKV.store(UUID.randomUUID(), i);

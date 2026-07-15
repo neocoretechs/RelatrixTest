@@ -53,7 +53,7 @@ public class EmbeddedRetrievalBatteryTransaction4 {
 	*/
 	public static void main(String[] argv) throws Exception {
 		System.out.println("Subset Provides a persistent collection iterator of keys 'from' element inclusive, 'to' element exclusive of the keys specified");
-		RelatrixTransaction.setTablespace(argv[0]);
+		RelatrixTransaction.getInstance();
 		AbstractRelation.displayLevel = AbstractRelation.displayLevels.MINIMAL;
 		xid = RelatrixTransaction.getTransactionId();
 		if(argv.length == 2 && argv[1].equals("init")) {
