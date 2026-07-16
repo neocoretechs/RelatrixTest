@@ -43,10 +43,10 @@ public class BatteryRelatrix {
 		AbstractRelation.displayLevel = displayLevels.VERBOSE;
 		Relatrix.getInstance();
 		if(argv.length > 0 && argv[1].equals("max")) {
-			System.out.println("Setting max items to "+argv[0]);
-			max = Integer.parseInt(argv[0]);
+			System.out.println("Setting max items to "+argv[2]);
+			max = Integer.parseInt(argv[2]);
 		} else {
-			if(argv.length > 0 && argv[0].equals("init")) {
+			if(argv.length > 0 && argv[1].equals("init")) {
 				System.out.println("Initialize database to zero items, then terminate...");
 				battery1AR17();
 				System.exit(0);

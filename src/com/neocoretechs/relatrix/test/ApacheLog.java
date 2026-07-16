@@ -17,15 +17,19 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import com.neocoretechs.rocksack.session.DatabaseManager;
 import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.Relatrix;
 import com.neocoretechs.relatrix.Result;
+import com.neocoretechs.relatrix.key.IndexResolver;
+import com.neocoretechs.relatrix.parallel.ExecutionContextHolder;
+import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
+import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 
 /**
  * Process the apache log files and place in a Relatrix database.<p/>
@@ -479,79 +483,88 @@ public class ApacheLog {
 	 * @throws DuplicateKeyException 
 	 */
 	public static void main(String[] args) throws ParseException, IOException, IllegalAccessException, ClassNotFoundException {
-		String lin = "203.106.155.51 www.neocoretechs.com - [21/Jul/2013:01:18:11 -0400] ";
-		lin += "\"GET /favicon.ico HTTP/1.1\" 200 894 \"http://lizahanum.blogspot.com/2011/02/kebab-daging.html\" ";
-		lin += "\"Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/535.6 (KHTML, like Gecko) Chrome/16.0.899.0 Safari/535.6\" \"-\"";
-		
-		String lin2 = "203.106.155.51 www.neocoretechs.com - [21/Jul/2013:01:20:01 -0400] ";
-		lin2 += "\"GET /faticon.ico HTTP/1.1\" 200 894 \"http://lizahanum.blogspot.com/2011/02/hummus.html\" ";
-		lin2 += "\"Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/535.6 (KHTML, like Gecko) Chrome/16.0.899.0 Safari/535.6\" \"-\"";
-		
-		String lin3 = "203.106.155.51 www.neocoretechs.com - [21/Jul/2013:01:25:21 -0400] ";
-		lin3 += "\"GET /flabicon.ico HTTP/1.1\" 200 894 \"http://lizahanum.blogspot.com/2011/02/falafel.html\" ";
-		lin3 += "\"Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/535.6 (KHTML, like Gecko) Chrome/16.0.899.0 Safari/535.6\" \"-\"";
+		final String lin = "203.106.155.51 www.neocoretechs.com - [21/Jul/2013:01:18:11 -0400]\"GET /favicon.ico HTTP/1.1\" 200 894 \"http://lizahanum.blogspot.com/2011/02/kebab-daging.html\" \"Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/535.6 (KHTML, like Gecko) Chrome/16.0.899.0 Safari/535.6\" \"-\"";	
+		final String lin2 = "203.106.155.51 www.neocoretechs.com - [21/Jul/2013:01:20:01 -0400]\"GET /faticon.ico HTTP/1.1\" 200 894 \"http://lizahanum.blogspot.com/2011/02/hummus.html\" \"Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/535.6 (KHTML, like Gecko) Chrome/16.0.899.0 Safari/535.6\" \"-\"";
+		final String lin3 = "203.106.155.51 www.neocoretechs.com - [21/Jul/2013:01:25:21 -0400]\"GET /flabicon.ico HTTP/1.1\" 200 894 \"http://lizahanum.blogspot.com/2011/02/falafel.html\" \"Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/535.6 (KHTML, like Gecko) Chrome/16.0.899.0 Safari/535.6\" \"-\"";
 		
 		// get either the test line or a directory of log files, assume simple log format unless we have extra cmdl arg
-		ApacheLog alfoo = new ApacheLog();
-		if(args.length == 2 || args.length == 3) {
-			DatabaseManager.setTableSpaceDir(args[0]);
-			if(args.length == 3)
-				alfoo.getFiles(args[1], false);
-			else
-				alfoo.getFiles(args[1], true);
-		} else {
-			if(args.length == 1) {
-				DatabaseManager.setTableSpaceDir(args[0]);
-				alfoo.readAndProcess(lin);
-				storeRelatrix();
-				alfoo.readAndProcess(lin2);
-				storeRelatrix();
-				alfoo.readAndProcess(lin3);
-				storeRelatrix();
-			} else {
-				System.out.println("usage java com.neocoretechs.relatrix.test.ApacheLog <tablespace dir> [log file dir]");
-			}	
-		}
-		System.out.println("Stored..now retrieving stored data as a series of relations:");
-		tims = System.currentTimeMillis();
-		// now display the results processed by the input
-		// If we provide ranges for wildcard qualifiers, we can obtain a set sorted in order of those qualifiers
-		// in the case of tailSet, we provide lower bounds and elements will be retrieved in order starting from the lower bounds
-		// retrieve all identity relationships that contain the concrete object specified
-		Iterator<?> it = Relatrix.findTailSet('*',"accessed by",'*', Long.valueOf(0),"");
-		// If the order does not matter, we can merely specify findSet to retrieve randomly ordered elements
-		// Iterator it = Relatrix.findSet("*","accessed by","*");
-		// Iterate all the retrieved identity relationships
-		it.forEachRemaining(e->{
-			//System.out.println(++cnt+".) Primary relation:"+e);
-			Iterator<?> it2 = null;
-			// findSet returns Result as the lambda, which contains components of the relationships
-			result = (Result) e;
-			// use the identity as the first element to retrieve related elements
+		IndexResolver indexResolver = new IndexResolver();
+		indexResolver.setLocal();
+		ParallelExecutionContext pec = new ParallelExecutionContext(indexResolver, new ConcurrentHashMap<String,Object>());
+		ScopedValue.where(ExecutionContextHolder.CONTEXT, pec).run(() -> {
+			Relatrix.getInstance();
+			ApacheLog alfoo = new ApacheLog();
 			try {
-				it2 = Relatrix.findSet(result.get(),'?','?');
-			} catch (Exception e1) {
-				e1.printStackTrace();
-			} 
-			// If there are any elements related to the identity, display them
-			cnt2 = 0;
-			// break the identity relationship object out into a list of its components
-			List<?> l = Relatrix.resolve(result.get());
-			// display the primary relationship and each element it is related to
-			it2.forEachRemaining(/*System.out::println*/ e2->{
-				++cnt2;
-				if(DEBUG)
-					System.out.println(cnt2+".) "+Arrays.toString(l.toArray())+" has "+e2);
-				else
-					if((System.currentTimeMillis()-tims) > 5000) {
-						System.out.println("Processed "+cnt2+" current:"+cnt2+".) "+Arrays.toString(l.toArray())+" has "+e2);
-						tims = System.currentTimeMillis();
+			if(args.length > 0) {
+				if(args.length == 2) {
+						alfoo.getFiles(args[0], Boolean.parseBoolean(args[1]));
+				} else {
+					if(args.length == 1) {
+						System.out.println("Storing 3 relationships of test data...");
+						alfoo.readAndProcess(lin);
+						storeRelatrix();
+						alfoo.readAndProcess(lin2);
+						storeRelatrix();
+						alfoo.readAndProcess(lin3);
+						storeRelatrix();
+					} else {
+						System.out.println("usage java com.neocoretechs.relatrix.test.ApacheLog [log file dir] [true | false]");
+						System.exit(1);
 					}
+				}
+			}
+			} catch (IllegalAccessException | ClassNotFoundException | IOException | ParseException e) {
+					e.printStackTrace();
+					System.exit(1);
+			}
+			System.out.println("Stored..now retrieving stored data as a series of relations:");
+			tims = System.currentTimeMillis();
+			// now display the results processed by the input
+			// If we provide ranges for wildcard qualifiers, we can obtain a set sorted in order of those qualifiers
+			// in the case of tailSet, we provide lower bounds and elements will be retrieved in order starting from the lower bounds
+			// retrieve all identity relationships that contain the concrete object specified
+			Iterator<?> it = null;
+			try {
+				it = Relatrix.findTailSet('*',"accessed by",'*', Long.valueOf(0),"");
+			} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
+				e.printStackTrace();
+				System.exit(1);
+			}
+			// If the order does not matter, we can merely specify findSet to retrieve randomly ordered elements
+			// Iterator it = Relatrix.findSet("*","accessed by","*");
+			// Iterate all the retrieved identity relationships
+			it.forEachRemaining(e->{
+				//System.out.println(++cnt+".) Primary relation:"+e);
+				Iterator<?> it2 = null;
+				// findSet returns Result as the lambda, which contains components of the relationships
+				result = (Result) e;
+				// use the identity as the first element to retrieve related elements
+				try {
+					it2 = Relatrix.findSet(result.get(),'?','?');
+				} catch (Exception e1) {
+					e1.printStackTrace();
+				} 
+				// If there are any elements related to the identity, display them
+				cnt2 = 0;
+				// break the identity relationship object out into a list of its components
+				List<?> l = Relatrix.resolve(result.get());
+				// display the primary relationship and each element it is related to
+				it2.forEachRemaining(/*System.out::println*/ e2->{
+					++cnt2;
+					if(DEBUG)
+						System.out.println(cnt2+".) "+Arrays.toString(l.toArray())+" has "+e2);
+					else
+						if((System.currentTimeMillis()-tims) > 5000) {
+							System.out.println("Processed "+cnt2+" current:"+cnt2+".) "+Arrays.toString(l.toArray())+" has "+e2);
+							tims = System.currentTimeMillis();
+						}
+				});
+				if(DEBUG)
+					System.out.println("-----------------");
 			});
-			if(DEBUG)
-				System.out.println("-----------------");
+			System.out.println("End of stored data.");
+			// current thread ExecutionContextHolder.CONTEXT
 		});
-		System.out.println("End of stored data.");
 		System.exit(0);
 	}
 
