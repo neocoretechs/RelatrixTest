@@ -44,27 +44,36 @@ public class BatteryMorphism {
 		* Main test fixture driver
 		*/
 		public static void main(String[] argv) throws Exception {
-			Relatrix.getInstance();
-			battery1AR17();
-			battery1();
-			// load keys table from Relation class instance, which is the concrete subclass of PrimaryKeySet
-			battery1AR4();
-			battery1AR44();
-			battery1AR5();
-			battery1AR55();
-			battery1AR101();
-			// now do alternate keys table loadout retrieving from DBKey class and repeat tests comparing tables with stored data
-			keys.clear();
-			battery1AR4A();
-			battery1AR44();
-			// 5 and 55 dont involve keys table, only dbtable
-			battery1AR101();
-			// and perform balance of testing
-			battery1AR12();
-			battery1AR14();
+			IndexResolver indexResolver = new IndexResolver();
+			indexResolver.setLocal();
+			ParallelExecutionContext pec = new ParallelExecutionContext(indexResolver, new ConcurrentHashMap<String,Object>());
+			ScopedValue.where(ExecutionContextHolder.CONTEXT, pec).run(() -> {
+				Relatrix.getInstance();
+				try {
+					battery1AR17();
+					battery1();
+					// load keys table from Relation class instance, which is the concrete subclass of PrimaryKeySet
+					battery1AR4();
+					battery1AR44();
+					battery1AR5();
+					battery1AR55();
+					battery1AR101();
+					// now do alternate keys table loadout retrieving from DBKey class and repeat tests comparing tables with stored data
+					keys.clear();
+					battery1AR4A();
+					battery1AR44();
+					// 5 and 55 dont involve keys table, only dbtable
+					battery1AR101();
+					// and perform balance of testing
+					battery1AR12();
+					battery1AR14();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			});
 			//battery1AR17();
-			 System.out.println("BatteryMorphism TEST BATTERY COMPLETE.");
-			 System.exit(0);	
+			System.out.println("BatteryMorphism TEST BATTERY COMPLETE.");
+			System.exit(0);	
 		}
 		/**
 		 * Loads up on keys, should be 0 to max-1, or min, to max -1
@@ -108,6 +117,10 @@ public class BatteryMorphism {
 					System.out.println("Relatrix.store stored :"+identity);
 				++recs;
 			}
+			long ctim = System.currentTimeMillis();
+			// compact relation table
+			Relatrix.flushAndCompactDB(Relation.class);
+			System.out.println("Compaction and flush in "+(System.currentTimeMillis()-ctim)+" ms.");
 			if(DEBUG) {
 				System.out.println("---DBtable---");
 				dbtable.forEach((k,v)->{System.out.println(k+" "+v);});

@@ -24,6 +24,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import com.neocoretechs.relatrix.DuplicateKeyException;
+import com.neocoretechs.relatrix.Relation;
 import com.neocoretechs.relatrix.Relatrix;
 import com.neocoretechs.relatrix.Result;
 import com.neocoretechs.relatrix.key.IndexResolver;
@@ -513,6 +514,7 @@ public class ApacheLog {
 					}
 				}
 			}
+			Relatrix.flushAndCompactDB(Relation.class);
 			} catch (IllegalAccessException | ClassNotFoundException | IOException | ParseException e) {
 					e.printStackTrace();
 					System.exit(1);

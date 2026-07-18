@@ -1,5 +1,6 @@
 package com.neocoretechs.relatrix.test;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
@@ -52,66 +53,74 @@ public class BatteryMorphismAlias {
 	* Main test fixture driver
 	*/
 	public static void main(String[] argv) throws Exception {
-		Relatrix.getInstance();
-		Relatrix.setAlias(alias1,Relatrix.getTableSpace()+alias1);
-		Relatrix.setAlias(alias2,Relatrix.getTableSpace()+alias2);
-		Relatrix.setAlias(alias3,Relatrix.getTableSpace()+alias3);
-		battery1AR17(alias1, keys, dbtable);
-		battery1AR17(alias2, keys2, dbtable2);
-		battery1AR17(alias3, keys3, dbtable3);
-		
-		battery1(alias1, keys, dbtable);
-		battery1(alias2, keys2, dbtable2);
-		battery1(alias3, keys3, dbtable3);
-		
-		// load keys table from Relation class instance, which is the concrete subclass of PrimaryKeySet
-		battery1AR4(alias1, keys, dbtable);
-		battery1AR4(alias2, keys2, dbtable2);
-		battery1AR4(alias3, keys3, dbtable3);
+		IndexResolver indexResolver = new IndexResolver();
+		indexResolver.setLocal();
+		ParallelExecutionContext pec = new ParallelExecutionContext(indexResolver, new ConcurrentHashMap<String,Object>());
+		ScopedValue.where(ExecutionContextHolder.CONTEXT, pec).run(() -> {
+			Relatrix.getInstance();
+			try {
+				Relatrix.setAlias(alias1,Relatrix.getTableSpace()+alias1);
+				Relatrix.setAlias(alias2,Relatrix.getTableSpace()+alias2);
+				Relatrix.setAlias(alias3,Relatrix.getTableSpace()+alias3);
+				battery1AR17(alias1, keys, dbtable);
+				battery1AR17(alias2, keys2, dbtable2);
+				battery1AR17(alias3, keys3, dbtable3);
 
-		battery1AR44(alias1, keys, dbtable);
-		battery1AR44(alias2, keys2, dbtable2);
-		battery1AR44(alias3, keys3, dbtable3);
-		
-		battery1AR5(alias1, keys, dbtable);
-		battery1AR5(alias2, keys2, dbtable2);
-		battery1AR5(alias3, keys3, dbtable3);
-		
-		battery1AR55(alias1, keys, dbtable);
-		battery1AR55(alias2, keys2, dbtable2);
-		battery1AR55(alias3, keys3, dbtable3);
-		
-		battery1AR101(alias1, keys, dbtable);
-		battery1AR101(alias2, keys2, dbtable2);
-		battery1AR101(alias3, keys3, dbtable3);
-		// now do alternate keys table loadout retrieving from DBKey class and repeat tests comparing tables with stored data
-		keys.clear();
-		keys2.clear();
-		keys3.clear();
-		battery1AR4A(alias1, keys, dbtable);
-		battery1AR4A(alias2, keys2, dbtable2);
-		battery1AR4A(alias3, keys3, dbtable3);
-		
-		battery1AR44(alias1, keys, dbtable);
-		battery1AR44(alias2, keys2, dbtable2);
-		battery1AR44(alias3, keys3, dbtable3);
-		
-		// 5 and 55 dont involve keys table, only dbtable
-		battery1AR101(alias1, keys, dbtable);
-		battery1AR101(alias2, keys2, dbtable2);
-		battery1AR101(alias3, keys3, dbtable3);
-		
-		// and perform balance of testing
-		battery1AR12(alias1, keys, dbtable);
-		battery1AR12(alias2, keys2, dbtable2);
-		battery1AR12(alias3, keys3, dbtable3);
-		
-		battery1AR14(alias1, keys, dbtable);
-		battery1AR14(alias2, keys2, dbtable2);
-		battery1AR14(alias3, keys3, dbtable3);
-	
-		 System.out.println("BatteryMorphismAlias TEST BATTERY COMPLETE.");
-		 System.exit(0);	
+				battery1(alias1, keys, dbtable);
+				battery1(alias2, keys2, dbtable2);
+				battery1(alias3, keys3, dbtable3);
+
+				// load keys table from Relation class instance, which is the concrete subclass of PrimaryKeySet
+				battery1AR4(alias1, keys, dbtable);
+				battery1AR4(alias2, keys2, dbtable2);
+				battery1AR4(alias3, keys3, dbtable3);
+
+				battery1AR44(alias1, keys, dbtable);
+				battery1AR44(alias2, keys2, dbtable2);
+				battery1AR44(alias3, keys3, dbtable3);
+
+				battery1AR5(alias1, keys, dbtable);
+				battery1AR5(alias2, keys2, dbtable2);
+				battery1AR5(alias3, keys3, dbtable3);
+
+				battery1AR55(alias1, keys, dbtable);
+				battery1AR55(alias2, keys2, dbtable2);
+				battery1AR55(alias3, keys3, dbtable3);
+
+				battery1AR101(alias1, keys, dbtable);
+				battery1AR101(alias2, keys2, dbtable2);
+				battery1AR101(alias3, keys3, dbtable3);
+				// now do alternate keys table loadout retrieving from DBKey class and repeat tests comparing tables with stored data
+				keys.clear();
+				keys2.clear();
+				keys3.clear();
+				battery1AR4A(alias1, keys, dbtable);
+				battery1AR4A(alias2, keys2, dbtable2);
+				battery1AR4A(alias3, keys3, dbtable3);
+
+				battery1AR44(alias1, keys, dbtable);
+				battery1AR44(alias2, keys2, dbtable2);
+				battery1AR44(alias3, keys3, dbtable3);
+
+				// 5 and 55 dont involve keys table, only dbtable
+				battery1AR101(alias1, keys, dbtable);
+				battery1AR101(alias2, keys2, dbtable2);
+				battery1AR101(alias3, keys3, dbtable3);
+
+				// and perform balance of testing
+				battery1AR12(alias1, keys, dbtable);
+				battery1AR12(alias2, keys2, dbtable2);
+				battery1AR12(alias3, keys3, dbtable3);
+
+				battery1AR14(alias1, keys, dbtable);
+				battery1AR14(alias2, keys2, dbtable2);
+				battery1AR14(alias3, keys3, dbtable3);	
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		});
+		System.out.println("BatteryMorphismAlias TEST BATTERY COMPLETE.");
+		System.exit(0);	
 	}
 
 	/**
