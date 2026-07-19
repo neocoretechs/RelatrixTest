@@ -12,17 +12,17 @@ import com.neocoretechs.relatrix.client.RelatrixKVClientTransaction;
  * Client side test of transaction KV server using {@link RelatrixKVClientTransaction}. Yes, this should be a nice JUnit fixture someday.
  * The static constant fields in the class control the key generation for the tests
  * In general, the keys and values are formatted according to uniqKeyFmt to produce
- * a series of canonically correct sort order strings for the DB in the range of min to max vals.<p/>
+ * a series of canonically correct sort order strings for the DB in the range of min to max vals.<p>
  * The distinction between methods like findTailMap and findTailMapKV is just one of
  * returning the keys, or the keys and values. Some performance gains can be realized by just retrieving
  * needed data.
  * In general most of the testing relies on checking order against expected values hence the importance of
  * canonical ordering in the sample strings.
- * Of course, you can substitute any class for the Strings here providing its Comparable.<p/>
+ * Of course, you can substitute any class for the Strings here providing its Comparable.<p>
  * NOTES:
- * start server: java com.neocoretechs.relatrix.server.RelatrixKVTransactionServer D:/etc/Relatrix/db/test DBMACHINE 9010 <p/>
- * would start the server on the node called DBMACHINE using port 9010 and the tablespace path D:/etc/Relatrix/db
- * for a series of databases such as D:/etc/Relatrix/db/testjava.lang.String etc.<p/>
+ * start server: java com.neocoretechs.relatrix.server.RelatrixKVTransactionServer DBMACHINE 9010 <p>
+ * would start the server on the node called DBMACHINE using port 9010
+ * for a series of databases such as D:/etc/Relatrix/db/testjava.lang.String etc.<p>
  * @author Jonathan Groff (C) NeoCoreTechs 2020,2022,2024
  */
 public class BatteryRelatrixKVClientTransaction {
@@ -38,11 +38,11 @@ public class BatteryRelatrixKVClientTransaction {
 	* Main test fixture driver
 	*/
 	public static void main(String[] argv) throws Exception {
-		if(argv.length < 3) {
-			System.out.println("Usage: java com.neocoretechs.relatrix.test.kv.BatteryRelatrixKVClientTransaction <DB local client NODE> <DB remote server node> <DB PORT>");
+		if(argv.length < 2) {
+			System.out.println("Usage: java com.neocoretechs.relatrix.test.kv.BatteryRelatrixKVClientTransaction <DB remote server node> <DB PORT>");
 			System.exit(1);
 		}
-		rkvc = new RelatrixKVClientTransaction(argv[1], Integer.parseInt(argv[2]));
+		rkvc = new RelatrixKVClientTransaction(argv[0], Integer.parseInt(argv[1]));
 		TransactionId xid = rkvc.getTransactionId();
 		battery1(xid);	
 		battery11(xid);
