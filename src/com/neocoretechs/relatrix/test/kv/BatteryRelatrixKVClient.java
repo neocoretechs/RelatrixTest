@@ -7,20 +7,20 @@ import com.neocoretechs.rocksack.iterator.Entry;
 import com.neocoretechs.relatrix.client.RelatrixKVClient;
 
 /**
- * Client side test of KV server using {@link RelatrixKVClient}. Yes, this should be a nice JUnit fixture someday.
+ * Client side test of KV server using {@link RelatrixKVClient}.
  * The static constant fields in the class control the key generation for the tests
  * In general, the keys and values are formatted according to uniqKeyFmt to produce
- * a series of canonically correct sort order strings for the DB in the range of min to max vals.<p/>
+ * a series of canonically correct sort order strings for the DB in the range of min to max vals.<p>
  * The distinction between methods like findTailMap and findTailMapKV is just one of
  * returning the keys, or the keys and values. Some performance gains can be realized by just retrieving
  * needed data.
  * In general most of the testing relies on checking order against expected values hence the importance of
  * canonical ordering in the sample strings.
- * Of course, you can substitute any class for the Strings here providing its Comparable.<p/>
+ * Of course, you can substitute any class for the Strings here providing its Comparable.<p>
  * NOTES:
- * start server: java com.neocoretechs.relatrix.server.RelatrixKVServer D:/etc/Relatrix/db/test DBMACHINE 9010 <p/>
- * would start the server on the node called DBMACHINE using port 9010 and the tablespace path D:/etc/Relatrix/db
- * for a series of databases such as D:/etc/Relatrix/db/testjava.lang.String etc.<p/>
+ * start server: java com.neocoretechs.relatrix.server.RelatrixKVServer DBMACHINE 9010 <p>
+ * would start the server on the node called DBMACHINE using port 9010 
+ * for a series of databases <p>
  * @author Jonathan Groff (C) NeoCoreTechs 2020,2022,2024
  */
 public class BatteryRelatrixKVClient {
@@ -40,22 +40,22 @@ public class BatteryRelatrixKVClient {
 			System.exit(1);
 		}
 		rkvc = new RelatrixKVClient(argv[0], Integer.parseInt(argv[1]));
-		battery1(argv);	
-		battery11(argv);
-		battery1AR6(argv);
-		battery1AR7(argv);
-		battery1AR8(argv);
-		battery1AR9(argv);
-		battery1AR10(argv);
-		battery1AR101(argv);
-		battery1AR11(argv);
-		battery1AR12(argv);
-		battery1AR13(argv);
-		battery1AR14(argv);
-		battery1AR15(argv);
-		battery1AR16(argv);
-		battery1AR17(argv);
-		battery18(argv);
+		battery1();	
+		battery11();
+		battery1AR6();
+		battery1AR7();
+		battery1AR8();
+		battery1AR9();
+		battery1AR10();
+		battery1AR101();
+		battery1AR11();
+		battery1AR12();
+		battery1AR13();
+		battery1AR14();
+		battery1AR15();
+		battery1AR16();
+		battery1AR17();
+		battery18();
 		System.out.println("BatteryRelatrixKVClient TEST BATTERY COMPLETE.");
 		rkvc.close();
 		
@@ -66,7 +66,7 @@ public class BatteryRelatrixKVClient {
 	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery1(String[] argv) throws Exception {
+	public static void battery1() throws Exception {
 		System.out.println("KV Battery1 ");
 		long tims = System.currentTimeMillis();
 		int dupes = 0;
@@ -76,7 +76,7 @@ public class BatteryRelatrixKVClient {
 		j = (int) rkvc.size(String.class);
 		if(j > 0) {
 			System.out.println("Cleaning DB of "+j+" elements.");
-			battery1AR17(argv);		
+			battery1AR17();		
 		}
 		for(int i = min; i < max; i++) {
 			fkey = String.format(uniqKeyFmt, i);
@@ -91,7 +91,7 @@ public class BatteryRelatrixKVClient {
 	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery11(String[] argv) throws Exception {
+	public static void battery11() throws Exception {
 		System.out.println("KV Battery11 ");
 		long tims = System.currentTimeMillis();
 		int recs = 0;
@@ -120,7 +120,7 @@ public class BatteryRelatrixKVClient {
 	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery1AR6(String[] argv) throws Exception {
+	public static void battery1AR6() throws Exception {
 		int i = min;
 		long tims = System.currentTimeMillis();
 		Iterator its = rkvc.entrySet(String.class);
@@ -145,7 +145,7 @@ public class BatteryRelatrixKVClient {
 	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery1AR7(String[] argv) throws Exception {
+	public static void battery1AR7() throws Exception {
 		int i = min;
 		long tims = System.currentTimeMillis();
 		Iterator its = rkvc.keySet(String.class);
@@ -166,7 +166,7 @@ public class BatteryRelatrixKVClient {
 	/**
 	 * Check contains key forward contains key backward and contains value for select subset
 	 */
-	public static void battery1AR8(String[] argv) throws Exception {
+	public static void battery1AR8() throws Exception {
 		int i = min;
 		System.out.println("KV Battery1AR8");
 		long tims = System.currentTimeMillis();
@@ -216,7 +216,7 @@ public class BatteryRelatrixKVClient {
 	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery1AR9(String[] argv) throws Exception {
+	public static void battery1AR9() throws Exception {
 		int i = min;
 		long tims = System.currentTimeMillis();
 		Object k = rkvc.firstKey(String.class); // first key
@@ -238,7 +238,7 @@ public class BatteryRelatrixKVClient {
 	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery1AR10(String[] argv) throws Exception {
+	public static void battery1AR10() throws Exception {
 		int i = max-1;
 		long tims = System.currentTimeMillis();
 		Object k = rkvc.lastKey(String.class); // key
@@ -259,7 +259,7 @@ public class BatteryRelatrixKVClient {
 	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery1AR101(String[] argv) throws Exception {
+	public static void battery1AR101() throws Exception {
 		int i = max;
 		System.out.println("KV Battery1AR101");
 		long tims = System.currentTimeMillis();
@@ -275,7 +275,7 @@ public class BatteryRelatrixKVClient {
 	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery1AR11(String[] argv) throws Exception {
+	public static void battery1AR11() throws Exception {
 		long tims = System.currentTimeMillis();
 		int i = min;
 		String fkey = String.format(uniqKeyFmt, i);
@@ -296,7 +296,7 @@ public class BatteryRelatrixKVClient {
 	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery1AR12(String[] argv) throws Exception {
+	public static void battery1AR12() throws Exception {
 		long tims = System.currentTimeMillis();
 		int i = min;
 		String fkey = String.format(uniqKeyFmt, i);
@@ -320,7 +320,7 @@ public class BatteryRelatrixKVClient {
 	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery1AR13(String[] argv) throws Exception {
+	public static void battery1AR13() throws Exception {
 		long tims = System.currentTimeMillis();
 		int i = max;
 		String fkey = String.format(uniqKeyFmt, i);
@@ -345,7 +345,7 @@ public class BatteryRelatrixKVClient {
 	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery1AR14(String[] argv) throws Exception {
+	public static void battery1AR14() throws Exception {
 		long tims = System.currentTimeMillis();
 		int i = max;
 		String fkey = String.format(uniqKeyFmt, i);
@@ -370,7 +370,7 @@ public class BatteryRelatrixKVClient {
 	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery1AR15(String[] argv) throws Exception {
+	public static void battery1AR15() throws Exception {
 		long tims = System.currentTimeMillis();
 		int i = min;
 		int j = max;
@@ -396,7 +396,7 @@ public class BatteryRelatrixKVClient {
 	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery1AR16(String[] argv) throws Exception {
+	public static void battery1AR16() throws Exception {
 		long tims = System.currentTimeMillis();
 		int i = min;
 		int j = max;
@@ -422,7 +422,7 @@ public class BatteryRelatrixKVClient {
 	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery1AR17(String[] argv) throws Exception {
+	public static void battery1AR17() throws Exception {
 		long tims = System.currentTimeMillis();
 		System.out.println("KV Battery1AR17");
 		Iterator its =  rkvc.keySet(String.class);
@@ -460,7 +460,7 @@ public class BatteryRelatrixKVClient {
 	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery18(String[] argv) throws Exception {
+	public static void battery18() throws Exception {
 		System.out.println("KV Battery18 ");
 		int max1 = max - (max/2);
 		long tims = System.currentTimeMillis();
