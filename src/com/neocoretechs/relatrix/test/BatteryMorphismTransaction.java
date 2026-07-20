@@ -53,6 +53,7 @@ public class BatteryMorphismTransaction {
 		ScopedValue.where(ExecutionContextHolder.CONTEXT, pec).run(() -> {
 			RelatrixTransaction.getInstance();
 			try {
+				xid = RelatrixTransaction.getTransactionId();
 				battery1AR17();
 				battery1();
 				// load keys table from Relation class instance, which is the concrete subclass of PrimaryKeySet
