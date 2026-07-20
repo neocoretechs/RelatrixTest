@@ -5,12 +5,16 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.MapDomainRange;
 import com.neocoretechs.relatrix.MapRangeDomain;
 import com.neocoretechs.relatrix.AbstractRelation;
 import com.neocoretechs.relatrix.AbstractRelation.displayLevels;
+import com.neocoretechs.relatrix.key.IndexResolver;
+import com.neocoretechs.relatrix.parallel.ExecutionContextHolder;
+import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.relatrix.RangeDomainMap;
 import com.neocoretechs.relatrix.RangeMapDomain;
@@ -44,37 +48,45 @@ public class BatteryRelatrixFindRelatedAlias {
 	*/
 	public static void main(String[] argv) throws Exception {
 		AbstractRelation.displayLevel = displayLevels.MINIMAL;
-		Relatrix.getInstance();
-		Relatrix.setAlias(alias1,Relatrix.getTableSpace()+alias1);
-		Relatrix.setAlias(alias2,Relatrix.getTableSpace()+alias2);
-		Relatrix.setAlias(alias3,Relatrix.getTableSpace()+alias3);
+		IndexResolver indexResolver = new IndexResolver();
+		indexResolver.setLocal();
+		ParallelExecutionContext pec = new ParallelExecutionContext(indexResolver, new ConcurrentHashMap<String,Object>());
+		ScopedValue.where(ExecutionContextHolder.CONTEXT, pec).run(() -> {
+			try {
+				Relatrix.getInstance();
+				Relatrix.setAlias(alias1,Relatrix.getTableSpace()+alias1);
+				Relatrix.setAlias(alias2,Relatrix.getTableSpace()+alias2);
+				Relatrix.setAlias(alias3,Relatrix.getTableSpace()+alias3);
 
-		if(argv.length > 0 && argv[0].equals("max")) {
-			System.out.println("Setting max items to "+argv[0]);
-			max = Integer.parseInt(argv[0]);
-		} else {
-			if(argv.length > 0 && argv[1].equals("init")) {
-				System.out.println("Initialize database to zero items, then terminate...");
-				battery1AR17(alias1);
-				battery1AR17(alias2);
-				battery1AR17(alias3);
-				System.exit(0);
+				if(argv.length > 0 && argv[0].equals("max")) {
+					System.out.println("Setting max items to "+argv[1]);
+					max = Integer.parseInt(argv[1]);
+				} else {
+					if(argv.length > 0 && argv[0].equals("init")) {
+						System.out.println("Initialize database to zero items, then terminate...");
+						battery1AR17(alias1);
+						battery1AR17(alias2);
+						battery1AR17(alias3);
+						System.exit(0);
+					}
+				}
+
+				if(Relatrix.size(alias1) == 0) {
+					if(DEBUG)
+						System.out.println("Zero items, Begin insertion from "+min+" to "+max);
+					battery1(alias1);
+					battery1(alias2);
+					battery1(alias3);
+				}
+				if(DEBUG)
+					System.out.println("Begin test battery 1AR6");
+				battery1AR6(alias1);
+				battery1AR6(alias2);
+				battery1AR6(alias3);
+			} catch (Exception e) {
+				e.printStackTrace();
 			}
-		}
-
-		if(Relatrix.size(alias1) == 0) {
-			if(DEBUG)
-				System.out.println("Zero items, Begin insertion from "+min+" to "+max);
-			battery1(alias1);
-			battery1(alias2);
-			battery1(alias3);
-		}
-		if(DEBUG)
-			System.out.println("Begin test battery 1AR6");
-		battery1AR6(alias1);
-		battery1AR6(alias2);
-		battery1AR6(alias3);
-
+		});
 		System.out.println("TEST BATTERY COMPLETE.");
 		System.exit(0);
 	}

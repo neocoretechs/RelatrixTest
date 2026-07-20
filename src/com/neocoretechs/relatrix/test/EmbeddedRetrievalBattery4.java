@@ -2,6 +2,7 @@ package com.neocoretechs.relatrix.test;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.neocoretechs.relatrix.Relation;
 import com.neocoretechs.relatrix.DomainRangeMap;
@@ -16,13 +17,15 @@ import com.neocoretechs.relatrix.RelatrixKV;
 import com.neocoretechs.relatrix.Result;
 import com.neocoretechs.relatrix.Result2;
 import com.neocoretechs.relatrix.Result3;
+import com.neocoretechs.relatrix.key.IndexResolver;
+import com.neocoretechs.relatrix.parallel.ExecutionContextHolder;
+import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 
 /**
  * This series of tests loads up arrays to create a cascading set of retrievals mostly checking
  * and verifying findSubSet retrieval. We will let our samplesize be dictated by hi and low range values.
  * Provides a persistent collection iterator of keys 'from' element inclusive, 'to' element exclusive of the keys specified.
  * NOTES:
- * program arguments are _database
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2021,2024
  *
  */
@@ -49,17 +52,26 @@ public class EmbeddedRetrievalBattery4 {
 	*/
 	public static void main(String[] argv) throws Exception {
 		System.out.println("Subset Provides a persistent collection iterator of keys 'from' element inclusive, 'to' element exclusive of the keys specified");
-		Relatrix.getInstance();
-		AbstractRelation.displayLevel = AbstractRelation.displayLevels.MINIMAL;
-		if(argv.length == 2 && argv[1].equals("init")) {
-				battery1AR17(argv);
-		}
-		if(Relatrix.size() == 0) {
-			battery0(argv);
-		}
-		battery1(argv);
+		IndexResolver indexResolver = new IndexResolver();
+		indexResolver.setLocal();
+		ParallelExecutionContext pec = new ParallelExecutionContext(indexResolver, new ConcurrentHashMap<String,Object>());
+		ScopedValue.where(ExecutionContextHolder.CONTEXT, pec).run(() -> {
+			try {
+				Relatrix.getInstance();
+				AbstractRelation.displayLevel = AbstractRelation.displayLevels.MINIMAL;
+				if(argv.length == 1 && argv[0].equals("init")) {
+					battery1AR17();
+				}
+				if(Relatrix.size() == 0) {
+					battery0();
+				}
+				battery1();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		});
 		System.out.println("TEST BATTERY COMPLETE.");	
-		System.exit(1);
+		System.exit(0);
 	}
 	
 	public static void displayCtrl() {
@@ -80,10 +92,9 @@ public class EmbeddedRetrievalBattery4 {
 	}
 	/**
 	 * Loads up on keys
-	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery0(String[] argv) throws Exception {
+	public static void battery0() throws Exception {
 		System.out.println("Battery0 ");
 		long tims = System.currentTimeMillis();
 		int dupes = 0;
@@ -101,10 +112,9 @@ public class EmbeddedRetrievalBattery4 {
 	}
 
 	/**
-	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery1(String[] argv) throws Exception {
+	public static void battery1() throws Exception {
 		System.out.println("Iterator Battery1 ");
 		long tims = System.currentTimeMillis();
 		// this list will store an object used to test subsequent queries where a named object is needed
@@ -411,10 +421,9 @@ public class EmbeddedRetrievalBattery4 {
 	}
 	/**
 	 * remove entries
-	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery1AR17(String[] argv) throws Exception {
+	public static void battery1AR17() throws Exception {
 		long tims = System.currentTimeMillis();
 		System.out.println("CleanDB");
 		Iterator<?> it = Relatrix.findSet('*','*','*');

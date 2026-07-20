@@ -3,6 +3,7 @@ package com.neocoretechs.relatrix.test;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.neocoretechs.relatrix.Relation;
 import com.neocoretechs.relatrix.DomainRangeMap;
@@ -18,13 +19,15 @@ import com.neocoretechs.relatrix.Result2;
 import com.neocoretechs.relatrix.Result3;
 import com.neocoretechs.rocksack.TransactionId;
 import com.neocoretechs.relatrix.AbstractRelation.displayLevels;
+import com.neocoretechs.relatrix.key.IndexResolver;
+import com.neocoretechs.relatrix.parallel.ExecutionContextHolder;
+import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 import com.neocoretechs.rocksack.Alias;
 
 /**
  * This series of tests loads up arrays to create a cascading set of retrievals mostly checking
  * and verifying findHeadSet retrieval for alias functionality in a transaction context.
  * NOTES:
- * program argument is tablespace i.e. C:/users/you/Relatrix/ which will create databases in C:/users/you/Relatrix/ALIAS1, 2, 3..
  * optional arguments are [ [init] [max nnn] ]
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2021,2025
  *
@@ -53,40 +56,47 @@ public class EmbeddedRetrievalBatteryTransactionAlias2 {
 	*/
 	public static void main(String[] argv) throws Exception {
 		AbstractRelation.displayLevel = AbstractRelation.displayLevels.VERBOSE;
-		String tablespace = argv[0];
-		if(!tablespace.endsWith("/"))
-			tablespace += "/";
-		RelatrixTransaction.setAlias(alias1,tablespace+alias1);
-		RelatrixTransaction.setAlias(alias2,tablespace+alias2);
-		RelatrixTransaction.setAlias(alias3,tablespace+alias3);
-		AbstractRelation.displayLevel = displayLevels.VERBOSE;
-		xid = RelatrixTransaction.getTransactionId();
-		if(argv.length > 2 && argv[1].equals("max")) {
-			System.out.println("Setting max items to "+argv[2]);
-			max = Integer.parseInt(argv[2]);
-		} else {
-			if(argv.length > 1 && argv[1].equals("init")) {
-				System.out.println("Initialize database to zero items, then terminate...");
-				battery1AR17(argv, alias1, xid);
-				battery1AR17(argv, alias2, xid);
-				battery1AR17(argv, alias3, xid);
-				System.exit(0);
+		IndexResolver indexResolver = new IndexResolver();
+		indexResolver.setLocal();
+		ParallelExecutionContext pec = new ParallelExecutionContext(indexResolver, new ConcurrentHashMap<String,Object>());
+		ScopedValue.where(ExecutionContextHolder.CONTEXT, pec).run(() -> {
+			try {
+				RelatrixTransaction.getInstance();	
+				RelatrixTransaction.setAlias(alias1,RelatrixTransaction.getTableSpace()+alias1);
+				RelatrixTransaction.setAlias(alias2,RelatrixTransaction.getTableSpace()+alias2);
+				RelatrixTransaction.setAlias(alias3,RelatrixTransaction.getTableSpace()+alias3);
+				AbstractRelation.displayLevel = displayLevels.VERBOSE;
+				xid = RelatrixTransaction.getTransactionId();
+				if(argv.length > 0 && argv[0].equals("max")) {
+					System.out.println("Setting max items to "+argv[1]);
+					max = Integer.parseInt(argv[1]);
+				} else {
+					if(argv.length > 0 && argv[0].equals("init")) {
+						System.out.println("Initialize database to zero items, then terminate...");
+						battery1AR17(alias1, xid);
+						battery1AR17(alias2, xid);
+						battery1AR17(alias3, xid);
+						System.exit(0);
+					}
+				}
+				if(RelatrixTransaction.size(alias1, xid) == 0) {
+					if(DEBUG)
+						System.out.println("Zero items, Begin insertion from "+min+" to "+max);
+					battery0(alias1, xid);
+					battery0(alias2, xid);
+					battery0(alias3, xid);
+				}
+				battery1(alias1, xid);
+				battery1(alias2, xid);
+				battery1(alias3, xid);
+			} catch (Exception e) {
+				e.printStackTrace();
 			}
-		}
-		if(RelatrixTransaction.size(alias1, xid) == 0) {
-			if(DEBUG)
-				System.out.println("Zero items, Begin insertion from "+min+" to "+max);
-			battery0(argv, alias1, xid);
-			battery0(argv, alias2, xid);
-			battery0(argv, alias3, xid);
-		}
-		battery1(argv, alias1, xid);
-		battery1(argv, alias2, xid);
-		battery1(argv, alias3, xid);
+		});
 		System.out.println("TEST BATTERY COMPLETE.");	
 		System.exit(0);
 	}
-	
+
 	public static void displayCtrl() {
 		if(displayLine == 0)
 			displayLineCtr = 0;
@@ -105,12 +115,11 @@ public class EmbeddedRetrievalBatteryTransactionAlias2 {
 	}
 	/**
 	 * Loads up on keys
-	 * @param argv
 	 * @param alias12 
 	 * @param xid2 
 	 * @throws Exception
 	 */
-	public static void battery0(String[] argv, Alias alias12, TransactionId xid2) throws Exception {
+	public static void battery0(Alias alias12, TransactionId xid2) throws Exception {
 		System.out.println(xid2+" Battery0 "+alias12);
 		long tims = System.currentTimeMillis();
 		int dupes = 0;
@@ -130,11 +139,10 @@ public class EmbeddedRetrievalBatteryTransactionAlias2 {
 
 	/**
 	 * @param argv
-	 * @param alias12 
 	 * @param xid2 
 	 * @throws Exception
 	 */
-	public static void battery1(String[] argv, Alias alias12, TransactionId xid2) throws Exception {
+	public static void battery1(Alias alias12, TransactionId xid2) throws Exception {
 		System.out.println(xid2+" Iterator Battery1 "+alias12);
 		long tims = System.currentTimeMillis();
 		// this list will store an object used to test subsequent queries where a named object is needed
@@ -426,12 +434,11 @@ public class EmbeddedRetrievalBatteryTransactionAlias2 {
 	}
 	/**
 	 * remove entries, all relationships should be recursively deleted
-	 * @param argv
 	 * @param alias12 
 	 * @param xid2 
 	 * @throws Exception
 	 */
-	public static void battery1AR17(String[] argv, Alias alias12, TransactionId xid2) throws Exception {
+	public static void battery1AR17(Alias alias12, TransactionId xid2) throws Exception {
 		long tims = System.currentTimeMillis();
 		System.out.println(alias12+" CleanDB DMR size="+RelatrixTransaction.size(alias12,xid2,Relation.class)+" xid:"+xid2);
 		System.out.println("CleanDB DRM size="+RelatrixTransaction.size(alias12,xid2,DomainRangeMap.class));

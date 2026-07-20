@@ -5,12 +5,16 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.MapDomainRange;
 import com.neocoretechs.relatrix.MapRangeDomain;
 import com.neocoretechs.relatrix.AbstractRelation;
 import com.neocoretechs.relatrix.AbstractRelation.displayLevels;
+import com.neocoretechs.relatrix.key.IndexResolver;
+import com.neocoretechs.relatrix.parallel.ExecutionContextHolder;
+import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 import com.neocoretechs.relatrix.RangeDomainMap;
 import com.neocoretechs.relatrix.RangeMapDomain;
 import com.neocoretechs.relatrix.RelatrixTransaction;
@@ -20,12 +24,12 @@ import com.neocoretechs.relatrix.Result;
 import com.neocoretechs.rocksack.TransactionId;
 
 /**
- * The set of tests verifies the findSet relation function in the {@link  RelatrixTransaction}<p/>
- * Create a series of nested relations and then verify that they are properly located when a reference to them is provided.<p/>
+ * The set of tests verifies the findSet relation function in the {@link  RelatrixTransaction}<p>
+ * Create a series of nested relations and then verify that they are properly located when a reference to them is provided.<p>
  * This represents sets of deeply nested relations introducing a heavy demand. 
  * NOTES:
  * A database unique to this test module should be used.
- * program argument is database i.e. C:/users/you/Relatrix/TestDB2 [ [init] [max nnn] ]
+ * program argument is [ [init] [max nnn] ]
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2024
  *
  */
@@ -42,38 +46,47 @@ public class BatteryRelatrixFindRelatedTransaction {
 	* Main test fixture driver
 	*/
 	public static void main(String[] argv) throws Exception {
-		RelatrixTransaction.getInstance();
 		AbstractRelation.displayLevel = displayLevels.MINIMAL;
-		xid = RelatrixTransaction.getTransactionId();
-		if(argv.length > 2 && argv[1].equals("max")) {
-			System.out.println("Setting max items to "+argv[2]);
-			max = Integer.parseInt(argv[2]);
-		} else {
-			if(argv.length > 1 && argv[1].equals("init")) {
-				System.out.println("Initialize database to zero items, then terminate...");
-				battery1AR17(argv, xid);
-				System.exit(0);
+		AbstractRelation.displayLevel = displayLevels.MINIMAL;
+		IndexResolver indexResolver = new IndexResolver();
+		indexResolver.setLocal();
+		ParallelExecutionContext pec = new ParallelExecutionContext(indexResolver, new ConcurrentHashMap<String,Object>());
+		ScopedValue.where(ExecutionContextHolder.CONTEXT, pec).run(() -> {
+			try {
+				RelatrixTransaction.getInstance();
+				AbstractRelation.displayLevel = displayLevels.MINIMAL;
+				xid = RelatrixTransaction.getTransactionId();
+				if(argv.length > 0 && argv[0].equals("max")) {
+					System.out.println("Setting max items to "+argv[1]);
+					max = Integer.parseInt(argv[1]);
+				} else {
+					if(argv.length > 0 && argv[0].equals("init")) {
+						System.out.println("Initialize database to zero items, then terminate...");
+						battery1AR17(xid);
+						System.exit(0);
+					}
+				}
+				if(RelatrixTransaction.size(xid) == 0) {
+					if(DEBUG)
+						System.out.println("Zero items, Begin insertion from "+min+" to "+max);
+					battery1(xid);
+				}
+				if(DEBUG)
+					System.out.println("Begin test battery 1AR6 Nested Key");
+				battery1AR6(xid);
+			} catch (Exception e) {
+				e.printStackTrace();
 			}
-		}
-		if(RelatrixTransaction.size(xid) == 0) {
-			if(DEBUG)
-				System.out.println("Zero items, Begin insertion from "+min+" to "+max);
-			battery1(argv, xid);
-		}
-		if(DEBUG)
-			System.out.println("Begin test battery 1AR6 Nested Key");
-		battery1AR6(argv, xid);
-	
+		});	
 		System.out.println("TEST BATTERY COMPLETE.");
 		System.exit(0);
 	}
 	/**
 	 * Loads up on keys. Store a set of nested relationships for later retrieval.
-	 * @param argv
 	 * @param xid2 
 	 * @throws Exception
 	 */
-	public static void battery1(String[] argv, TransactionId xid2) throws Exception {
+	public static void battery1(TransactionId xid2) throws Exception {
 		System.out.println("Battery1 "+xid2);
 		long tims = System.currentTimeMillis();
 		long timt = System.currentTimeMillis();
@@ -110,11 +123,10 @@ public class BatteryRelatrixFindRelatedTransaction {
 	/**
 	 * Test the higher level functions in the Relatrix. Use the 'findSet' permutations to
 	 * verify the previously inserted data. Start from the relationship "leg "+sequence
-	 * @param argv
 	 * @param xid2 
 	 * @throws Exception
 	 */
-	public static void battery1AR6(String[] argv, TransactionId xid2) throws Exception {
+	public static void battery1AR6(TransactionId xid2) throws Exception {
 		i = min;
 		long tims = System.currentTimeMillis();
 		System.out.println("Battery1AR6 "+xid2);
@@ -136,11 +148,10 @@ public class BatteryRelatrixFindRelatedTransaction {
 
 	/**
 	 * remove entries
-	 * @param argv
 	 * @param xid2 
 	 * @throws Exception
 	 */
-	public static void battery1AR17(String[] argv, TransactionId xid2) throws Exception {
+	public static void battery1AR17(TransactionId xid2) throws Exception {
 		long tims = System.currentTimeMillis();
 		System.out.println(xid2+" CleanDB DMR size="+RelatrixTransaction.size(xid2,Relation.class));
 		System.out.println("CleanDB DRM size="+RelatrixTransaction.size(xid2,DomainRangeMap.class));

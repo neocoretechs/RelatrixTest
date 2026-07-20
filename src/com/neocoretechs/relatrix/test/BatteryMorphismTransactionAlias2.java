@@ -1,5 +1,6 @@
 package com.neocoretechs.relatrix.test;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
@@ -49,31 +50,40 @@ public class BatteryMorphismTransactionAlias2 {
 	* Main test fixture driver
 	*/
 	public static void main(String[] argv) throws Exception {
-		RelatrixTransaction.getInstance();
-		RelatrixTransaction.setAlias(alias1,RelatrixTransaction.getTableSpace()+alias1);
-		xid = RelatrixTransaction.getTransactionId();
-		battery1AR17();
-		battery1();
-		// load keys table from Relation class instance, which is the concrete subclass of PrimaryKeySet
-		battery1AR4();
-		battery1AR44();
-		battery1AR5();
-		battery1AR55();
-		battery1AR101();
-		// now do alternate keys table loadout retrieving from DBKey class and repeat tests comparing tables with stored data
-		keys.clear();
-		battery1AR4A();
-		battery1AR44();
-		// 5 and 55 dont involve keys table, only dbtable
-		battery1AR101();
-		// and perform balance of testing
-		battery1AR12();
-		battery1AR14();
-		RelatrixTransaction.commit(alias1,xid);
-		RelatrixTransaction.endTransaction(xid);
+		IndexResolver indexResolver = new IndexResolver();
+		indexResolver.setLocal();
+		ParallelExecutionContext pec = new ParallelExecutionContext(indexResolver, new ConcurrentHashMap<String,Object>());
+		ScopedValue.where(ExecutionContextHolder.CONTEXT, pec).run(() -> {
+			RelatrixTransaction.getInstance();
+			try {
+				RelatrixTransaction.setAlias(alias1,RelatrixTransaction.getTableSpace()+alias1);
+				xid = RelatrixTransaction.getTransactionId();
+				battery1AR17();
+				battery1();
+				// load keys table from Relation class instance, which is the concrete subclass of PrimaryKeySet
+				battery1AR4();
+				battery1AR44();
+				battery1AR5();
+				battery1AR55();
+				battery1AR101();
+				// now do alternate keys table loadout retrieving from DBKey class and repeat tests comparing tables with stored data
+				keys.clear();
+				battery1AR4A();
+				battery1AR44();
+				// 5 and 55 dont involve keys table, only dbtable
+				battery1AR101();
+				// and perform balance of testing
+				battery1AR12();
+				battery1AR14();
+				RelatrixTransaction.commit(alias1,xid);
+				RelatrixTransaction.endTransaction(xid);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		});
 		//battery1AR17();
-		 System.out.println("BatteryMorphismTransaction2 TEST BATTERY COMPLETE.");
-		 System.exit(0);	
+		System.out.println("BatteryMorphismTransaction2 TEST BATTERY COMPLETE.");
+		System.exit(0);	
 	}
 	/**
 	 * Loads up on keys, should be 0 to max-1, or min, to max -1

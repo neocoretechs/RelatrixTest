@@ -2,6 +2,7 @@ package com.neocoretechs.relatrix.test;
 
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.neocoretechs.relatrix.Relation;
 import com.neocoretechs.relatrix.DomainRangeMap;
@@ -14,6 +15,9 @@ import com.neocoretechs.relatrix.RangeMapDomain;
 import com.neocoretechs.relatrix.Relatrix;
 import com.neocoretechs.relatrix.Result;
 import com.neocoretechs.relatrix.AbstractRelation.displayLevels;
+import com.neocoretechs.relatrix.key.IndexResolver;
+import com.neocoretechs.relatrix.parallel.ExecutionContextHolder;
+import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 
 /**
  * The set of tests verifies the higher level 'findSubSet' and 'findHeadSet' 'findTailSet'
@@ -23,7 +27,7 @@ import com.neocoretechs.relatrix.AbstractRelation.displayLevels;
  * a series of canonically correct sort order strings for the DB in the range of min to max vals.
  * In general, most of the battery testing relies on checking order against expected values, hence the importance of
  * canonical ordering in the sample strings.
- * NOTES:
+ * NOTES: args [init] [max nnn]
  * @author Jonathan Groff (C) Copyright NeoCoreTechs 2016,2017,2024
  *
  */
@@ -41,34 +45,41 @@ public class BatteryRelatrix2 {
 	* Main test fixture driver
 	*/
 	public static void main(String[] argv) throws Exception {
-		Relatrix.getInstance();
-		//AbstractRelation.displayLevel = displayLevels.VERBOSE;
-		if(argv.length > 0 && argv[0].equals("max")) {
-			System.out.println("Setting max items to "+argv[0]);
-			max = Integer.parseInt(argv[0]);
-		} else {
-			if(argv.length > 0 && argv[0].equals("init")) {
-				System.out.println("Initialize database to zero items, then terminate...");
-				battery1AR17();
-				System.exit(0);
+		IndexResolver indexResolver = new IndexResolver();
+		indexResolver.setLocal();
+		ParallelExecutionContext pec = new ParallelExecutionContext(indexResolver, new ConcurrentHashMap<String,Object>());
+		ScopedValue.where(ExecutionContextHolder.CONTEXT, pec).run(() -> {
+			try {
+				Relatrix.getInstance();
+				//AbstractRelation.displayLevel = displayLevels.VERBOSE;
+				if(argv.length > 0 && argv[0].equals("max")) {
+					System.out.println("Setting max items to "+argv[1]);
+					max = Integer.parseInt(argv[1]);
+				} else {
+					if(argv.length > 0 && argv[0].equals("init")) {
+						System.out.println("Initialize database to zero items, then terminate...");
+						battery1AR17();
+						System.exit(0);
+					}
+				}
+				if(Relatrix.size() == 0) {
+					if(DEBUG)
+						System.out.println("Zero items, Begin insertion from "+min+" to "+max);
+					battery1();
+				}
+				battery1A1();
+				battery1B();
+				battery1C();
+				battery1D();
+				battery1E();
+				battery1F();
+			} catch (Exception e) {
+				e.printStackTrace();
 			}
-		}
-		if(Relatrix.size() == 0) {
-			if(DEBUG)
-				System.out.println("Zero items, Begin insertion from "+min+" to "+max);
-			battery1();
-		}
-
-		battery1A1();
-		battery1B();
-		battery1C();
-		battery1D();
-		battery1E();
-		battery1F();
-	
+		});
 		System.out.println("TEST BATTERY COMPLETE.");
 		System.exit(0);
-		
+
 	}
 	/**
 	 * Loads up on keys

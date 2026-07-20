@@ -2,6 +2,7 @@ package com.neocoretechs.relatrix.test;
 
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.MapDomainRange;
@@ -10,14 +11,14 @@ import com.neocoretechs.relatrix.AbstractRelation;
 import com.neocoretechs.relatrix.AbstractRelation.displayLevels;
 import com.neocoretechs.relatrix.RangeDomainMap;
 import com.neocoretechs.relatrix.RangeMapDomain;
-import com.neocoretechs.relatrix.Relatrix;
 import com.neocoretechs.relatrix.Relation;
 import com.neocoretechs.relatrix.DomainRangeMap;
 import com.neocoretechs.relatrix.RelatrixTransaction;
 import com.neocoretechs.relatrix.Result;
 import com.neocoretechs.rocksack.TransactionId;
 import com.neocoretechs.relatrix.key.IndexResolver;
-
+import com.neocoretechs.relatrix.parallel.ExecutionContextHolder;
+import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 
 /**
  * The set of tests verifies the higher level transaction 'findSet' functions in the {@link  RelatrixTransaction}, which can be used
@@ -26,7 +27,7 @@ import com.neocoretechs.relatrix.key.IndexResolver;
  * against expected value since findSet retrieves items in no particular order.
  * NOTES:
  * A database unique to this test module should be used.
- * program argument is database i.e. C:/users/you/Relatrix/TestDB2 [ [init] [max nnn] ]
+ * program argument is[ [init] [max nnn] ]
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2016,2017
  *
  */
@@ -45,52 +46,60 @@ public class BatteryRelatrixTransaction {
 	* Main test fixture driver
 	*/
 	public static void main(String[] argv) throws Exception {
-		RelatrixTransaction.getInstance();
-		xid = RelatrixTransaction.getTransactionId();
-		AbstractRelation.displayLevel = displayLevels.VERBOSE;
-		if(argv.length > 2 && argv[1].equals("max")) {
-			System.out.println("Setting max items to "+argv[2]);
-			max = Integer.parseInt(argv[2]);
-		} else {
-			if(argv.length > 1 && argv[1].equals("init")) {
-				System.out.println("Initialize database to zero items, then terminate...");
-				battery1AR17(argv, xid);
-				System.exit(0);
+		IndexResolver indexResolver = new IndexResolver();
+		indexResolver.setLocal();
+		ParallelExecutionContext pec = new ParallelExecutionContext(indexResolver, new ConcurrentHashMap<String,Object>());
+		ScopedValue.where(ExecutionContextHolder.CONTEXT, pec).run(() -> {
+			try {
+				RelatrixTransaction.getInstance();
+				xid = RelatrixTransaction.getTransactionId();
+				AbstractRelation.displayLevel = displayLevels.VERBOSE;
+				if(argv.length > 0 && argv[0].equals("max")) {
+					System.out.println("Setting max items to "+argv[1]);
+					max = Integer.parseInt(argv[1]);
+				} else {
+					if(argv.length > 0 && argv[0].equals("init")) {
+						System.out.println("Initialize database to zero items, then terminate...");
+						battery1AR17(xid);
+						System.exit(0);
+					}
+				}
+				if(RelatrixTransaction.size(xid) == 0) {
+					if(DEBUG)
+						System.out.println("Zero items, Begin insertion from "+min+" to "+max);
+					battery1(xid);
+					if(DEBUG)
+						System.out.println("Begin duplicate key rejection test from "+min+" to "+max);
+					battery11(xid);
+				}
+				if(DEBUG)
+					System.out.println("Begin test battery 1AR6");
+				battery1AR6(xid);
+				if(DEBUG)
+					System.out.println("Begin test battery 1AR7");
+				battery1AR7(xid);
+				if(DEBUG)
+					System.out.println("Begin test battery 1AR8");
+				battery1AR8(xid);
+				if(DEBUG)
+					System.out.println("Begin test battery 1AR9");
+				battery1AR9(xid);
+				if(DEBUG)
+					System.out.println("Begin test battery 1AR10");
+				battery1AR10(xid);
+				if(DEBUG)
+					System.out.println("Begin test battery 1AR101");
+				battery1AR101(xid);
+				if(DEBUG)
+					System.out.println("Begin test battery 1AR11");
+				battery1AR11(xid);
+				//if(DEBUG)
+				//	System.out.println("Begin test battery 1AR12");
+				//battery1AR12(xid);
+			} catch (Exception e) {
+				e.printStackTrace();
 			}
-		}
-		if(RelatrixTransaction.size(xid) == 0) {
-			if(DEBUG)
-				System.out.println("Zero items, Begin insertion from "+min+" to "+max);
-			battery1(argv, xid);
-			if(DEBUG)
-				System.out.println("Begin duplicate key rejection test from "+min+" to "+max);
-			battery11(argv, xid);
-		}
-		if(DEBUG)
-			System.out.println("Begin test battery 1AR6");
-		battery1AR6(argv, xid);
-		if(DEBUG)
-			System.out.println("Begin test battery 1AR7");
-		battery1AR7(argv, xid);
-		if(DEBUG)
-			System.out.println("Begin test battery 1AR8");
-		battery1AR8(argv, xid);
-		if(DEBUG)
-			System.out.println("Begin test battery 1AR9");
-		battery1AR9(argv, xid);
-		if(DEBUG)
-			System.out.println("Begin test battery 1AR10");
-		battery1AR10(argv, xid);
-		if(DEBUG)
-			System.out.println("Begin test battery 1AR101");
-		battery1AR101(argv, xid);
-		if(DEBUG)
-			System.out.println("Begin test battery 1AR11");
-		battery1AR11(argv, xid);
-		//if(DEBUG)
-		//	System.out.println("Begin test battery 1AR12");
-		//battery1AR12(argv, xid);
-	
+		});	
 		System.out.println("TEST BATTERY COMPLETE.");
 		System.exit(0);
 	}
@@ -100,7 +109,7 @@ public class BatteryRelatrixTransaction {
 	 * @param xid2 
 	 * @throws Exception
 	 */
-	public static void battery1(String[] argv, TransactionId xid2) throws Exception {
+	public static void battery1(TransactionId xid2) throws Exception {
 		System.out.println(xid2+" Battery1 ");
 		long tims = System.currentTimeMillis();
 		long timt = System.currentTimeMillis();
@@ -129,7 +138,7 @@ public class BatteryRelatrixTransaction {
 	 * @param xid2 
 	 * @throws Exception
 	 */
-	public static void battery11(String[] argv, TransactionId xid2) throws Exception {
+	public static void battery11(TransactionId xid2) throws Exception {
 		System.out.println(xid2+" Battery11 ");
 		long tims = System.currentTimeMillis();
 		long timt = System.currentTimeMillis();
@@ -162,7 +171,7 @@ public class BatteryRelatrixTransaction {
 	 * @param xid2 
 	 * @throws Exception
 	 */
-	public static void battery1AR6(String[] argv, TransactionId xid2) throws Exception {
+	public static void battery1AR6(TransactionId xid2) throws Exception {
 		int i = min;
 		long tims = System.currentTimeMillis();
 		Iterator<?> its = RelatrixTransaction.findSet(xid2, "?", "?", "?");
@@ -195,7 +204,7 @@ public class BatteryRelatrixTransaction {
 	 * @param xid2 
 	 * @throws Exception
 	 */
-	public static void battery1AR7(String[] argv, TransactionId xid2) throws Exception {
+	public static void battery1AR7(TransactionId xid2) throws Exception {
 		int i = min;
 		long tims = System.currentTimeMillis();
 		Iterator<?> its = RelatrixTransaction.findSet(xid2, "?", "*", "*");
@@ -225,7 +234,7 @@ public class BatteryRelatrixTransaction {
 	 * @param xid2 
 	 * @throws Exception
 	 */
-	public static void battery1AR8(String[] argv, TransactionId xid2) throws Exception {
+	public static void battery1AR8(TransactionId xid2) throws Exception {
 		int i = min;
 		long tims = System.currentTimeMillis();
 		Iterator<?> its = RelatrixTransaction.findSet(xid2, "?", "?", "*");
@@ -256,7 +265,7 @@ public class BatteryRelatrixTransaction {
 	 * @param xid2 
 	 * @throws Exception
 	 */
-	public static void battery1AR9(String[] argv, TransactionId xid2) throws Exception {
+	public static void battery1AR9(TransactionId xid2) throws Exception {
 		int i = min;
 		long tims = System.currentTimeMillis();
 		Iterator<?> its = RelatrixTransaction.findSet(xid2, "*", "*", "*");
@@ -289,7 +298,7 @@ public class BatteryRelatrixTransaction {
 	 * @param xid2 
 	 * @throws Exception
 	 */
-	public static void battery1AR10(String[] argv, TransactionId xid2) throws Exception {
+	public static void battery1AR10(TransactionId xid2) throws Exception {
 		int i = min;
 		long tims = System.currentTimeMillis();
 		String fkey = key + String.format(uniqKeyFmt, min);
@@ -326,7 +335,7 @@ public class BatteryRelatrixTransaction {
 	 * @param xid2 
 	 * @throws Exception
 	 */
-	public static void battery1AR101(String[] argv, TransactionId xid2) throws Exception {
+	public static void battery1AR101(TransactionId xid2) throws Exception {
 		int i = 0;
 		long tims = System.currentTimeMillis();
 		String fkey = key + String.format(uniqKeyFmt, max);
@@ -365,7 +374,7 @@ public class BatteryRelatrixTransaction {
 	 * @param xid2 
 	 * @throws Exception
 	 */
-	public static void battery1AR11(String[] argv, TransactionId xid2) throws Exception {
+	public static void battery1AR11(TransactionId xid2) throws Exception {
 		long tims = System.currentTimeMillis();
 	
 		String fkey = key + String.format(uniqKeyFmt, min);
@@ -386,7 +395,7 @@ public class BatteryRelatrixTransaction {
 	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery1AR12(String[] argv, TransactionId xid2) throws Exception {
+	public static void battery1AR12(TransactionId xid2) throws Exception {
 		long tims = System.currentTimeMillis();
 		System.out.println(xid2+" BAttery1AR12");
 		String fkey = key + String.format(uniqKeyFmt, min);
@@ -415,7 +424,7 @@ public class BatteryRelatrixTransaction {
 	 * @param xid2 
 	 * @throws Exception
 	 */
-	public static void battery1AR17(String[] argv, TransactionId xid2) throws Exception {
+	public static void battery1AR17(TransactionId xid2) throws Exception {
 		long tims = System.currentTimeMillis();
 		System.out.println(xid2+" CleanDB DMR size="+RelatrixTransaction.size(xid2,Relation.class));
 		System.out.println("CleanDB DRM size="+RelatrixTransaction.size(xid2,DomainRangeMap.class));

@@ -6,12 +6,16 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.MapDomainRange;
 import com.neocoretechs.relatrix.MapRangeDomain;
 import com.neocoretechs.relatrix.AbstractRelation;
 import com.neocoretechs.relatrix.AbstractRelation.displayLevels;
+import com.neocoretechs.relatrix.key.IndexResolver;
+import com.neocoretechs.relatrix.parallel.ExecutionContextHolder;
+import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 import com.neocoretechs.relatrix.RangeDomainMap;
 import com.neocoretechs.relatrix.RangeMapDomain;
 import com.neocoretechs.relatrix.Relatrix;
@@ -41,28 +45,36 @@ public class BatteryRelatrixFindRelated {
 	* Main test fixture driver
 	*/
 	public static void main(String[] argv) throws Exception {
-		Relatrix.getInstance();
-		AbstractRelation.displayLevel = displayLevels.MINIMAL;
-		if(argv.length > 0 && argv[1].equals("max")) {
-			System.out.println("Setting max items to "+argv[0]);
-			max = Integer.parseInt(argv[0]);
-		} else {
-			if(argv.length > 0 && argv[0].equals("init")) {
-				System.out.println("Initialize database to zero items, then terminate...");
-				battery1AR17();
-				System.exit(0);
+		IndexResolver indexResolver = new IndexResolver();
+		indexResolver.setLocal();
+		ParallelExecutionContext pec = new ParallelExecutionContext(indexResolver, new ConcurrentHashMap<String,Object>());
+		ScopedValue.where(ExecutionContextHolder.CONTEXT, pec).run(() -> {
+			try {
+				Relatrix.getInstance();
+				AbstractRelation.displayLevel = displayLevels.MINIMAL;
+				if(argv.length > 0 && argv[0].equals("max")) {
+					System.out.println("Setting max items to "+argv[1]);
+					max = Integer.parseInt(argv[1]);
+				} else {
+					if(argv.length > 0 && argv[0].equals("init")) {
+						System.out.println("Initialize database to zero items, then terminate...");
+						battery1AR17();
+						System.exit(0);
+					}
+				}
+				if(Relatrix.size() == 0) {
+					if(DEBUG)
+						System.out.println("Zero items, Begin insertion from "+min+" to "+max);
+					battery1();
+				}
+				if(DEBUG)
+					System.out.println("Begin test battery 1AR6 Nested Key");
+				battery1AR6();
+				battery1AR67();
+			} catch (Exception e) {
+				e.printStackTrace();
 			}
-		}
-		if(Relatrix.size() == 0) {
-			if(DEBUG)
-				System.out.println("Zero items, Begin insertion from "+min+" to "+max);
-			battery1();
-		}
-		if(DEBUG)
-			System.out.println("Begin test battery 1AR6 Nested Key");
-		battery1AR6();
-		battery1AR67();
-	
+		});	
 		System.out.println("TEST BATTERY COMPLETE.");
 		System.exit(0);
 	}

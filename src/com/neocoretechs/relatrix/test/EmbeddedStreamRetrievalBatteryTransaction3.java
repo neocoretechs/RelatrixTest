@@ -3,6 +3,7 @@ package com.neocoretechs.relatrix.test;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.neocoretechs.relatrix.Relation;
 import com.neocoretechs.relatrix.DomainRangeMap;
@@ -16,13 +17,15 @@ import com.neocoretechs.relatrix.RelatrixTransaction;
 import com.neocoretechs.relatrix.Result;
 import com.neocoretechs.relatrix.Result2;
 import com.neocoretechs.relatrix.Result3;
+import com.neocoretechs.relatrix.key.IndexResolver;
+import com.neocoretechs.relatrix.parallel.ExecutionContextHolder;
+import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 import com.neocoretechs.rocksack.TransactionId;
 
 /**
  * This series of tests loads up arrays to create a cascading set of retrievals mostly checking
  * and verifying findTailStream retrieval for transaction context.
  * NOTES:
- * program arguments are _database
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2021,2025
  *
  */
@@ -46,18 +49,27 @@ public class EmbeddedStreamRetrievalBatteryTransaction3 {
 	/**
 	*/
 	public static void main(String[] argv) throws Exception {
-		 //System.out.println("Analysis of all");
-		RelatrixTransaction.getInstance();
-		AbstractRelation.displayLevel = AbstractRelation.displayLevels.VERBOSE;
-		xid = RelatrixTransaction.getTransactionId();
-		if(argv.length == 2 && argv[1].equals("init")) {
-				battery1AR17(argv, xid);
-		}
-		if(RelatrixTransaction.size(xid) == 0) {
-			battery0(argv, xid);
-		}
-		battery1(argv, xid);
-		RelatrixTransaction.commit(xid);
+		//System.out.println("Analysis of all");
+		IndexResolver indexResolver = new IndexResolver();
+		indexResolver.setLocal();
+		ParallelExecutionContext pec = new ParallelExecutionContext(indexResolver, new ConcurrentHashMap<String,Object>());
+		ScopedValue.where(ExecutionContextHolder.CONTEXT, pec).run(() -> {
+			try {
+				RelatrixTransaction.getInstance();
+				AbstractRelation.displayLevel = AbstractRelation.displayLevels.VERBOSE;
+				xid = RelatrixTransaction.getTransactionId();
+				if(argv.length == 1 && argv[0].equals("init")) {
+					battery1AR17(xid);
+				}
+				if(RelatrixTransaction.size(xid) == 0) {
+					battery0(xid);
+				}
+				battery1(xid);
+				RelatrixTransaction.commit(xid);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		});
 		System.out.println("TEST BATTERY COMPLETE.");	
 		System.exit(0);
 	}
@@ -80,11 +92,10 @@ public class EmbeddedStreamRetrievalBatteryTransaction3 {
 	}
 	/**
 	 * Loads up on keys
-	 * @param argv
 	 * @param xid2 
 	 * @throws Exception
 	 */
-	public static void battery0(String[] argv, TransactionId xid2) throws Exception {
+	public static void battery0(TransactionId xid2) throws Exception {
 		System.out.println("Battery0 "+xid2);
 		long tims = System.currentTimeMillis();
 		int dupes = 0;
@@ -103,11 +114,10 @@ public class EmbeddedStreamRetrievalBatteryTransaction3 {
 	}
 
 	/**
-	 * @param argv
 	 * @param xid2 
 	 * @throws Exception
 	 */
-	public static void battery1(String[] argv, TransactionId xid2) throws Exception {
+	public static void battery1(TransactionId xid2) throws Exception {
 		System.out.println("Stream Battery1 "+xid2);
 		long tims = System.currentTimeMillis();
 		// this list will store an object used to test subsequent queries where a named object is needed
@@ -351,11 +361,10 @@ public class EmbeddedStreamRetrievalBatteryTransaction3 {
 	}
 	/**
 	 * remove entries, all relationships should be recursively deleted
-	 * @param argv
 	 * @param alias12 
 	 * @throws Exception
 	 */
-	public static void battery1AR17(String[] argv, TransactionId xid) throws Exception {
+	public static void battery1AR17(TransactionId xid) throws Exception {
 		long tims = System.currentTimeMillis();
 		System.out.println(xid+" CleanDB DMR size="+RelatrixTransaction.size(xid,Relation.class));
 		System.out.println("CleanDB DRM size="+RelatrixTransaction.size(xid,DomainRangeMap.class));
