@@ -3,6 +3,7 @@ package com.neocoretechs.relatrix.test;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import com.neocoretechs.relatrix.Relation;
 import com.neocoretechs.relatrix.DomainRangeMap;
@@ -36,10 +37,10 @@ public class BatteryRelatrixStream {
 	static String key = "This is a test"; // holds the base random key string for tests
 	static String val = "Of a Relatrix element!"; // holds base random value string
 	static String uniqKeyFmt = "%0100d"; // base + counter formatted with this gives equal length strings for canonical ordering
-	static int min = 0;
-	static int max = 1000;
+	static AtomicInteger min = new AtomicInteger(0);
+	static AtomicInteger max = new AtomicInteger(1000);
 	static int numDelete = 100; // for delete test
-	static int i = 0;
+	static AtomicInteger i = new AtomicInteger(0);
 	private static long timx;
 	/**
 	* Main test fixture driver
@@ -55,7 +56,7 @@ public class BatteryRelatrixStream {
 				System.out.println("BatteryRelatrixStream");
 				if(argv.length > 0 && argv[0].equals("max")) {
 					System.out.println("Setting max items to "+argv[1]);
-					max = Integer.parseInt(argv[1]);
+					max = new AtomicInteger(Integer.parseInt(argv[1]));
 				} else {
 					if(argv.length > 0 && argv[0].equals("init")) {
 						System.out.println("Initialize database to zero items, then terminate...");
@@ -73,25 +74,25 @@ public class BatteryRelatrixStream {
 				}
 				if(DEBUG)
 					System.out.println("Begin test battery 1AR6");
-				battery1AR6();
+				battery1AR6(pec);
 				if(DEBUG)
 					System.out.println("Begin test battery 1AR7");
-				battery1AR7();
+				battery1AR7(pec);
 				if(DEBUG)
 					System.out.println("Begin test battery 1AR8");
-				battery1AR8();
+				battery1AR8(pec);
 				if(DEBUG)
 					System.out.println("Begin test battery 1AR9");
-				battery1AR9();
+				battery1AR9(pec);
 				if(DEBUG)
 					System.out.println("Begin test battery 1AR10");
-				battery1AR10();
+				battery1AR10(pec);
 				if(DEBUG)
 					System.out.println("Begin test battery 1AR101");
-				battery1AR101();
+				battery1AR101(pec);
 				if(DEBUG)
 					System.out.println("Begin test battery 1AR11");
-				battery1AR11();
+				battery1AR11(pec);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -111,7 +112,7 @@ public class BatteryRelatrixStream {
 		int dupes = 0;
 		int recs = 0;
 		String fkey = null;
-		for(int i = min; i < max; i++) {
+		for(int i = min.get(); i < max.get(); i++) {
 			fkey = key + String.format(uniqKeyFmt, i);
 			try {
 				Relatrix.store(fkey, "Has unit", Long.valueOf(i));
@@ -138,7 +139,7 @@ public class BatteryRelatrixStream {
 		int dupes = 0;
 		int recs = 0;
 		String fkey = null;
-		for(int i = min; i < max; i++) {
+		for(int i = min.get(); i < max.get(); i++) {
 			fkey = key + String.format(uniqKeyFmt, i);
 			try {
 				Relation dmr = Relatrix.store(fkey, "Has unit", Long.valueOf(99999));
@@ -160,14 +161,16 @@ public class BatteryRelatrixStream {
 	/**
 	 * Test the higher level functions in the Relatrix. Use the 'findStream' permutations to
 	 * verify the previously inserted data
+	 * @param pec 
 	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery1AR6() throws Exception {
-		i = min;
+	public static void battery1AR6(ParallelExecutionContext pec) throws Exception {
 		long tims = System.currentTimeMillis();
 		System.out.println("Battery1AR6");
-		Relatrix.findSet('?', '?', '?').forEachRemaining(e->{
+		i = new AtomicInteger(min.get());
+		Relatrix.findStream('?', '?', '?').parallel().forEach(e->
+			ScopedValue.where(ExecutionContextHolder.CONTEXT, pec).run(() -> {
 			Result nex = (Result)e;
 			// 3 question marks = dimension 3 in return array
 			if( DEBUG ) System.out.println("1AR6:"+i+" "+nex);
@@ -177,27 +180,9 @@ public class BatteryRelatrixStream {
 				System.out.println("MAP KEY MISMATCH:"+(i)+" Has unit - "+nex.get(1)+" length:"+nex.length());
 				throw new RuntimeException("MAP KEY MISMATCH:"+(i)+" Has unit - "+nex.get(1)+" length:"+nex.length());
 			}
-			++i;
-		});
-		if( i != max ) {
-			System.out.println("BATTERY1AR6 unexpected number of keys for iterator "+i);
-			throw new Exception("BATTERY1AR6 unexpected number of keys for iterator "+i);
-		}
-		i = min;
-		Relatrix.findStream('?', '?', '?').sequential().forEachOrdered(
-		/*Relatrix.findStream('?', '?', '?').forEach(*/e->{
-			Result nex = (Result)e;
-			// 3 question marks = dimension 3 in return array
-			if( DEBUG ) System.out.println("1AR6:"+i+" "+nex);
-			//String fkey = key + String.format(uniqKeyFmt, i);
-			// no guarantee of ordering with unqualified findSet/findStream
-			if(!((String) nex.get(0)).startsWith(key) || !nex.get(1).equals("Has unit") || nex.length() != 3) {
-				System.out.println("MAP KEY MISMATCH:"+(i)+" Has unit - "+nex.get(1)+" length:"+nex.length());
-				throw new RuntimeException("MAP KEY MISMATCH:"+(i)+" Has unit - "+nex.get(1)+" length:"+nex.length());
-			}
-			++i;
-		});
-		if( i != max ) {
+			i.getAndIncrement();
+		}));
+		if( i.get() != max.get() ) {
 			System.out.println("BATTERY1AR6 unexpected number of keys for stream "+i);
 			throw new Exception("BATTERY1AR6 unexpected number of keys for stream "+i);
 		}
@@ -208,11 +193,12 @@ public class BatteryRelatrixStream {
 	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery1AR7() throws Exception {
-		i = min;
+	public static void battery1AR7(ParallelExecutionContext pec) throws Exception {
+		i = new AtomicInteger(min.get());
 		long tims = System.currentTimeMillis();
 		System.out.println("Battery1AR7");
-		Relatrix.findStream('?', '*', '*').forEach(e->{
+		Relatrix.findStream('?', '*', '*').parallel().forEach(e->
+		ScopedValue.where(ExecutionContextHolder.CONTEXT, pec).run(() -> {
 			Result nex = (Result)e;
 			// one '?' in findStream gives us one element returned
 			if(DEBUG ) System.out.println("1AR7:"+i+" "+nex);
@@ -222,9 +208,9 @@ public class BatteryRelatrixStream {
 				System.out.println("DOMAIN KEY MISMATCH:"+(i)+"  "+nex+" length:"+nex.length());
 				throw new RuntimeException("DOMAIN KEY MISMATCH:"+(i)+"  "+nex+" length:"+nex.length());
 			}
-			++i;
-		});
-		if( i != max ) {
+			i.getAndIncrement();
+		}));
+		if( i.get() != max.get() ) {
 			System.out.println("BATTERY1AR7 unexpected number of keys "+i);
 			throw new Exception("BATTERY1AR7 unexpected number of keys "+i);
 		}
@@ -235,11 +221,12 @@ public class BatteryRelatrixStream {
 	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery1AR8() throws Exception {
-		i = min;
+	public static void battery1AR8(ParallelExecutionContext pec) throws Exception {
+		i = new AtomicInteger(min.get());
 		long tims = System.currentTimeMillis();
 		System.out.println("Battery1AR8");
-		Relatrix.findStream('?', '?', '*').forEach(e ->{
+		Relatrix.findStream('?', '?', '*').forEach(e ->
+		ScopedValue.where(ExecutionContextHolder.CONTEXT, pec).run(() -> {
 			Result nex = (Result)e;
 			// two '?' in findStream gives use 2 element array, the domain and map
 			if( DEBUG ) System.out.println("1AR8:"+i+" "+nex);
@@ -249,9 +236,9 @@ public class BatteryRelatrixStream {
 				System.out.println("KEY MISMATCH:"+(i)+" "+nex.get(0)+" Has unit - "+nex.get(1)+" length:"+nex.length());
 				throw new RuntimeException("KEY MISMATCH:"+(i)+" Has unit - "+nex.get(1)+" length:"+nex.length());
 			}
-			++i;
-		});
-		if( i != max ) {
+			i.getAndIncrement();
+		}));
+		if( i.get() != max.get() ) {
 			System.out.println("BATTERY1AR8 unexpected number of keys "+i);
 			throw new Exception("BATTERY1AR8 unexpected number of keys "+i);
 		}
@@ -263,11 +250,12 @@ public class BatteryRelatrixStream {
 	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery1AR9() throws Exception {
-		i = min;
+	public static void battery1AR9(ParallelExecutionContext pec) throws Exception {
+		i = new AtomicInteger(min.get());
 		long tims = System.currentTimeMillis();
 		System.out.println("Battery1AR9");
-		Relatrix.findStream('*', '*', '*').forEach(e->{
+		Relatrix.findStream('*', '*', '*').forEach(e->
+		ScopedValue.where(ExecutionContextHolder.CONTEXT, pec).run(() -> {
 			Result nex = (Result)e;
 			// the returned array has 1 element, the identity AbstractRelation Relation
 			if( DEBUG ) System.out.println("1AR9:"+i+" "+nex.get(0));
@@ -277,9 +265,9 @@ public class BatteryRelatrixStream {
 				throw new RuntimeException("DOMAIN KEY MISMATCH:"+(i)+" - "+nex.get(0));
 			if(!((Relation)nex.get(0)).getMap().equals("Has unit"))
 				throw new RuntimeException("MAP KEY MISMATCH:"+(i)+" Has unit - "+nex.get(0));
-			++i;
-		});
-		if( i != max ) {
+			i.getAndIncrement();
+		}));
+		if( i.get() != max.get() ) {
 			System.out.println("BATTERY1AR9 unexpected number of keys "+i);
 			//throw new Exception("BATTERY1AR9 unexpected number of keys "+i);
 		}
@@ -292,12 +280,13 @@ public class BatteryRelatrixStream {
 	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery1AR10() throws Exception {
-		i = min;
+	public static void battery1AR10(ParallelExecutionContext pec) throws Exception {
+		i = new AtomicInteger(min.get());
 		long tims = System.currentTimeMillis();
 		System.out.println("Battery1AR10");
-		String fkey = key + String.format(uniqKeyFmt, min);
-		Relatrix.findStream(fkey, "Has unit", '*').forEach(e-> {
+		String fkey = key + String.format(uniqKeyFmt, min.get());
+		Relatrix.findStream(fkey, "Has unit", '*').forEach(e-> 
+		ScopedValue.where(ExecutionContextHolder.CONTEXT, pec).run(() -> {
 		// return all identities with the given key for all ranges, should be 1
 			// In this case, the set of identities of type Long that have stated domain and map should be returned
 			// since we supply a fixed domain and map object with a wildcard range, we should get one element back; the identity
@@ -311,9 +300,9 @@ public class BatteryRelatrixStream {
 				throw new RuntimeException("DOMAIN KEY MISMATCH:"+(i)+" "+key+" - "+nex.get(0));
 			if(!((Relation)nex.get(0)).getMap().equals("Has unit"))
 				throw new RuntimeException("MAP KEY MISMATCH:"+(i)+" Has unit - "+nex.get(0));
-			++i;
-		});
-		if( i != 1 ) {
+			i.getAndIncrement();
+		}));
+		if( i.get() != 1) {
 			System.out.println("BATTERY1AR10 unexpected number of keys "+i);
 			throw new Exception("BATTERY1AR10 unexpected number of keys "+i);
 		}
@@ -325,13 +314,14 @@ public class BatteryRelatrixStream {
 	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery1AR101() throws Exception {
-		i = 0;
+	public static void battery1AR101(ParallelExecutionContext pec) throws Exception {
+		i = new AtomicInteger(min.get());
 		long tims = System.currentTimeMillis();
 		System.out.println("Battery1AR101");
-		String fkey = key + String.format(uniqKeyFmt, max);
+		String fkey = key + String.format(uniqKeyFmt, max.get());
 		// Range value is max, so zero keys should be retrieved since we insert 0 to max-1
-		Relatrix.findStream(fkey, "Has unit", Long.valueOf(max)).forEach(e->{
+		Relatrix.findStream(fkey, "Has unit", Long.valueOf(max.get())).forEach(e->
+		ScopedValue.where(ExecutionContextHolder.CONTEXT, pec).run(() -> {
 			// In this case, the set of identities of type Long that have stated domain and map should be returned
 			// since we supply a fixed domain and map object with a wildcard range, we should get one element back; the identity
 			Result nex = (Result) e;
@@ -347,9 +337,9 @@ public class BatteryRelatrixStream {
 			//Long unit = Long.valueOf(i);
 			//if(!((Relation)nex[0]).getRange().equals(unit))
 				//System.out.println("RANGE KEY MISMATCH:"+(i)+" "+i+" - "+nex[0]);
-			++i;
-		});
-		if( i != 0 ) {
+			i.getAndIncrement();
+		}));
+		if( i.get() != min.get() ) {
 			System.out.println("BATTERY1AR101 unexpected number of keys "+i);
 			throw new Exception("BATTERY1AR101 unexpected number of keys "+i);
 		}
@@ -363,15 +353,16 @@ public class BatteryRelatrixStream {
 	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery1AR11() throws Exception {
+	public static void battery1AR11(ParallelExecutionContext pec) throws Exception {
 		long tims = System.currentTimeMillis();
 		System.out.println("Battery1AR11");
-		String fkey = key + String.format(uniqKeyFmt, min);
-		Relatrix.findStream(fkey, "Has time", '*').forEach(e->{
+		String fkey = key + String.format(uniqKeyFmt, min.get());
+		Relatrix.findStream(fkey, "Has time", '*').forEach(e->
+		ScopedValue.where(ExecutionContextHolder.CONTEXT, pec).run(() -> {
 			Result nex = (Result)e;
 			if( DEBUG ) System.out.println("1AR11: SHOULD NOT HAVE ENCOUNTERED:"+nex.get(0));
 			throw new RuntimeException("1AR11: SHOULD NOT HAVE ENCOUNTERED:"+nex.get(0));
-		});
+		}));
 		 System.out.println("BATTERY1AR11 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 
@@ -398,7 +389,7 @@ public class BatteryRelatrixStream {
 			} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
 				throw new RuntimeException(e);
 			}
-			++i;
+			i.getAndIncrement();
 			if((System.currentTimeMillis()-timx) > 1000) {
 				System.out.println("deleting "+i+" total, current="+fkey);
 				timx = System.currentTimeMillis();
