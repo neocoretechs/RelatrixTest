@@ -70,7 +70,7 @@ public class StreamRetrievalBattery0 {
 		
 		displayLine = 0;
 		System.out.println("1.) FindStream(*,*,*)...");
-		rkvc.findStream("*", "*", "*").forEach(e -> {//(System.out::println);
+		rkvc.findStream('*', '*', '*').forEach(e -> {//(System.out::println);
 			displayCtrl();
 			if(DISPLAY)
 				System.out.println(displayLine+"="+e);
@@ -78,7 +78,7 @@ public class StreamRetrievalBattery0 {
 		
 		displayLine = 0;
 		System.out.println("2.) FindStream(*,*,?)...");		
-		rkvc.findStream("*", "*", "?").forEach(e -> {
+		rkvc.findStream('*', '*', '?').forEach(e -> {
 			if(ar.size() == 0 ) ar.add( (Result) e);
 			displayCtrl();
 			if(DISPLAY)
@@ -87,7 +87,7 @@ public class StreamRetrievalBattery0 {
 		
 		displayLine = 0;		
 		System.out.println("3.) FindStream(*,?,*)...");		
-		rkvc.findStream("*", "?", "*").forEach(e -> {
+		rkvc.findStream('*', '?', '*').forEach(e -> {
 			if(ar.size() == 1 ) ar.add((Result) e);
 			displayCtrl();
 			if(DISPLAY)
@@ -96,7 +96,7 @@ public class StreamRetrievalBattery0 {
 		
 		displayLine = 0;
 		System.out.println("4.) FindStream(?,*,*)...");		
-		rkvc.findStream("?", "*", "*").forEach(e -> {
+		rkvc.findStream('?', '*', '*').forEach(e -> {
 			if(ar.size() == 2 ) ar.add( (Result) e);
 			displayCtrl();
 			if(DISPLAY)
@@ -105,7 +105,7 @@ public class StreamRetrievalBattery0 {
 		
 		displayLine = 0;
 		System.out.println("5.) FindStream(*,?,?)...");		
-		rkvc.findStream("*", "?", "?").forEach(e -> {
+		rkvc.findStream('*', '?', '?').forEach(e -> {
 			if(ar2.size() == 0) ar2.add( (Result) e);
 			displayCtrl();
 			if(DISPLAY)
@@ -114,7 +114,7 @@ public class StreamRetrievalBattery0 {
 		
 		displayLine = 0;
 		System.out.println("6.) FindStream(?,*,?)...");		
-		rkvc.findStream("?", "*", "?").forEach(e -> {
+		rkvc.findStream('?', '*', '?').forEach(e -> {
 			if(ar2.size() == 1) ar2.add((Result) e);
 			displayCtrl();
 			if(DISPLAY)
@@ -123,7 +123,7 @@ public class StreamRetrievalBattery0 {
 		
 		displayLine = 0;
 		System.out.println("7.) FindStream(?,?,*)...");		
-		rkvc.findStream("?", "?", "*").forEach(e -> {
+		rkvc.findStream('?', '?', '*').forEach(e -> {
 			if(ar2.size() == 2) ar2.add((Result) e);
 			displayCtrl();
 			if(DISPLAY)
@@ -132,7 +132,7 @@ public class StreamRetrievalBattery0 {
 		
 		displayLine = 0;
 		System.out.println("8.) FindStream(?,?,?)...");		
-		rkvc.findStream("?", "?", "?").forEach(e -> {
+		rkvc.findStream('?', '?', '?').forEach(e -> {
 			if(ar3.size() == 0) ar3.add((Result) e);
 			displayCtrl();
 			if(DISPLAY)
@@ -146,34 +146,34 @@ public class StreamRetrievalBattery0 {
 		rkvc.findStream(ar3.get(0).get(0), ar3.get(0).get(1), ar3.get(0).get(2)).forEach(e -> System.out.println(e.getClass().getName()+","+e));
 		
 		System.out.println("10.) FindStream(*,*,<obj>)...");		
-		rkvc.findStream("*", "*", ar.get(0).get(0)).forEach(e -> System.out.println(e.getClass().getName()+","+e));
+		rkvc.findStream('*', '*', ar.get(0).get(0)).forEach(e -> System.out.println(e.getClass().getName()+","+e));
 
 		System.out.println("11.) FindStream(*,<obj>,*)...");		
-		rkvc.findStream("*", ar.get(1).get(0), "*").forEach(e -> System.out.println(e.getClass().getName()+","+e));
+		rkvc.findStream('*', ar.get(1).get(0), '*').forEach(e -> System.out.println(e.getClass().getName()+","+e));
 		
 		System.out.println("12.) FindStream(<obj>,*,*)...");		
-		rkvc.findStream(ar.get(2).get(0), "*", "*").forEach(e -> System.out.println(e.getClass().getName()+","+e));
+		rkvc.findStream(ar.get(2).get(0), '*', '*').forEach(e -> System.out.println(e.getClass().getName()+","+e));
 		
 		System.out.println("13.) FindStream(*,<obj>,<obj>)...");		
-		rkvc.findStream("*", ar2.get(0).get(0), ar2.get(0).get(1)).forEach(e -> System.out.println(e.getClass().getName()+","+e));
+		rkvc.findStream('*', ar2.get(0).get(0), ar2.get(0).get(1)).forEach(e -> System.out.println(e.getClass().getName()+","+e));
 		
 		System.out.println("14.) FindStream(<obj>,*,<obj>)...");		
-		rkvc.findStream(ar2.get(1).get(0), "*", ar2.get(1).get(1)).forEach(e -> System.out.println(e.getClass().getName()+","+e));
+		rkvc.findStream(ar2.get(1).get(0), '*', ar2.get(1).get(1)).forEach(e -> System.out.println(e.getClass().getName()+","+e));
 		
 		System.out.println("17.) FindStream(?,<obj>,?)...");		
-		rkvc.findStream("?", ar.get(1).get(0), "?").forEach(e -> System.out.println(e.getClass().getName()+","+e));
+		rkvc.findStream('?', ar.get(1).get(0), '?').forEach(e -> System.out.println(e.getClass().getName()+","+e));
 		
 		System.out.println("18.) FindStream(<obj>,?,?)...");		
-		rkvc.findStream(ar.get(2).get(0), "?", "?").forEach(e -> System.out.println(e.getClass().getName()+","+e));
+		rkvc.findStream(ar.get(2).get(0), '?', '?').forEach(e -> System.out.println(e.getClass().getName()+","+e));
 		
 		System.out.println("19.) FindStream(?,<obj>,<obj>)...");		
-		rkvc.findStream("?", ar2.get(0).get(0), ar2.get(0).get(1)).forEach(e -> System.out.println(e.getClass().getName()+","+e));
+		rkvc.findStream('?', ar2.get(0).get(0), ar2.get(0).get(1)).forEach(e -> System.out.println(e.getClass().getName()+","+e));
 		
 		System.out.println("20.) FindStream(<obj>,?,<obj>)...");		
-		rkvc.findStream(ar2.get(1).get(0), "?", ar2.get(1).get(1)).forEach(e -> System.out.println(e.getClass().getName()+","+e));
+		rkvc.findStream(ar2.get(1).get(0), '?', ar2.get(1).get(1)).forEach(e -> System.out.println(e.getClass().getName()+","+e));
 		
 		System.out.println("21.) FindStream(<obj>,<obj>,?)...");		
-		rkvc.findStream(ar2.get(2).get(0), ar2.get(2).get(1), "?").forEach(e -> System.out.println(e.getClass().getName()+","+e));
+		rkvc.findStream(ar2.get(2).get(0), ar2.get(2).get(1), '?').forEach(e -> System.out.println(e.getClass().getName()+","+e));
 		
 		System.out.println("StreamRetrievalBattery0 SUCCESS in "+(System.currentTimeMillis()-tims));
 	}

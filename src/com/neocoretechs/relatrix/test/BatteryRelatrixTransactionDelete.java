@@ -187,7 +187,7 @@ public class BatteryRelatrixTransactionDelete {
 				tims = System.currentTimeMillis();
 			}
 			/*
-			RelatrixTransaction.findStream(xid2,"*", "*", irec).forEach(e->{
+			RelatrixTransaction.findStream(xid2,'*', '*', irec).forEach(e->{
 				Result nex = (Result)e;
 				System.out.println("KEY MISMATCH:"+nex);
 				throw new RuntimeException("MAP KEY MISMATCH:"+nex);
@@ -198,7 +198,7 @@ public class BatteryRelatrixTransactionDelete {
 		// when finished, all records should theoretically be deleted
 		if( RelatrixTransaction.size(xid2, Relation.class) > 0) {
 			System.out.println("BATTERY1AR6 unexpected number of keys "+RelatrixTransaction.size(xid2, Relation.class));
-			RelatrixTransaction.findStream(xid2,"*", "*", "*").forEach(e->{
+			RelatrixTransaction.findStream(xid2,'*', '*', '*').forEach(e->{
 				System.out.println("Del fault:"+e);
 			});
 			throw new Exception("BATTERY1AR6 unexpected number of keys "+RelatrixTransaction.size(xid2, Relation.class));
@@ -221,7 +221,7 @@ public class BatteryRelatrixTransactionDelete {
 		System.out.println("CleanDB RDM size="+RelatrixTransaction.size(xid2,RangeDomainMap.class));
 		System.out.println("CleanDB RMD size="+RelatrixTransaction.size(xid2,RangeMapDomain.class));
 		AbstractRelation.displayLevel = AbstractRelation.displayLevels.MINIMAL;
-		Iterator<?> it = RelatrixTransaction.findSet(xid2,"*","*","*");
+		Iterator<?> it = RelatrixTransaction.findSet(xid2,'*','*','*');
 		timx = System.currentTimeMillis();
 		it.forEachRemaining(fkey-> {
 			Relation dmr = (Relation)((Result)fkey).get(0);
@@ -237,7 +237,7 @@ public class BatteryRelatrixTransactionDelete {
 			}
 		});
 		RelatrixTransaction.commit(xid2);
-		Iterator<?> its = RelatrixTransaction.findSet(xid2,"*","*","*");
+		Iterator<?> its = RelatrixTransaction.findSet(xid2,'*','*','*');
 		while(its.hasNext()) {
 			Result nex = (Result) its.next();
 			//System.out.println(i+"="+nex);

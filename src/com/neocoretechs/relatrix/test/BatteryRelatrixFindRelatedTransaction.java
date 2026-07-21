@@ -132,7 +132,7 @@ public class BatteryRelatrixFindRelatedTransaction {
 		System.out.println("Battery1AR6 "+xid2);
 		for(int i = min; i < max; i++) {
 			String irec = "leg "+String.format(uniqKeyFmt, i);
-			AbstractRelation m = (AbstractRelation) ((Result)(RelatrixTransaction.findStream(xid2, "*", "*", irec).findFirst().get())).get();
+			AbstractRelation m = (AbstractRelation) ((Result)(RelatrixTransaction.findStream(xid2, '*', '*', irec).findFirst().get())).get();
 			List<Comparable> lm = RelatrixTransaction.findSet(xid2,m);
 			// For each AbstractRelation that comprises all the related elements, resolve it and its embedded relationship morphisms
 			for(Comparable co: lm) {
@@ -160,7 +160,7 @@ public class BatteryRelatrixFindRelatedTransaction {
 		System.out.println("CleanDB RDM size="+RelatrixTransaction.size(xid2,RangeDomainMap.class));
 		System.out.println("CleanDB RMD size="+RelatrixTransaction.size(xid2,RangeMapDomain.class));
 		AbstractRelation.displayLevel = AbstractRelation.displayLevels.MINIMAL;
-		Iterator<?> it = RelatrixTransaction.findSet(xid2,"*","*","*");
+		Iterator<?> it = RelatrixTransaction.findSet(xid2,'*','*','*');
 		timx = System.currentTimeMillis();
 		it.forEachRemaining(fkey-> {
 			Relation dmr = (Relation)((Result)fkey).get(0);

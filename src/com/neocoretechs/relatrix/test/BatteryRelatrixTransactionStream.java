@@ -174,7 +174,7 @@ public class BatteryRelatrixTransactionStream {
 		i = min;
 		long tims = System.currentTimeMillis();
 		System.out.println(xid2+" Battery1AR6");
-		RelatrixTransaction.findStream(xid2,"?", "?", "?").forEach(e->{
+		RelatrixTransaction.findStream(xid2,'?', '?', '?').forEach(e->{
 			Result nex = (Result)e;
 			// 3 question marks = dimension 3 in return array
 			if( DEBUG ) System.out.println("1AR6:"+i+" "+nex);
@@ -193,7 +193,7 @@ public class BatteryRelatrixTransactionStream {
 		 System.out.println("BATTERY1AR6 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 	/**
-	 * Testing of Iterator<?> its = Relatrix.findSet("?", "*", "*");
+	 * Testing of Iterator<?> its = Relatrix.findSet('?', '*', '*');
 	 * @param xid2 
 	 * @throws Exception
 	 */
@@ -201,7 +201,7 @@ public class BatteryRelatrixTransactionStream {
 		i = min;
 		long tims = System.currentTimeMillis();
 		System.out.println(xid2+" Battery1AR7");
-		RelatrixTransaction.findStream(xid2, "?", "*", "*").forEach(e->{
+		RelatrixTransaction.findStream(xid2, '?', '*', '*').forEach(e->{
 			Result nex = (Result)e;
 			// one '?' in findStream gives us one element returned
 			if(DEBUG ) System.out.println("1AR7:"+i+" "+nex);
@@ -220,7 +220,7 @@ public class BatteryRelatrixTransactionStream {
 		 System.out.println("BATTERY1AR7 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 	/**
-	 * Testing of Iterator<?> its = Relatrix.findSet("?", "?", "*");
+	 * Testing of Iterator<?> its = Relatrix.findSet('?', '?', '*');
 	 * @param xid2 
 	 * @throws Exception
 	 */
@@ -228,7 +228,7 @@ public class BatteryRelatrixTransactionStream {
 		i = min;
 		long tims = System.currentTimeMillis();
 		System.out.println(xid2+" Battery1AR8");
-		RelatrixTransaction.findStream(xid2,"?", "?", "*").forEach(e ->{
+		RelatrixTransaction.findStream(xid2,'?', '?', '*').forEach(e ->{
 			Result nex = (Result)e;
 			// two '?' in findStream gives use 2 element array, the domain and map
 			if( DEBUG ) System.out.println("1AR8:"+i+" "+nex);
@@ -248,7 +248,7 @@ public class BatteryRelatrixTransactionStream {
 	}
 	/**
 	 * 
-	 * Testing of Iterator<?> its = Relatrix.findSet("*", "*", "*");
+	 * Testing of Iterator<?> its = Relatrix.findSet('*', '*', '*');
 	 * @param xid2 
 	 * @throws Exception
 	 */
@@ -256,7 +256,7 @@ public class BatteryRelatrixTransactionStream {
 		i = min;
 		long tims = System.currentTimeMillis();
 		System.out.println(xid2+" Battery1AR9");
-		RelatrixTransaction.findStream(xid2, "*", "*", "*").forEach(e->{
+		RelatrixTransaction.findStream(xid2, '*', '*', '*').forEach(e->{
 			Result nex = (Result)e;
 			// the returned array has 1 element, the identity AbstractRelation Relation
 			if( DEBUG ) System.out.println("1AR9:"+i+" "+nex.get(0));
@@ -276,7 +276,7 @@ public class BatteryRelatrixTransactionStream {
 	}
 
 	/**
-	 * Iterator<?> its = Relatrix.findSet(fkey, "Has unit", "*");
+	 * Iterator<?> its = Relatrix.findSet(fkey, "Has unit", '*');
 	 * Should return 1 element of which 'fkey' and "Has unit" are primary key
 	 * @param xid2 
 	 * @throws Exception
@@ -287,7 +287,7 @@ public class BatteryRelatrixTransactionStream {
 		String fkey = key + String.format(uniqKeyFmt, min);
 		System.out.println(xid2+" Battery1AR10");
 		// return all identities with the given key for all ranges, should be 1
-		RelatrixTransaction.findStream(xid2, fkey, "Has unit", "*").forEach(e-> {
+		RelatrixTransaction.findStream(xid2, fkey, "Has unit", '*').forEach(e-> {
 			// return all identities with the given key for all ranges, should be 1
 				// In this case, the set of identities of type Long that have stated domain and map should be returned
 				// since we supply a fixed domain and map object with a wildcard range, we should get one element back; the identity
@@ -348,7 +348,7 @@ public class BatteryRelatrixTransactionStream {
 	}
 	/**
 	 * negative assertion of above
-	 * Iterator<?> its = Relatrix.findSet(fkey, "Has time", "*");
+	 * Iterator<?> its = Relatrix.findSet(fkey, "Has time", '*');
 	 * map is 'Has time', which we never inserted, so no elements should come back
 	 * @param xid2 
 	 * @throws Exception
@@ -358,7 +358,7 @@ public class BatteryRelatrixTransactionStream {
 		String fkey = key + String.format(uniqKeyFmt, min);
 		// forgetful functor test
 		System.out.println(xid2+" Battery1AR11");
-		RelatrixTransaction.findStream(xid2, fkey, "Has time", "*").forEach(e->{
+		RelatrixTransaction.findStream(xid2, fkey, "Has time", '*').forEach(e->{
 			Result nex = (Result)e;
 			if( DEBUG ) System.out.println("1AR11: SHOULD NOT HAVE ENCOUNTERED:"+nex.get(0));
 			throw new RuntimeException("1AR11: SHOULD NOT HAVE ENCOUNTERED:"+nex.get(0));
@@ -378,17 +378,17 @@ public class BatteryRelatrixTransactionStream {
 		String fkey = key + String.format(uniqKeyFmt, min);
 		RelatrixTransaction.remove(xid2, fkey);
 		System.out.println(fkey+" removed, proceeding to verify removal of all relationships it may have been involved in");
-		Iterator<?> its = RelatrixTransaction.findSet(xid2, fkey, "*", "*");
+		Iterator<?> its = RelatrixTransaction.findSet(xid2, fkey, '*', '*');
 		if(its.hasNext()) {
 			throw new Exception("BATTERY1AR12-1 failed to delete key "+fkey+" "+(Result)its.next());
 		}
 		// re-insert
 		RelatrixTransaction.store(xid2, fkey, "Has unit", Long.valueOf(min));
-		its = RelatrixTransaction.findSet(xid2, "*", fkey, "*");
+		its = RelatrixTransaction.findSet(xid2, '*', fkey, '*');
 		if(its.hasNext()) {
 			throw new Exception("BATTERY1AR12-2 failed to delete key "+fkey);
 		}
-		its = RelatrixTransaction.findSet(xid2, "*", "*", fkey);
+		its = RelatrixTransaction.findSet(xid2, '*', '*', fkey);
 		if(its.hasNext()) {
 			throw new Exception("BATTERY1AR12-3 failed to delete key "+fkey);
 		}
@@ -410,7 +410,7 @@ public class BatteryRelatrixTransactionStream {
 		System.out.println("CleanDB RDM size="+RelatrixTransaction.size(xid2,RangeDomainMap.class));
 		System.out.println("CleanDB RMD size="+RelatrixTransaction.size(xid2,RangeMapDomain.class));
 		AbstractRelation.displayLevel = AbstractRelation.displayLevels.MINIMAL;
-		Iterator<?> it = RelatrixTransaction.findSet(xid2,"*","*","*");
+		Iterator<?> it = RelatrixTransaction.findSet(xid2,'*','*','*');
 		timx = System.currentTimeMillis();
 		it.forEachRemaining(fkey-> {
 			Relation dmr = (Relation)((Result)fkey).get(0);
@@ -426,7 +426,7 @@ public class BatteryRelatrixTransactionStream {
 			}
 		});
 		RelatrixTransaction.commit(xid2);
-		Iterator<?> its = RelatrixTransaction.findSet(xid2,"*","*","*");
+		Iterator<?> its = RelatrixTransaction.findSet(xid2,'*','*','*');
 		while(its.hasNext()) {
 			Result nex = (Result) its.next();
 			//System.out.println(i+"="+nex);

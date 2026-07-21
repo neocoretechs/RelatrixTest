@@ -218,7 +218,7 @@ public class BatteryRelatrixTransactionAlias {
 	public static void battery1AR6(Alias alias12, TransactionId xid2) throws Exception {
 		int i = min;
 		long tims = System.currentTimeMillis();
-		Iterator<?> its = RelatrixTransaction.findSet(alias12, xid2, "?", "?", "?");
+		Iterator<?> its = RelatrixTransaction.findSet(alias12, xid2, '?', '?', '?');
 		System.out.println(alias12+" Battery1AR6 findSet in "+(System.currentTimeMillis()-tims)+" ms. for id:"+xid2);
 		while(its.hasNext()) {
 			Result nex = (Result) its.next();
@@ -244,7 +244,7 @@ public class BatteryRelatrixTransactionAlias {
 		 System.out.println("BATTERY1AR6 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 	/**
-	 * Testing of Iterator<?> its = RelatrixTransaction.findSet(alias, xid, "?", "*", "*");
+	 * Testing of Iterator<?> its = RelatrixTransaction.findSet(alias, xid, '?', '*', '*');
 	 * @param argv
 	 * @param alias12 
 	 * @param xid2 
@@ -253,7 +253,7 @@ public class BatteryRelatrixTransactionAlias {
 	public static void battery1AR7(Alias alias12, TransactionId xid2) throws Exception {
 		int i = min;
 		long tims = System.currentTimeMillis();
-		Iterator<?> its = RelatrixTransaction.findSet(alias12, xid2, "?", "*", "*");
+		Iterator<?> its = RelatrixTransaction.findSet(alias12, xid2, '?', '*', '*');
 		System.out.println(alias12+" Battery1AR7 findSet in "+(System.currentTimeMillis()-tims)+" ms. for id:"+xid2);
 		while(its.hasNext()) {
 			Result nex = (Result) its.next();
@@ -275,7 +275,7 @@ public class BatteryRelatrixTransactionAlias {
 		 System.out.println("BATTERY1AR7 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 	/**
-	 * Testing of Iterator<?> its = RelatrixTransaction.findSet(alias, xid, "?", "?", "*");
+	 * Testing of Iterator<?> its = RelatrixTransaction.findSet(alias, xid, '?', '?', '*');
 	 * @param argv
 	 * @param alias12 
 	 * @param xid2 
@@ -284,7 +284,7 @@ public class BatteryRelatrixTransactionAlias {
 	public static void battery1AR8(Alias alias12, TransactionId xid2) throws Exception {
 		int i = min;
 		long tims = System.currentTimeMillis();
-		Iterator<?> its = RelatrixTransaction.findSet(alias12, xid2, "?", "?", "*");
+		Iterator<?> its = RelatrixTransaction.findSet(alias12, xid2, '?', '?', '*');
 		System.out.println(alias12+" Battery1AR8 findSet in "+(System.currentTimeMillis()-tims)+" ms. for id:"+xid2);
 		while(its.hasNext()) {
 			Result nex = (Result) its.next();
@@ -307,7 +307,7 @@ public class BatteryRelatrixTransactionAlias {
 	}
 	/**
 	 * 
-	 * Testing of Iterator<?> its = RelatrixTransaction.findSet(alias, xid, "*", "*", "*");
+	 * Testing of Iterator<?> its = RelatrixTransaction.findSet(alias, xid, '*', '*', '*');
 	 * @param argv
 	 * @param alias12 
 	 * @param xid2 
@@ -316,7 +316,7 @@ public class BatteryRelatrixTransactionAlias {
 	public static void battery1AR9(Alias alias12, TransactionId xid2) throws Exception {
 		int i = min;
 		long tims = System.currentTimeMillis();
-		Iterator<?> its = RelatrixTransaction.findSet(alias12, xid2, "*", "*", "*");
+		Iterator<?> its = RelatrixTransaction.findSet(alias12, xid2, '*', '*', '*');
 		System.out.println(alias12+" Batter1AR9 findSet in "+(System.currentTimeMillis()-tims)+" ms. for id:"+xid2);
 		while(its.hasNext()) {
 			Result nex = (Result) its.next();
@@ -340,7 +340,7 @@ public class BatteryRelatrixTransactionAlias {
 	}
 
 	/**
-	 * Iterator<?> its = RelatrixTransaction.findSet(alias, xid, fkey, "Has unit", "*");
+	 * Iterator<?> its = RelatrixTransaction.findSet(alias, xid, fkey, "Has unit", '*');
 	 * Should return 1 element of which 'fkey' and "Has unit" are primary key
 	 * @param argv
 	 * @param alias12 
@@ -351,7 +351,7 @@ public class BatteryRelatrixTransactionAlias {
 		int i = min;
 		long tims = System.currentTimeMillis();
 		String fkey = key + String.format(uniqKeyFmt, min);
-		Iterator<?> its = RelatrixTransaction.findSet(alias12, xid2, fkey, "Has unit "+alias12, "*");
+		Iterator<?> its = RelatrixTransaction.findSet(alias12, xid2, fkey, "Has unit "+alias12, '*');
 		System.out.println(alias12+" Battery1AR10 findSet in "+(System.currentTimeMillis()-tims)+" ms. for id:"+xid2);
 		// return all identities with the given key for all ranges, should be 1
 		while(its.hasNext()) {
@@ -417,7 +417,7 @@ public class BatteryRelatrixTransactionAlias {
 	}
 	/**
 	 * negative assertion of above
-	 * Iterator<?> its = RelatrixTransaction.findSet(alias, xid, fkey, "Has time", "*");
+	 * Iterator<?> its = RelatrixTransaction.findSet(alias, xid, fkey, "Has time", '*');
 	 * map is 'Has time', which we never inserted, so no elements should come back
 	 * @param session
 	 * @param argv
@@ -430,7 +430,7 @@ public class BatteryRelatrixTransactionAlias {
 	
 		String fkey = key + String.format(uniqKeyFmt, min);
 		// forgetful functor test
-		Iterator<?> its = RelatrixTransaction.findSet(alias12, xid2, fkey, "Has time", "*");
+		Iterator<?> its = RelatrixTransaction.findSet(alias12, xid2, fkey, "Has time", '*');
 		System.out.println(alias12+" Battery1AR11 findSet in "+(System.currentTimeMillis()-tims)+" ms. for id:"+xid2);
 		while(its.hasNext()) {
 			Result nex = (Result) its.next();
@@ -452,18 +452,18 @@ public class BatteryRelatrixTransactionAlias {
 		String fkey = key + String.format(uniqKeyFmt, min);
 		RelatrixTransaction.remove(alias12, xid2, fkey);
 		System.out.println(fkey+" removed, proceeding to verify removal of all relationships it may have been involved in");
-		Iterator<?> its = RelatrixTransaction.findSet(alias12, xid2, fkey, "*", "*");
+		Iterator<?> its = RelatrixTransaction.findSet(alias12, xid2, fkey, '*', '*');
 		System.out.println(alias12+" Battery1AR12 findSet in "+(System.currentTimeMillis()-tims)+" ms. for id:"+xid2);
 		if(its.hasNext()) {
 			throw new Exception("BATTERY1AR12 failed to delete key "+fkey+" "+(Result)its.next());
 		}
 		// re-insert
 		RelatrixTransaction.store(alias12, xid2, fkey, "Has unit "+alias12, Long.valueOf(min));
-		its = RelatrixTransaction.findSet(alias12, xid2, "*", fkey, "*");
+		its = RelatrixTransaction.findSet(alias12, xid2, '*', fkey, '*');
 		if(its.hasNext()) {
 			throw new Exception("BATTERY1AR12-2 failed to delete key "+fkey);
 		}
-		its = RelatrixTransaction.findSet(alias12, xid2, "*", "*", fkey);
+		its = RelatrixTransaction.findSet(alias12, xid2, '*', '*', fkey);
 		if(its.hasNext()) {
 			throw new Exception("BATTERY1AR12-3 failed to delete key "+fkey);
 		}
@@ -486,7 +486,7 @@ public class BatteryRelatrixTransactionAlias {
 		System.out.println("CleanDB RDM size="+RelatrixTransaction.size(alias12, xid, RangeDomainMap.class));
 		System.out.println("CleanDB RMD size="+RelatrixTransaction.size(alias12, xid, RangeMapDomain.class));
 		AbstractRelation.displayLevel = AbstractRelation.displayLevels.MINIMAL;
-		Iterator<?> it = RelatrixTransaction.findSet(alias12, xid, "*","*","*");
+		Iterator<?> it = RelatrixTransaction.findSet(alias12, xid, '*','*','*');
 		timx = System.currentTimeMillis();
 		it.forEachRemaining(fkey-> {
 			Relation dmr = (Relation)((Result)fkey).get(0);
@@ -501,7 +501,7 @@ public class BatteryRelatrixTransactionAlias {
 				timx = System.currentTimeMillis();
 			}
 		});
-		Iterator<?> its = RelatrixTransaction.findSet(alias12, xid, "*","*","*");
+		Iterator<?> its = RelatrixTransaction.findSet(alias12, xid, '*','*','*');
 		while(its.hasNext()) {
 			Result nex = (Result) its.next();
 			//System.out.println(i+"="+nex);

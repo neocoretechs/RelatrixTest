@@ -167,7 +167,7 @@ public class BatteryRelatrixStream {
 		i = min;
 		long tims = System.currentTimeMillis();
 		System.out.println("Battery1AR6");
-		Relatrix.findStream('?', '?', '?').forEach(e->{
+		Relatrix.findSet('?', '?', '?').forEachRemaining(e->{
 			Result nex = (Result)e;
 			// 3 question marks = dimension 3 in return array
 			if( DEBUG ) System.out.println("1AR6:"+i+" "+nex);
@@ -180,8 +180,26 @@ public class BatteryRelatrixStream {
 			++i;
 		});
 		if( i != max ) {
-			System.out.println("BATTERY1AR6 unexpected number of keys "+i);
-			throw new Exception("BATTERY1AR6 unexpected number of keys "+i);
+			System.out.println("BATTERY1AR6 unexpected number of keys for iterator "+i);
+			throw new Exception("BATTERY1AR6 unexpected number of keys for iterator "+i);
+		}
+		i = min;
+		Relatrix.findStream('?', '?', '?').sequential().forEachOrdered(
+		/*Relatrix.findStream('?', '?', '?').forEach(*/e->{
+			Result nex = (Result)e;
+			// 3 question marks = dimension 3 in return array
+			if( DEBUG ) System.out.println("1AR6:"+i+" "+nex);
+			//String fkey = key + String.format(uniqKeyFmt, i);
+			// no guarantee of ordering with unqualified findSet/findStream
+			if(!((String) nex.get(0)).startsWith(key) || !nex.get(1).equals("Has unit") || nex.length() != 3) {
+				System.out.println("MAP KEY MISMATCH:"+(i)+" Has unit - "+nex.get(1)+" length:"+nex.length());
+				throw new RuntimeException("MAP KEY MISMATCH:"+(i)+" Has unit - "+nex.get(1)+" length:"+nex.length());
+			}
+			++i;
+		});
+		if( i != max ) {
+			System.out.println("BATTERY1AR6 unexpected number of keys for stream "+i);
+			throw new Exception("BATTERY1AR6 unexpected number of keys for stream "+i);
 		}
 		 System.out.println("BATTERY1AR6 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}

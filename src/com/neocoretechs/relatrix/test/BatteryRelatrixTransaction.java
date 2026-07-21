@@ -174,7 +174,7 @@ public class BatteryRelatrixTransaction {
 	public static void battery1AR6(TransactionId xid2) throws Exception {
 		int i = min;
 		long tims = System.currentTimeMillis();
-		Iterator<?> its = RelatrixTransaction.findSet(xid2, "?", "?", "?");
+		Iterator<?> its = RelatrixTransaction.findSet(xid2, '?', '?', '?');
 		System.out.println(xid2+" Battery1AR6");
 		while(its.hasNext()) {
 			Result nex = (Result) its.next();
@@ -207,7 +207,7 @@ public class BatteryRelatrixTransaction {
 	public static void battery1AR7(TransactionId xid2) throws Exception {
 		int i = min;
 		long tims = System.currentTimeMillis();
-		Iterator<?> its = RelatrixTransaction.findSet(xid2, "?", "*", "*");
+		Iterator<?> its = RelatrixTransaction.findSet(xid2, '?', '*', '*');
 		System.out.println(xid2+" Battery1AR7");
 		while(its.hasNext()) {
 			Result nex = (Result) its.next();
@@ -237,7 +237,7 @@ public class BatteryRelatrixTransaction {
 	public static void battery1AR8(TransactionId xid2) throws Exception {
 		int i = min;
 		long tims = System.currentTimeMillis();
-		Iterator<?> its = RelatrixTransaction.findSet(xid2, "?", "?", "*");
+		Iterator<?> its = RelatrixTransaction.findSet(xid2, '?', '?', '*');
 		System.out.println(xid2+" Battery1AR8");
 		while(its.hasNext()) {
 			Result nex = (Result) its.next();
@@ -268,7 +268,7 @@ public class BatteryRelatrixTransaction {
 	public static void battery1AR9(TransactionId xid2) throws Exception {
 		int i = min;
 		long tims = System.currentTimeMillis();
-		Iterator<?> its = RelatrixTransaction.findSet(xid2, "*", "*", "*");
+		Iterator<?> its = RelatrixTransaction.findSet(xid2, '*', '*', '*');
 		System.out.println(xid2+" Battery1AR9");
 		while(its.hasNext()) {
 			Result nex = (Result) its.next();
@@ -292,7 +292,7 @@ public class BatteryRelatrixTransaction {
 	}
 
 	/**
-	 * Iterator<?> its = Relatrix.findSet(fkey, "Has unit", "*");
+	 * Iterator<?> its = Relatrix.findSet(fkey, "Has unit", '*');
 	 * Should return 1 element of which 'fkey' and "Has unit" are primary key
 	 * @param argv
 	 * @param xid2 
@@ -303,7 +303,7 @@ public class BatteryRelatrixTransaction {
 		long tims = System.currentTimeMillis();
 		String fkey = key + String.format(uniqKeyFmt, min);
 		System.out.println(xid2+" Battery1AR10");
-		Iterator<?> its = RelatrixTransaction.findSet(xid2, fkey, "Has unit", "*");
+		Iterator<?> its = RelatrixTransaction.findSet(xid2, fkey, "Has unit", '*');
 		// return all identities with the given key for all ranges, should be 1
 		while(its.hasNext()) {
 			// In this case, the set of identities of type Long that have stated domain and map should be returned
@@ -379,7 +379,7 @@ public class BatteryRelatrixTransaction {
 	
 		String fkey = key + String.format(uniqKeyFmt, min);
 		// forgetful functor test
-		Iterator<?> its = RelatrixTransaction.findSet(xid2, fkey, "Has time", "*");
+		Iterator<?> its = RelatrixTransaction.findSet(xid2, fkey, "Has time", '*');
 		System.out.println(xid2+" Battery1AR11");
 		while(its.hasNext()) {
 			Result nex = (Result) its.next();
@@ -401,17 +401,17 @@ public class BatteryRelatrixTransaction {
 		String fkey = key + String.format(uniqKeyFmt, min);
 		RelatrixTransaction.remove(xid2, fkey);
 		System.out.println(fkey+" removed, proceeding to verify removal of all relationships it may have been involved in");
-		Iterator<?> its = RelatrixTransaction.findSet(xid2, fkey, "*", "*");
+		Iterator<?> its = RelatrixTransaction.findSet(xid2, fkey, '*', '*');
 		if(its.hasNext()) {
 			throw new Exception("BATTERY1AR12-1 failed to delete key "+fkey+" "+(Result)its.next());
 		}
 		// re-insert
 		RelatrixTransaction.store(xid2, fkey, "Has unit", Long.valueOf(min));
-		its = RelatrixTransaction.findSet(xid2, "*", fkey, "*");
+		its = RelatrixTransaction.findSet(xid2, '*', fkey, '*');
 		if(its.hasNext()) {
 			throw new Exception("BATTERY1AR12-2 failed to delete key "+fkey);
 		}
-		its = RelatrixTransaction.findSet(xid2, "*", "*", fkey);
+		its = RelatrixTransaction.findSet(xid2, '*', '*', fkey);
 		if(its.hasNext()) {
 			throw new Exception("BATTERY1AR12-3 failed to delete key "+fkey);
 		}
@@ -433,7 +433,7 @@ public class BatteryRelatrixTransaction {
 		System.out.println("CleanDB RDM size="+RelatrixTransaction.size(xid2,RangeDomainMap.class));
 		System.out.println("CleanDB RMD size="+RelatrixTransaction.size(xid2,RangeMapDomain.class));
 		AbstractRelation.displayLevel = AbstractRelation.displayLevels.MINIMAL;
-		Iterator<?> it = RelatrixTransaction.findSet(xid2,"*","*","*");
+		Iterator<?> it = RelatrixTransaction.findSet(xid2,'*','*','*');
 		timx = System.currentTimeMillis();
 		it.forEachRemaining(fkey-> {
 			Relation dmr = (Relation)((Result)fkey).get(0);
@@ -449,7 +449,7 @@ public class BatteryRelatrixTransaction {
 			}
 		});
 		RelatrixTransaction.commit(xid2);
-		Iterator<?> its = RelatrixTransaction.findSet(xid2,"*","*","*");
+		Iterator<?> its = RelatrixTransaction.findSet(xid2,'*','*','*');
 		while(its.hasNext()) {
 			Result nex = (Result) its.next();
 			//System.out.println(i+"="+nex);

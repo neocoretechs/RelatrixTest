@@ -5,7 +5,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Stream;
 
 import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.MapDomainRange;
@@ -147,9 +149,15 @@ public class BatteryRelatrixFindRelatedAliasTransaction {
 		i = min;
 		long tims = System.currentTimeMillis();
 		System.out.println(xid2+" Battery1AR6 "+alias12);
-		for(int i = min; i < max; i++) {
+		for(; i < max; i++) {
 			String irec = "leg "+String.format(uniqKeyFmt, i);
-			AbstractRelation m = (AbstractRelation) ((Result)(RelatrixTransaction.findStream(alias12, xid2, "*", "*", irec).findFirst().get())).get();
+			Stream<?> s = RelatrixTransaction.findStream(alias12, xid2, '*', '*', irec);
+			if(s == null )
+				throw new Exception("findStream of "+irec+" came back null");
+			Optional<?> ff = s.findFirst();
+			if(ff.isEmpty())
+				throw new Exception("findStream of "+irec+" had no elements");
+			AbstractRelation m = (AbstractRelation) ((Result)ff.get()).get();
 			List<Comparable> lm = RelatrixTransaction.findSet(alias12, xid2, m);
 			// For each AbstractRelation that comprises all the related elements, resolve it and its embedded relationship morphisms
 			for(Comparable co: lm) {
