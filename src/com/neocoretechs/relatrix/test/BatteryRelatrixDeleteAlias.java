@@ -56,6 +56,10 @@ public class BatteryRelatrixDeleteAlias {
 			try {
 				Relatrix.getInstance();
 				AbstractRelation.displayLevel = displayLevels.VERBOSE;
+
+				Relatrix.setAlias(alias1,Relatrix.getTableSpace()+alias1);
+				Relatrix.setAlias(alias2,Relatrix.getTableSpace()+alias2);
+				Relatrix.setAlias(alias3,Relatrix.getTableSpace()+alias3);
 				if(argv.length > 0 && argv[0].equals("max")) {
 					System.out.println("Setting max items to "+argv[1]);
 					max = Integer.parseInt(argv[1]);
@@ -68,10 +72,6 @@ public class BatteryRelatrixDeleteAlias {
 						System.exit(0);
 					}
 				}
-
-				Relatrix.setAlias(alias1,Relatrix.getTableSpace()+alias1);
-				Relatrix.setAlias(alias2,Relatrix.getTableSpace()+alias2);
-				Relatrix.setAlias(alias3,Relatrix.getTableSpace()+alias3);
 				AbstractRelation.displayLevel = displayLevels.VERBOSE;
 				if(Relatrix.size(alias1) == 0) {
 					if(DEBUG)
