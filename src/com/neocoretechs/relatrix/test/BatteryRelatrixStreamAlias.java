@@ -27,6 +27,10 @@ import com.neocoretechs.relatrix.Result;
  * as examples of Relatrix processing.
  * In general the tests compare the number of items retrieved 
  * against expected value since findSet retrieves items in no particular order.
+ * We use a {@link ParallelExecutionContext}
+ * to provide access to the {@link IndexResolver} for each thread created by the parallel streams which
+ * requires one line of additional tooling after the various findStream calls. We also need to have AtomicInteger
+ * counters to function properly in a parallel context.
  * NOTES:
  * program argument is [ [init] [max nnn] ]
  * a series of databases prefixed by ALIAS1, ALIAS2, ALIAS3 will be created
