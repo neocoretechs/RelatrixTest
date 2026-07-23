@@ -215,7 +215,7 @@ public class BatteryRelatrixTransactionStreamAlias {
 		i = new AtomicInteger(min.get());
 		long tims = System.currentTimeMillis();
 		System.out.println(xid2+" Battery1AR6 "+alias12);
-		RelatrixTransaction.findStream(alias12, xid2,'?', '?', '?').forEach(e->
+		RelatrixTransaction.findStream(alias12, xid2,'?', '?', '?').parallel().forEach(e->
 		ScopedValue.where(ExecutionContextHolder.CONTEXT, pec).run(() -> {
 			Result nex = (Result)e;
 			// 3 question marks = dimension 3 in return array
@@ -245,7 +245,7 @@ public class BatteryRelatrixTransactionStreamAlias {
 		i = new AtomicInteger(min.get());
 		long tims = System.currentTimeMillis();
 		System.out.println(xid2+" Battery1AR7 "+alias12);
-		RelatrixTransaction.findStream(alias12, xid2, '?', '*', '*').forEach(e->
+		RelatrixTransaction.findStream(alias12, xid2, '?', '*', '*').parallel().forEach(e->
 		ScopedValue.where(ExecutionContextHolder.CONTEXT, pec).run(() -> {
 			Result nex = (Result)e;
 			// one '?' in findStream gives us one element returned
@@ -275,7 +275,7 @@ public class BatteryRelatrixTransactionStreamAlias {
 		i = new AtomicInteger(min.get());
 		long tims = System.currentTimeMillis();
 		System.out.println(xid2+" Battery1AR8 "+alias12);
-		RelatrixTransaction.findStream(alias12, xid2,'?', '?', '*').forEach(e ->
+		RelatrixTransaction.findStream(alias12, xid2,'?', '?', '*').parallel().forEach(e ->
 		ScopedValue.where(ExecutionContextHolder.CONTEXT, pec).run(() -> {
 			Result nex = (Result)e;
 			// two '?' in findStream gives use 2 element array, the domain and map
@@ -306,7 +306,7 @@ public class BatteryRelatrixTransactionStreamAlias {
 		i = new AtomicInteger(min.get());
 		long tims = System.currentTimeMillis();
 		System.out.println(xid2+" Battery1AR9 "+alias12);
-		RelatrixTransaction.findStream(alias12, xid2, '*', '*', '*').forEach(e->
+		RelatrixTransaction.findStream(alias12, xid2, '*', '*', '*').parallel().forEach(e->
 		ScopedValue.where(ExecutionContextHolder.CONTEXT, pec).run(() -> {
 			Result nex = (Result)e;
 			// the returned array has 1 element, the identity AbstractRelation Relation
@@ -340,7 +340,7 @@ public class BatteryRelatrixTransactionStreamAlias {
 		String fkey = key + String.format(uniqKeyFmt, min.get());
 		System.out.println(xid2+" Battery1AR10 "+alias12);
 		// return all identities with the given key for all ranges, should be 1
-		RelatrixTransaction.findStream(alias12, xid2, fkey, "Has unit "+alias12, '*').forEach(e-> 
+		RelatrixTransaction.findStream(alias12, xid2, fkey, "Has unit "+alias12, '*').parallel().forEach(e-> 
 		ScopedValue.where(ExecutionContextHolder.CONTEXT, pec).run(() -> {
 			// return all identities with the given key for all ranges, should be 1
 				// In this case, the set of identities of type Long that have stated domain and map should be returned
@@ -376,9 +376,8 @@ public class BatteryRelatrixTransactionStreamAlias {
 		long tims = System.currentTimeMillis();
 		String fkey = key + String.format(uniqKeyFmt, max.get());
 		// Range value is max, so zero keys should be retrieved since we insert 0 to max-1
-		Iterator<?> its = RelatrixTransaction.findSet(alias12, xid2, fkey, "Has unit "+alias12, Long.valueOf(max.get()));
 		System.out.println(xid2+" Batteryt1AR101 "+alias12);
-		RelatrixTransaction.findStream(alias12, xid2, fkey, "Has unit "+alias12, Long.valueOf(max.get())).forEach(e->
+		RelatrixTransaction.findStream(alias12, xid2, fkey, "Has unit "+alias12, Long.valueOf(max.get())).parallel().forEach(e->
 		ScopedValue.where(ExecutionContextHolder.CONTEXT, pec).run(() -> {
 			// In this case, the set of identities of type Long that have stated domain and map should be returned
 			// since we supply a instances, we should get one element back; the identity
@@ -416,7 +415,7 @@ public class BatteryRelatrixTransactionStreamAlias {
 		long tims = System.currentTimeMillis();
 		String fkey = key + String.format(uniqKeyFmt, min.get());
 		System.out.println(xid2+" Battery1AR11 "+alias12);
-		RelatrixTransaction.findStream(alias12, xid2, fkey, "Has time", '*').forEach(e->
+		RelatrixTransaction.findStream(alias12, xid2, fkey, "Has time", '*').parallel().forEach(e->
 		ScopedValue.where(ExecutionContextHolder.CONTEXT, pec).run(() -> {
 			Result nex = (Result)e;
 			if( DEBUG ) System.out.println("1AR11: SHOULD NOT HAVE ENCOUNTERED:"+nex.get(0));

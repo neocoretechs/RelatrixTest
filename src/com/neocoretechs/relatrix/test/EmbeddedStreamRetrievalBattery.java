@@ -103,33 +103,33 @@ public class EmbeddedStreamRetrievalBattery {
 		System.out.println("Wildcard queries. Will store samplesize of "+SAMPLESIZE+" for subsequent tests.");
 		recs = 0;
 		System.out.println("1.) findStream(*,*,*)...");
-		Relatrix.findStream('*', '*', '*').forEach(e->{
+		Relatrix.findStream('*', '*', '*').parallel().forEach(e->{
 			System.out.println(++recs+"="+e);
 		});
 		recs = 0;
 		System.out.println("2.) findStream(*,*,?)...");		
-		Relatrix.findStream('*', '*', '?').forEach(e->{
+		Relatrix.findStream('*', '*', '?').parallel().forEach(e->{
 			System.out.println(++recs+"="+e);
 			if(ar.size() < SAMPLESIZE  ) 
 				ar.add(((Result)e).get());
 		});
 		recs = 0;
 		System.out.println("3.) findStream(*,?,*)...");		
-		Relatrix.findStream('*', '?', '*').forEach(e->{
+		Relatrix.findStream('*', '?', '*').parallel().forEach(e->{
 			System.out.println(++recs+"="+e);
 			if(am.size() < SAMPLESIZE ) 
 				am.add(((Result)e).get());
 		});
 		recs = 0;
 		System.out.println("4.) findStream(?,*,*)...");		
-		Relatrix.findStream('?', '*', '*').forEach(e->{
+		Relatrix.findStream('?', '*', '*').parallel().forEach(e->{
 			System.out.println(++recs+"="+e);
 			if(ad.size() < SAMPLESIZE) 
 				ad.add(((Result)e).get());
 		});
 		recs=0;
 		System.out.println("5.) findStream(*,?,?)...");		
-		Relatrix.findStream('*', '?', '?').forEach(e->{
+		Relatrix.findStream('*', '?', '?').parallel().forEach(e->{
 			Comparable[] c = ((Result2)e).toArray();
 			System.out.println(++recs+"="+e);
 			if(ar2.size() < SAMPLESIZE) 
@@ -137,7 +137,7 @@ public class EmbeddedStreamRetrievalBattery {
 		});
 		recs = 0;
 		System.out.println("6.) findStream(?,*,?)...");		
-		Relatrix.findStream('?', '*', '?').forEach(e->{
+		Relatrix.findStream('?', '*', '?').parallel().forEach(e->{
 			Comparable[] c = ((Result2)e).toArray();
 			System.out.println(++recs+"="+c[0]+" --- "+c[1]);
 			if(ar2dr.size() < SAMPLESIZE) 
@@ -145,7 +145,7 @@ public class EmbeddedStreamRetrievalBattery {
 		});
 		recs = 0;
 		System.out.println("7.) findStream(?,?,*)...");		
-		Relatrix.findStream('?', '?', '*').forEach(e->{
+		Relatrix.findStream('?', '?', '*').parallel().forEach(e->{
 			Comparable[] c = ((Result2)e).toArray();
 			System.out.println(++recs+"="+c[0]+" --- "+c[1]);
 			if(ar2dm.size() < SAMPLESIZE) 
@@ -153,7 +153,7 @@ public class EmbeddedStreamRetrievalBattery {
 		});
 		recs = 0;
 		System.out.println("8.) findStream(?,?,?)...");		
-		Relatrix.findStream('?', '?', '?').forEach(e->{
+		Relatrix.findStream('?', '?', '?').parallel().forEach(e->{
 			Comparable[] c = ((Result3)e).toArray();
 			System.out.println(++recs+"="+c[0]+" --- "+c[1]+" --- "+c[2]);
 			if(ar3.size() < SAMPLESIZE) 
@@ -165,7 +165,7 @@ public class EmbeddedStreamRetrievalBattery {
 		for(int j = 0; j < ar3.size(); j++) {
 			recs = 0;
 			System.out.println("9."+j+") findStream(<obj>,<obj>,<obj>) using domain="+ar3.get(j)[0]+" map="+ar3.get(j)[1]+" range="+ar3.get(j)[2]);
-			Relatrix.findStream(ar3.get(j)[0], ar3.get(j)[1], ar3.get(j)[2]).forEach(e->{
+			Relatrix.findStream(ar3.get(j)[0], ar3.get(j)[1], ar3.get(j)[2]).parallel().forEach(e->{
 				System.out.println(++recs+"="+e);
 			});
 		}
@@ -174,17 +174,17 @@ public class EmbeddedStreamRetrievalBattery {
 		for(int j = 0; j < ar.size(); j++) {
 			recs = 0;
 			System.out.println("10."+j+") findStream(*,*,<obj>) using range="+ar.get(j));		
-			Relatrix.findStream('*', '*', ar.get(j)).forEach(e->{
+			Relatrix.findStream('*', '*', ar.get(j)).parallel().forEach(e->{
 				System.out.println(++recs+"="+e);
 			});
 			recs = 0;
 			System.out.println("11."+j+") findStream(*,<obj>,*) using map="+am.get(j));		
-			Relatrix.findStream('*', am.get(j), '*').forEach(e->{
+			Relatrix.findStream('*', am.get(j), '*').parallel().forEach(e->{
 				System.out.println(++recs+"="+e);
 			});
 			recs = 0;
 			System.out.println("12."+j+") findStream(<obj>,*,*) using domain="+ad.get(j));		
-			Relatrix.findStream(ad.get(j), '*', '*').forEach(e->{
+			Relatrix.findStream(ad.get(j), '*', '*').parallel().forEach(e->{
 				System.out.println(++recs+"="+e);
 			});
 		}
@@ -193,17 +193,17 @@ public class EmbeddedStreamRetrievalBattery {
 		for(int j = 0; j < ar2.size(); j++) {
 			recs = 0;
 			System.out.println("13."+j+") findStream(*,<obj>,<obj>) using map="+ar2.get(j)[0]+" range="+ar2.get(j)[1]);		
-			Relatrix.findStream('*', ar2.get(j)[0], ar2.get(j)[1]).forEach(e->{
+			Relatrix.findStream('*', ar2.get(j)[0], ar2.get(j)[1]).parallel().forEach(e->{
 				System.out.println(++recs+"="+e);
 			});
 			recs = 0;
 			System.out.println("14."+j+") findStream(<obj>,*,<obj>) using domain="+ar2dr.get(j)[0]+" range="+ar2dr.get(j)[1]);		
-			Relatrix.findStream(ar2dr.get(j)[0], '*', ar2dr.get(j)[1]).forEach(e->{
+			Relatrix.findStream(ar2dr.get(j)[0], '*', ar2dr.get(j)[1]).parallel().forEach(e->{
 				System.out.println(++recs+"="+e);
 			});
 			recs = 0;
 			System.out.println("15."+j+") findStream(<obj>,<obj>,*) using domain="+ar2dm.get(j)[0]+" map="+ar2dm.get(j)[1]);		
-			Relatrix.findStream(ar2dm.get(j)[0], ar2dm.get(j)[1], '*').forEach(e->{
+			Relatrix.findStream(ar2dm.get(j)[0], ar2dm.get(j)[1], '*').parallel().forEach(e->{
 				System.out.println(++recs+"="+e);
 			});
 		}
@@ -212,17 +212,17 @@ public class EmbeddedStreamRetrievalBattery {
 		System.out.println("1 object instance with 2 returns:");
 		for(int j = 0; j < ar.size(); j++) {
 			System.out.println("16."+j+") findStream(?,?,<obj>) using range="+ar.get(j));		
-			Relatrix.findStream('?', '?', ar.get(j)).forEach(e->{
+			Relatrix.findStream('?', '?', ar.get(j)).parallel().forEach(e->{
 				System.out.println(++recs+"="+e);
 			});
 			recs =0;
 			System.out.println("17."+j+") findStream(?,<obj>,?) using map="+am.get(j));		
-			Relatrix.findStream('?', am.get(j), '?').forEach(e->{
+			Relatrix.findStream('?', am.get(j), '?').parallel().forEach(e->{
 				System.out.println(++recs+"="+e);
 			});
 			recs =0;
 			System.out.println("18."+j+") findStream(<obj>,?,?) using domain="+ad.get(j));		
-			Relatrix.findStream(ad.get(j), '?', '?').forEach(e->{
+			Relatrix.findStream(ad.get(j), '?', '?').parallel().forEach(e->{
 				System.out.println(++recs+"="+e);
 			});
 		}
@@ -231,17 +231,17 @@ public class EmbeddedStreamRetrievalBattery {
 		for(int j = 0; j < ar2.size(); j++) {
 			recs = 0;
 			System.out.println("19."+j+") findStream(?,<obj>,<obj>) using map="+ar2.get(j)[0]+" range="+ar2.get(j)[1]);		
-			Relatrix.findStream('?', ar2.get(j)[0], ar2.get(j)[1]).forEach(e->{
+			Relatrix.findStream('?', ar2.get(j)[0], ar2.get(j)[1]).parallel().forEach(e->{
 				System.out.println(++recs+"="+e);
 			});
 			recs = 0;
 			System.out.println("20."+j+") findStream(<obj>,?,<obj>) using domain="+ar2dr.get(j)[0]+" range="+ ar2dr.get(j)[1]);		
-			Relatrix.findStream(ar2dr.get(j)[0], '?', ar2dr.get(j)[1]).forEach(e->{
+			Relatrix.findStream(ar2dr.get(j)[0], '?', ar2dr.get(j)[1]).parallel().forEach(e->{
 				System.out.println(++recs+"="+e);
 			});
 			recs = 0;
 			System.out.println("21."+j+") findStream(<obj>,<obj>,?) using domain="+ar2dm.get(j)[0]+" map="+ar2dm.get(j)[1]);		
-			Relatrix.findStream(ar2dm.get(j)[0], ar2dm.get(j)[1], '?').forEach(e->{
+			Relatrix.findStream(ar2dm.get(j)[0], ar2dm.get(j)[1], '?').parallel().forEach(e->{
 				System.out.println(++recs+"="+e);
 			});
 		}

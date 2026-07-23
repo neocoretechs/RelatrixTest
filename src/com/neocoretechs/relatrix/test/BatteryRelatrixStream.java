@@ -229,7 +229,7 @@ public class BatteryRelatrixStream {
 		i = new AtomicInteger(min.get());
 		long tims = System.currentTimeMillis();
 		System.out.println("Battery1AR8");
-		Relatrix.findStream('?', '?', '*').forEach(e ->
+		Relatrix.findStream('?', '?', '*').parallel().forEach(e ->
 		ScopedValue.where(ExecutionContextHolder.CONTEXT, pec).run(() -> {
 			Result nex = (Result)e;
 			// two '?' in findStream gives use 2 element array, the domain and map
@@ -258,7 +258,7 @@ public class BatteryRelatrixStream {
 		i = new AtomicInteger(min.get());
 		long tims = System.currentTimeMillis();
 		System.out.println("Battery1AR9");
-		Relatrix.findStream('*', '*', '*').forEach(e->
+		Relatrix.findStream('*', '*', '*').parallel().forEach(e->
 		ScopedValue.where(ExecutionContextHolder.CONTEXT, pec).run(() -> {
 			Result nex = (Result)e;
 			// the returned array has 1 element, the identity AbstractRelation Relation
@@ -289,7 +289,7 @@ public class BatteryRelatrixStream {
 		long tims = System.currentTimeMillis();
 		System.out.println("Battery1AR10");
 		String fkey = key + String.format(uniqKeyFmt, min.get());
-		Relatrix.findStream(fkey, "Has unit", '*').forEach(e-> 
+		Relatrix.findStream(fkey, "Has unit", '*').parallel().forEach(e-> 
 		ScopedValue.where(ExecutionContextHolder.CONTEXT, pec).run(() -> {
 		// return all identities with the given key for all ranges, should be 1
 			// In this case, the set of identities of type Long that have stated domain and map should be returned
@@ -324,7 +324,7 @@ public class BatteryRelatrixStream {
 		System.out.println("Battery1AR101");
 		String fkey = key + String.format(uniqKeyFmt, max.get());
 		// Range value is max, so zero keys should be retrieved since we insert 0 to max-1
-		Relatrix.findStream(fkey, "Has unit", Long.valueOf(max.get())).forEach(e->
+		Relatrix.findStream(fkey, "Has unit", Long.valueOf(max.get())).parallel().forEach(e->
 		ScopedValue.where(ExecutionContextHolder.CONTEXT, pec).run(() -> {
 			// In this case, the set of identities of type Long that have stated domain and map should be returned
 			// since we supply a fixed domain and map object with a wildcard range, we should get one element back; the identity
@@ -361,7 +361,7 @@ public class BatteryRelatrixStream {
 		long tims = System.currentTimeMillis();
 		System.out.println("Battery1AR11");
 		String fkey = key + String.format(uniqKeyFmt, min.get());
-		Relatrix.findStream(fkey, "Has time", '*').forEach(e->
+		Relatrix.findStream(fkey, "Has time", '*').parallel().forEach(e->
 		ScopedValue.where(ExecutionContextHolder.CONTEXT, pec).run(() -> {
 			Result nex = (Result)e;
 			if( DEBUG ) System.out.println("1AR11: SHOULD NOT HAVE ENCOUNTERED:"+nex.get(0));
