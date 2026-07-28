@@ -305,13 +305,13 @@ public class BatteryRelatrixStreamAlias {
 		if(res.size() != iq.size())
 			throw new Exception("Result set does not match query set for findSetParallel:"+res.size()+" vs query size:"+iq.size());
 		for(Result r: res) {
-			if(!iq.contains(r.get(0)))
-				throw new Exception("Cannot find query item in result set:"+r.get(0));
+			if(!iq.contains( ((Relation)r.get()).getDomain()))
+				throw new Exception("Cannot find query item in result set:"+r.get());
 		}
 		System.out.println("BATTERY1AR6B SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 	/**
-	 * Testing of Stream Relatrix.findStream('?', '*', '*');
+	 * Testing of Stream Relatrix.findStream('*', '*', '*');
 	 * @param pec 
 	 * @param argv
 	 * @param alias12 
