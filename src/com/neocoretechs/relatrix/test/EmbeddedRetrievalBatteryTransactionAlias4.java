@@ -16,8 +16,7 @@ import com.neocoretechs.relatrix.RangeDomainMap;
 import com.neocoretechs.relatrix.RangeMapDomain;
 import com.neocoretechs.relatrix.RelatrixTransaction;
 import com.neocoretechs.relatrix.Result;
-import com.neocoretechs.relatrix.Result2;
-import com.neocoretechs.relatrix.Result3;
+
 import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.parallel.ExecutionContextHolder;
 import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
@@ -212,7 +211,7 @@ public class EmbeddedRetrievalBatteryTransactionAlias4 {
 		it = RelatrixTransaction.findSubSet(alias12,xid2,'*', '?', '?',String.class, String.class, lo, hi);
 		while(it.hasNext()) {
 			Object o = it.next();
-			Result2 c = (Result2)o; // result2
+			Result c = (Result)o; // result2
 			displayCtrl();
 			if(DISPLAY || DISPLAYALL)
 				System.out.println(displayLine+"="+c);
@@ -223,7 +222,7 @@ public class EmbeddedRetrievalBatteryTransactionAlias4 {
 		it = RelatrixTransaction.findSubSet(alias12,xid2,'?', '*', '?',slo,shi, String.class, lo,hi);
 		while(it.hasNext()) {
 			Object o = it.next();
-			Result2 c = (Result2)o;
+			Result c = (Result)o;
 			displayCtrl();
 			if(DISPLAY || DISPLAYALL)
 				System.out.println(displayLine+"="+c);
@@ -234,7 +233,7 @@ public class EmbeddedRetrievalBatteryTransactionAlias4 {
 		it = RelatrixTransaction.findSubSet(alias12,xid2,'?', '?', '*',slo,shi, String.class, Long.class);
 		while(it.hasNext()) {
 			Object o = it.next();
-			Result2 c = (Result2)o;
+			Result c = (Result)o;
 			displayCtrl();
 			if(DISPLAY || DISPLAYALL)
 				System.out.println(displayLine+"="+c);
@@ -245,7 +244,7 @@ public class EmbeddedRetrievalBatteryTransactionAlias4 {
 		it = RelatrixTransaction.findSubSet(alias12,xid2,'?', '?', '?',slo,shi, String.class, Long.class);
 		while(it.hasNext()) {
 			Object o = it.next();
-			Result3 c = (Result3)o;
+			Result c = (Result)o;
 			displayCtrl();
 			if(DISPLAY || DISPLAYALL)
 				System.out.println(displayLine+"="+c);
@@ -358,7 +357,7 @@ public class EmbeddedRetrievalBatteryTransactionAlias4 {
 			it = RelatrixTransaction.findSubSet(alias12,xid2,'?', ((Result)am.get(j)).get(0), '?', String.class, Long.class);
 			while(it.hasNext()) {
 				Object o = it.next();
-				Result2 c = (Result2)o;
+				Result c = (Result)o;
 				displayCtrl();
 				if(DISPLAY || DISPLAYALL)
 					System.out.println(displayLine+"="+c);

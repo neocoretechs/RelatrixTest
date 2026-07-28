@@ -15,8 +15,7 @@ import com.neocoretechs.relatrix.RangeDomainMap;
 import com.neocoretechs.relatrix.RangeMapDomain;
 import com.neocoretechs.relatrix.RelatrixTransaction;
 import com.neocoretechs.relatrix.Result;
-import com.neocoretechs.relatrix.Result2;
-import com.neocoretechs.relatrix.Result3;
+
 import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.parallel.ExecutionContextHolder;
 import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
@@ -148,7 +147,7 @@ public class EmbeddedStreamRetrievalBatteryTransaction4 {
 		});
 		displayLine = 0;
 		System.out.println("2.) findSubStream(xid,*,*,?,String.class, String.class, "+lo+","+hi+");");	
-		RelatrixTransaction.findSubStream(xid2,'*', '*', '?',String.class, String.class, lo, hi).forEach(o->{
+		RelatrixTransaction.findSubStream(xid2,'*', '*', '*',String.class, String.class, lo, hi).forEach(o->{
 			Result c = (Result)o;
 			displayCtrl();
 			if(DISPLAY || DISPLAYALL)
@@ -160,7 +159,7 @@ public class EmbeddedStreamRetrievalBatteryTransaction4 {
 		String slo = key + String.format(uniqKeyFmt, lo);
 		String shi = key  + String.format(uniqKeyFmt, hi);
 		System.out.println("3.) findSubStream(xid,*,?,*,"+slo+","+shi+", String.class, Long.class);");		
-		RelatrixTransaction.findSubStream(xid2,'*', '?', '*',slo,shi, String.class, Long.class).forEach(o->{
+		RelatrixTransaction.findSubStream(xid2,'*', '*', '*',slo,shi, String.class, Long.class).forEach(o->{
 			Result  c = (Result )o;
 			displayCtrl();
 			if(DISPLAY || DISPLAYALL)
@@ -169,7 +168,7 @@ public class EmbeddedStreamRetrievalBatteryTransaction4 {
 		});
 		displayLine = 0;
 		System.out.println("4.) findSubStream(xid,?,*,*.String.class, String.class, "+lo+","+hi+");");			
-		RelatrixTransaction.findSubStream(xid2,'?', '*', '*',String.class, String.class, lo, hi).forEach(o->{
+		RelatrixTransaction.findSubStream(xid2,'*', '*', '*',String.class, String.class, lo, hi).forEach(o->{
 			Result  c = (Result )o;
 			displayCtrl();
 			if(DISPLAY || DISPLAYALL)
@@ -178,8 +177,8 @@ public class EmbeddedStreamRetrievalBatteryTransaction4 {
 		});
 		displayLine=0;
 		System.out.println("5.) findSubStream(xid,*,?,?,String.class, String.class, "+lo+","+hi+")...");		
-		RelatrixTransaction.findSubStream(xid2,'*', '?', '?',String.class, String.class, lo, hi).forEach(o->{
-			Result2 c = (Result2)o; // result2
+		RelatrixTransaction.findSubStream(xid2,'*', '*', '*',String.class, String.class, lo, hi).forEach(o->{
+			Result c = (Result)o; // result2
 			displayCtrl();
 			if(DISPLAY || DISPLAYALL)
 				System.out.println(displayLine+"="+c);
@@ -187,8 +186,8 @@ public class EmbeddedStreamRetrievalBatteryTransaction4 {
 		});
 		displayLine = 0;
 		System.out.println("6.) findSubStream(xid,?,*,?,"+slo+","+shi+",String.class, "+lo+","+hi+")...");		
-		RelatrixTransaction.findSubStream(xid2,'?', '*', '?',slo,shi, String.class, lo,hi).forEach(o->{
-			Result2 c = (Result2)o;
+		RelatrixTransaction.findSubStream(xid2,'*', '*', '*',slo,shi, String.class, lo,hi).forEach(o->{
+			Result c = (Result)o;
 			displayCtrl();
 			if(DISPLAY || DISPLAYALL)
 				System.out.println(displayLine+"="+c);
@@ -196,8 +195,8 @@ public class EmbeddedStreamRetrievalBatteryTransaction4 {
 		});
 		displayLine = 0;
 		System.out.println("7.) findSubStream(xid,?,?,*,"+slo+","+shi+", String.class, Long.class)...");		
-		RelatrixTransaction.findSubStream(xid2,'?', '?', '*',slo,shi, String.class, Long.class).forEach(o->{
-			Result2 c = (Result2)o;
+		RelatrixTransaction.findSubStream(xid2,'*', '*', '*',slo,shi, String.class, Long.class).forEach(o->{
+			Result c = (Result)o;
 			displayCtrl();
 			if(DISPLAY || DISPLAYALL)
 				System.out.println(displayLine+"="+c);
@@ -205,8 +204,8 @@ public class EmbeddedStreamRetrievalBatteryTransaction4 {
 		});
 		displayLine = 0;
 		System.out.println("8.) findSubStream(xid,?,?,?,"+slo+","+shi+", String.class, Long.class)...");		
-		RelatrixTransaction.findSubStream(xid2,'?', '?', '?',slo,shi, String.class, Long.class).forEach(o->{
-			Result3 c = (Result3)o;
+		RelatrixTransaction.findSubStream(xid2,'*', '*', '*',slo,shi, String.class, Long.class).forEach(o->{
+			Result c = (Result)o;
 			displayCtrl();
 			if(DISPLAY || DISPLAYALL)
 				System.out.println(displayLine+"="+c);
@@ -291,7 +290,7 @@ public class EmbeddedStreamRetrievalBatteryTransaction4 {
 		for(int j = 0; j < ar.size(); j++) {
 			displayLine =0;
 			System.out.println("16."+j+") findSubStream(xid,?,?,<obj>, String.class, String.class) using range="+((Result)ar.get(j)).get(0));		
-			RelatrixTransaction.findSubStream(xid2,'?', '?', ((Result)ar.get(j)).get(0), String.class, String.class).forEach(o->{
+			RelatrixTransaction.findSubStream(xid2,'*', '*', ((Result)ar.get(j)).get(0), String.class, String.class).forEach(o->{
 				Result c = (Result)o;
 				displayCtrl();
 				if(DISPLAY || DISPLAYALL)
@@ -299,15 +298,15 @@ public class EmbeddedStreamRetrievalBatteryTransaction4 {
 			});
 			displayLine =0;
 			System.out.println("17."+j+") findSubStream(xid,?,<obj>,?, String.class, Long.class) using map="+((Result)am.get(j)).get(0));		
-			RelatrixTransaction.findSubStream(xid2,'?', ((Result)am.get(j)).get(0), '?', String.class, Long.class).forEach(o->{
-				Result2 c = (Result2)o;
+			RelatrixTransaction.findSubStream(xid2,'*', ((Result)am.get(j)).get(0), '*', String.class, Long.class).forEach(o->{
+				Result c = (Result)o;
 				displayCtrl();
 				if(DISPLAY || DISPLAYALL)
 					System.out.println(displayLine+"="+c);
 			});
 			displayLine =0;
 			System.out.println("18."+j+") findSubStream(xid,<obj>,?,?, String.class, Long.class) using domain="+((Result)ad.get(j)).get(0));		
-			RelatrixTransaction.findSubStream(xid2,((Result)ad.get(j)).get(0), '?', '?', String.class, Long.class).forEach(o->{
+			RelatrixTransaction.findSubStream(xid2,((Result)ad.get(j)).get(0), '*', '*', String.class, Long.class).forEach(o->{
 				Result c = (Result)o;
 				displayCtrl();
 				if(DISPLAY || DISPLAYALL)
@@ -319,7 +318,7 @@ public class EmbeddedStreamRetrievalBatteryTransaction4 {
 		for(int j = 0; j < ar2.size(); j++) {
 			displayLine=0;
 			System.out.println("19."+j+") findSubStream(xid,?,<obj>,<obj>, String.class) using map="+((Result)ar2.get(j)).get(0)+" range="+((Result)ar2.get(j)).get(1));		
-			RelatrixTransaction.findSubStream(xid2,'?', ((Result)ar2.get(j)).get(0), ((Result)ar2.get(j)).get(1), String.class).forEach(o->{
+			RelatrixTransaction.findSubStream(xid2,'*', ((Result)ar2.get(j)).get(0), ((Result)ar2.get(j)).get(1), String.class).forEach(o->{
 				Result c = (Result)o;
 				displayCtrl();
 				if(DISPLAY || DISPLAYALL)
@@ -327,7 +326,7 @@ public class EmbeddedStreamRetrievalBatteryTransaction4 {
 			});
 			displayLine=0;
 			System.out.println("20."+j+") findSubStream(xid,<obj>,?,<obj>,String.class) using domain="+((Result)ar2dr.get(j)).get(0)+" range="+ ((Result)ar2dr.get(j)).get(1));		
-			RelatrixTransaction.findSubStream(xid2,((Result)ar2dr.get(j)).get(0), '?', ((Result)ar2dr.get(j)).get(1), String.class).forEach(o->{
+			RelatrixTransaction.findSubStream(xid2,((Result)ar2dr.get(j)).get(0), '*', ((Result)ar2dr.get(j)).get(1), String.class).forEach(o->{
 				Result c = (Result)o;
 				displayCtrl();
 				if(DISPLAY || DISPLAYALL)
@@ -335,7 +334,7 @@ public class EmbeddedStreamRetrievalBatteryTransaction4 {
 			});
 			displayLine=0;
 			System.out.println("21."+j+") findSubStream(xid,<obj>,<obj>,?,Long.class) using domain="+((Result)ar2dm.get(j)).get(0)+" map="+((Result)ar2dm.get(j)).get(1));		
-			RelatrixTransaction.findSubStream(xid2,((Result)ar2dm.get(j)).get(0), ((Result)ar2dm.get(j)).get(1), '?',Long.class).forEach(o->{
+			RelatrixTransaction.findSubStream(xid2,((Result)ar2dm.get(j)).get(0), ((Result)ar2dm.get(j)).get(1), '*',Long.class).forEach(o->{
 				Result c = (Result)o;
 				displayCtrl();
 				if(DISPLAY || DISPLAYALL)
@@ -352,7 +351,7 @@ public class EmbeddedStreamRetrievalBatteryTransaction4 {
 			hi = hirange;
 			displayLine =0;
 			System.out.println("22."+j+") findSubStream(xid,*,*,?,<class>,<class>,<obj>,<obj>) using domain="+((Result)ar2dm.get(j)).get(0).getClass()+" map="+((Result)ar2dm.get(j)).get(1).getClass()+" range="+lo+" to "+hi);		
-			RelatrixTransaction.findSubStream(xid2,'*','*','?',((Result)ar2dm.get(j)).get(0).getClass(), ((Result)ar2dm.get(j)).get(1).getClass(),lo,hi).forEach(o->{
+			RelatrixTransaction.findSubStream(xid2,'*','*','*',((Result)ar2dm.get(j)).get(0).getClass(), ((Result)ar2dm.get(j)).get(1).getClass(),lo,hi).forEach(o->{
 				Result c = (Result)o;
 				displayCtrl();
 				if(DISPLAY || DISPLAYALL)
@@ -361,7 +360,7 @@ public class EmbeddedStreamRetrievalBatteryTransaction4 {
 			lo+=increment;
 			hi+=increment;
 			System.out.println("23."+j+") findSubStream(xid,?,?,?,<class>,<class>,<obj>,<obj>) using domain="+((Result)ar2dm.get(j)).get(0).getClass()+" map="+((Result)ar2dm.get(j)).get(1).getClass()+" range="+lo+" to "+hi);		
-			RelatrixTransaction.findSubStream(xid2,'?','?','?',((Result)ar2dm.get(j)).get(0).getClass(), ((Result)ar2dm.get(j)).get(1).getClass(),lo,hi).forEach(o->{
+			RelatrixTransaction.findSubStream(xid2,'*','*','*',((Result)ar2dm.get(j)).get(0).getClass(), ((Result)ar2dm.get(j)).get(1).getClass(),lo,hi).forEach(o->{
 				Result c = (Result)o;
 				displayCtrl();
 				if(DISPLAY || DISPLAYALL)
@@ -370,7 +369,7 @@ public class EmbeddedStreamRetrievalBatteryTransaction4 {
 			lo+=increment;
 			hi+=increment;
 			System.out.println("24."+j+") findSubStream(xid,?,*,?,<class>,<class>,<obj>,<obj>) using domain="+((Result)ar2dm.get(j)).get(0).getClass()+" map="+((Result)ar2dm.get(j)).get(1).getClass()+" range="+lo+" to "+hi);		
-			RelatrixTransaction.findSubStream(xid2,'?','*','?',((Result)ar2dm.get(j)).get(0).getClass(), ((Result)ar2dm.get(j)).get(1).getClass(),lo,hi).forEach(o->{
+			RelatrixTransaction.findSubStream(xid2,'*','*','*',((Result)ar2dm.get(j)).get(0).getClass(), ((Result)ar2dm.get(j)).get(1).getClass(),lo,hi).forEach(o->{
 				Result c = (Result)o;
 				displayCtrl();
 				if(DISPLAY || DISPLAYALL)

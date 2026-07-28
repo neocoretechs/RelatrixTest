@@ -542,7 +542,7 @@ public class ApacheLog {
 				result = (Result) e;
 				// use the identity as the first element to retrieve related elements
 				try {
-					it2 = Relatrix.findSet(result.get(),'?','?');
+					it2 = Relatrix.findSet(result.get(),'*','*');
 				} catch (Exception e1) {
 					e1.printStackTrace();
 				} 

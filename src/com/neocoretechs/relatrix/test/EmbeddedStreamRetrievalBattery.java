@@ -16,8 +16,6 @@ import com.neocoretechs.relatrix.Relatrix;
 import com.neocoretechs.relatrix.RelatrixKV;
 import com.neocoretechs.relatrix.Result;
 import com.neocoretechs.relatrix.Result1;
-import com.neocoretechs.relatrix.Result2;
-import com.neocoretechs.relatrix.Result3;
 import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.parallel.ExecutionContextHolder;
 import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
@@ -130,7 +128,7 @@ public class EmbeddedStreamRetrievalBattery {
 		recs=0;
 		System.out.println("5.) findStream(*,?,?)...");		
 		Relatrix.findStream('*', '?', '?').parallel().forEach(e->{
-			Comparable[] c = ((Result2)e).toArray();
+			Comparable[] c = ((Result)e).toArray();
 			System.out.println(++recs+"="+e);
 			if(ar2.size() < SAMPLESIZE) 
 				ar2.add(c);
@@ -138,7 +136,7 @@ public class EmbeddedStreamRetrievalBattery {
 		recs = 0;
 		System.out.println("6.) findStream(?,*,?)...");		
 		Relatrix.findStream('?', '*', '?').parallel().forEach(e->{
-			Comparable[] c = ((Result2)e).toArray();
+			Comparable[] c = ((Result)e).toArray();
 			System.out.println(++recs+"="+c[0]+" --- "+c[1]);
 			if(ar2dr.size() < SAMPLESIZE) 
 				ar2dr.add(c);
@@ -146,7 +144,7 @@ public class EmbeddedStreamRetrievalBattery {
 		recs = 0;
 		System.out.println("7.) findStream(?,?,*)...");		
 		Relatrix.findStream('?', '?', '*').parallel().forEach(e->{
-			Comparable[] c = ((Result2)e).toArray();
+			Comparable[] c = ((Result)e).toArray();
 			System.out.println(++recs+"="+c[0]+" --- "+c[1]);
 			if(ar2dm.size() < SAMPLESIZE) 
 				ar2dm.add(c);
@@ -154,7 +152,7 @@ public class EmbeddedStreamRetrievalBattery {
 		recs = 0;
 		System.out.println("8.) findStream(?,?,?)...");		
 		Relatrix.findStream('?', '?', '?').parallel().forEach(e->{
-			Comparable[] c = ((Result3)e).toArray();
+			Comparable[] c = ((Result)e).toArray();
 			System.out.println(++recs+"="+c[0]+" --- "+c[1]+" --- "+c[2]);
 			if(ar3.size() < SAMPLESIZE) 
 				ar3.add(c);

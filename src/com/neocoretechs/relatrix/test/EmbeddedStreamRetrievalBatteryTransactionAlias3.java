@@ -15,8 +15,7 @@ import com.neocoretechs.relatrix.RangeDomainMap;
 import com.neocoretechs.relatrix.RangeMapDomain;
 import com.neocoretechs.relatrix.RelatrixTransaction;
 import com.neocoretechs.relatrix.Result;
-import com.neocoretechs.relatrix.Result2;
-import com.neocoretechs.relatrix.Result3;
+
 import com.neocoretechs.rocksack.TransactionId;
 import com.neocoretechs.relatrix.AbstractRelation.displayLevels;
 import com.neocoretechs.relatrix.key.IndexResolver;
@@ -200,7 +199,7 @@ public class EmbeddedStreamRetrievalBatteryTransactionAlias3 {
 		displayLine=0;
 		System.out.println("5.) findTailStream("+alias12+",xid,*,?,?,String.class, String.class, Long.class)...");		
 		RelatrixTransaction.findTailStream(alias12,xid2, '*', '?', '?',String.class, String.class, Long.class).forEach(o->{
-			Result2 c = (Result2)o; // result2
+			Result c = (Result)o; // result2
 			displayCtrl();
 			if(DISPLAY || DISPLAYALL)
 				System.out.println(displayLine+"="+c);
@@ -211,7 +210,7 @@ public class EmbeddedStreamRetrievalBatteryTransactionAlias3 {
 		displayLine = 0;
 		System.out.println("6.) findTailStream("+alias12+",xid,?,*,?,String.class, String.class, Long.class)...");		
 		RelatrixTransaction.findTailStream(alias12,xid2, '?', '*', '?',String.class, String.class, Long.class).forEach(o->{
-			Result2 c = (Result2)o;
+			Result c = (Result)o;
 			displayCtrl();
 			if(DISPLAY || DISPLAYALL)
 				System.out.println(displayLine+"="+c);
@@ -222,7 +221,7 @@ public class EmbeddedStreamRetrievalBatteryTransactionAlias3 {
 		displayLine = 0;
 		System.out.println("7.) findTailStream("+alias12+",xid,?,?,*,String.class, String.class, Long.class)...");		
 		RelatrixTransaction.findTailStream(alias12,xid2, '?', '?', '*',String.class, String.class, Long.class).forEach(o->{
-			Result2 c = (Result2)o;
+			Result c = (Result)o;
 			displayCtrl();
 			if(DISPLAY || DISPLAYALL)
 				System.out.println(displayLine+"="+c);
@@ -234,7 +233,7 @@ public class EmbeddedStreamRetrievalBatteryTransactionAlias3 {
 		displayLine = 0;
 		System.out.println("8.) findTailStream("+alias12+",xid,?,?,?,String.class, String.class, Long.class)...");		
 		RelatrixTransaction.findTailStream(alias12,xid2, '?', '?', '?',String.class, String.class, Long.class).forEach(o->{
-			Result3 c = (Result3)o;
+			Result c = (Result)o;
 			displayCtrl();
 			if(DISPLAY || DISPLAYALL)
 				System.out.println(displayLine+"="+c);
@@ -343,7 +342,7 @@ public class EmbeddedStreamRetrievalBatteryTransactionAlias3 {
 			displayLine=0;
 			System.out.println("17."+j+") findTailStream("+alias12+",xid,?,<obj>,?, String.class, Long.class) using map="+((Result)am.get(j)).get(0));		
 			RelatrixTransaction.findTailStream(alias12,xid2, '?', ((Result)am.get(j)).get(0), '?', String.class, Long.class).forEach(o->{
-				Result2 c = (Result2)o;
+				Result c = (Result)o;
 				displayCtrl();
 				if(DISPLAY || DISPLAYALL)
 					System.out.println(displayLine+"="+c);

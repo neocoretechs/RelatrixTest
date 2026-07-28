@@ -15,8 +15,7 @@ import com.neocoretechs.relatrix.RangeDomainMap;
 import com.neocoretechs.relatrix.RangeMapDomain;
 import com.neocoretechs.relatrix.Relatrix;
 import com.neocoretechs.relatrix.Result;
-import com.neocoretechs.relatrix.Result2;
-import com.neocoretechs.relatrix.Result3;
+import com.neocoretechs.relatrix.Result1;
 import com.neocoretechs.relatrix.AbstractRelation.displayLevels;
 import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.parallel.ExecutionContextHolder;
@@ -204,7 +203,7 @@ public class EmbeddedRetrievalBatteryAlias3 {
 		it = Relatrix.findTailSet(alias12, '*', '?', '?',String.class, String.class, Long.class);
 		while(it.hasNext()) {
 			Object o = it.next();
-			Result2 c = (Result2)o; // result2
+			Result1 c = (Result1)o; // Result1
 			displayCtrl();
 			if(DISPLAY || DISPLAYALL)
 				System.out.println(displayLine+"="+c);
@@ -217,7 +216,7 @@ public class EmbeddedRetrievalBatteryAlias3 {
 		it = Relatrix.findTailSet(alias12, '?', '*', '?',String.class, String.class, Long.class);
 		while(it.hasNext()) {
 			Object o = it.next();
-			Result2 c = (Result2)o;
+			Result1 c = (Result1)o;
 			displayCtrl();
 			if(DISPLAY || DISPLAYALL)
 				System.out.println(displayLine+"="+c);
@@ -230,7 +229,7 @@ public class EmbeddedRetrievalBatteryAlias3 {
 		it = Relatrix.findTailSet(alias12, '?', '?', '*',String.class, String.class, Long.class);
 		while(it.hasNext()) {
 			Object o = it.next();
-			Result2 c = (Result2)o;
+			Result1 c = (Result1)o;
 			displayCtrl();
 			if(DISPLAY || DISPLAYALL)
 				System.out.println(displayLine+"="+c);
@@ -244,7 +243,7 @@ public class EmbeddedRetrievalBatteryAlias3 {
 		it = Relatrix.findTailSet(alias12, '?', '?', '?',String.class, String.class, Long.class);
 		while(it.hasNext()) {
 			Object o = it.next();
-			Result3 c = (Result3)o;
+			Result c = (Result)o;
 			displayCtrl();
 			if(DISPLAY || DISPLAYALL)
 				System.out.println(displayLine+"="+c);
@@ -325,7 +324,7 @@ public class EmbeddedRetrievalBatteryAlias3 {
 			}
 		}
 		for(int j = 0; j < ar2.size(); j++) {
-			// From a Result2 we can call get(0) and get(1), like an array, we can also call toArray
+			// From a Result1 we can call get(0) and get(1), like an array, we can also call toArray
 			displayLine = 0;
 			System.out.println("13."+j+") findTailSet("+alias12+",*,<obj>,<obj>,String.class) using map="+((Result)ar2.get(j)).toArray()[0]+" range="+((Result)ar2.get(j)).toArray()[1]);		
 			it = Relatrix.findTailSet(alias12, '*', ((Result)ar2.get(j)).toArray()[0], ((Result)ar2.get(j)).toArray()[1], String.class);
@@ -375,7 +374,7 @@ public class EmbeddedRetrievalBatteryAlias3 {
 			it = Relatrix.findTailSet(alias12, '?', ((Result)am.get(j)).get(0), '?', String.class, Long.class);
 			while(it.hasNext()) {
 				Object o = it.next();
-				Result2 c = (Result2)o;
+				Result1 c = (Result1)o;
 				displayCtrl();
 				if(DISPLAY || DISPLAYALL)
 					System.out.println(displayLine+"="+c);

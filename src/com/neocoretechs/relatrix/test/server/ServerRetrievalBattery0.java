@@ -6,8 +6,7 @@ import java.util.Iterator;
 import com.neocoretechs.relatrix.Relation;
 import com.neocoretechs.relatrix.AbstractRelation;
 import com.neocoretechs.relatrix.Result;
-import com.neocoretechs.relatrix.Result2;
-import com.neocoretechs.relatrix.Result3;
+
 import com.neocoretechs.relatrix.client.RelatrixClient;
 
 /**
@@ -119,85 +118,9 @@ public class ServerRetrievalBattery0 {
 					System.out.println(displayLine+"="+c);
 			}
 			displayLine = 0;
-			System.out.println("2.) findSet(*,*,?)...");		
-			it = rkvc.findSet('*', '*', '?');
-			while(it.hasNext()) {
-				Object o = it.next();
-				Result c = (Result)o;
-				displayCtrl();
-				if(DISPLAY || DISPLAYALL)
-					System.out.println(displayLine+"="+c);
-				ar.add(c);
-			}
-			displayLine = 0;
-			System.out.println("3.) findSet(*,?,*)...");		
-			it = rkvc.findSet('*', '?', '*');
-			while(it.hasNext()) {
-				Object o = it.next();
-				Result  c = (Result )o;
-				displayCtrl();
-				if(DISPLAY || DISPLAYALL)
-					System.out.println(displayLine+"="+c);
-				am.add(c);
-			}
-			displayLine = 0;
-			System.out.println("4.) findSet(?,*,*)...");		
-			it = rkvc.findSet('?', '*', '*');
-			while(it.hasNext()) {
-				Object o = it.next();
-				Result  c = (Result )o;
-				displayCtrl();
-				if(DISPLAY || DISPLAYALL)
-					System.out.println(displayLine+"="+c);
-				ad.add(c);
-			}
-			displayLine=0;
-			System.out.println("5.) findSet(*,?,?)...");		
-			it = rkvc.findSet('*', '?', '?');
-			while(it.hasNext()) {
-				Object o = it.next();
-				Result2 c = (Result2)o; // result2
-				displayCtrl();
-				if(DISPLAY || DISPLAYALL)
-					System.out.println(displayLine+"="+c);
-				ar2.add(c);
-			}
-			displayLine = 0;
-			System.out.println("6.) findSet(?,*,?)...");		
-			it = rkvc.findSet('?', '*', '?');
-			while(it.hasNext()) {
-				Object o = it.next();
-				Result2 c = (Result2)o;
-				displayCtrl();
-				if(DISPLAY || DISPLAYALL)
-					System.out.println(displayLine+"="+c);
-				ar2dr.add(c);
-			}
-			displayLine = 0;
-			System.out.println("7.) findSet(?,?,*)...");		
-			it = rkvc.findSet('?', '?', '*');
-			while(it.hasNext()) {
-				Object o = it.next();
-				Result2 c = (Result2)o;
-				displayCtrl();
-				if(DISPLAY || DISPLAYALL)
-					System.out.println(displayLine+"="+c);
-				ar2dm.add(c);
-			}
-			displayLine = 0;
-			System.out.println("8.) FindSet(?,?,?)...");		
-			it = rkvc.findSet('?', '?', '?');
-			while(it.hasNext()) {
-				Object o = it.next();
-				Result3 c = (Result3)o;
-				displayCtrl();
-				if(DISPLAY || DISPLAYALL)
-					System.out.println(displayLine+"="+c);
-				ar3.add(c);
-			}
-			
+	
 			System.out.println("----------");
-			System.out.println("Above are all the wildcard permutations. Now retrieve those with object references using the wildcard results.");
+			System.out.println("Above are all the wildcard permutations. Now retrieve those with object references ");
 			for(int j = 0; j < ar3.size(); j++) {
 				displayLine = 0;
 				System.out.println("9."+j+") findSet(<obj>,<obj>,<obj>) using ="+
@@ -288,81 +211,7 @@ public class ServerRetrievalBattery0 {
 						System.out.println(displayLine+"="+c);
 				}
 			}
-			for(int j = 0; j < ar.size(); j++) {
-				displayLine=0;
-				System.out.println("16."+j+") findSet(?,?,<obj>) using range="+((Result)ar.get(j)).get(0));		
-				it = rkvc.findSet('?', '?', ((Result)ar.get(j)).get(0));
-				//ar = new ArrayList<Comparable>();
-				while(it.hasNext()) {
-					Object o = it.next();
-					Result c = (Result)o;
-					displayCtrl();
-					if(DISPLAY || DISPLAYALL)
-						System.out.println(displayLine+"="+c);
-					//if(ar.size() == 0 ) ar.add(c[0]);
-				}
-			}
-			for(int j = 0; j < am.size(); j++) {
-				displayLine=0;
-				System.out.println("17."+j+") findSet(?,<obj>,?) using map="+((Result)am.get(j)).get(0));		
-				it = rkvc.findSet('?', ((Result)am.get(j)).get(0), '?');
-				while(it.hasNext()) {
-					Object o = it.next();
-					Result2 c = (Result2)o;
-					displayCtrl();
-					if(DISPLAY || DISPLAYALL)
-						System.out.println(displayLine+"="+c);
-				}
-			}
-			for(int j = 0; j < ad.size(); j++) {
-				displayLine=0;
-				System.out.println("18."+j+") findSet(<obj>,?,?) using domain="+((Result)ad.get(j)).get(0));		
-				it = rkvc.findSet(((Result)ad.get(j)).get(0), '?', '?');
-				while(it.hasNext()) {
-					Object o = it.next();
-					Result c = (Result)o;
-					displayCtrl();
-					if(DISPLAY || DISPLAYALL)
-						System.out.println(displayLine+"="+c);
-				}
-			}
-			for(int j = 0; j < ar2.size(); j++) {
-				displayLine=0;
-				System.out.println("19."+j+") findSet(?,<obj>,<obj>) using map="+((Result)ar2.get(j)).get(0)+" range="+((Result)ar2.get(j)).get(1));		
-				it = rkvc.findSet('?', ((Result)ar2.get(j)).get(0), ((Result)ar2.get(j)).get(1));
-				while(it.hasNext()) {
-					Object o = it.next();
-					Result c = (Result)o;
-					displayCtrl();
-					if(DISPLAY || DISPLAYALL)
-						System.out.println(displayLine+"="+c);
-					//if(ar2.size() == 0) ar2.add(c);
-				}
-			}
-			for(int j = 0; j < ar2dr.size(); j++) {
-				displayLine =0;
-				System.out.println("20."+j+") findSet(<obj>,?,<obj>) using domain="+((Result)ar2dr.get(j)).get(0)+" range="+ ((Result)ar2dr.get(j)).get(1));		
-				it = rkvc.findSet(((Result)ar2dr.get(j)).get(0), '?', ((Result)ar2dr.get(j)).get(1));
-				while(it.hasNext()) {
-					Object o = it.next();
-					Result c = (Result)o;
-					displayCtrl();
-					if(DISPLAY || DISPLAYALL)
-						System.out.println(displayLine+"="+c);
-				}
-			}
-			for(int j = 0; j < ar2dm.size(); j++) {
-				displayLine =0;
-				System.out.println("21."+j+") findSet(<obj>,<obj>,?) using domain="+((Result)ar2dm.get(j)).get(0)+" map="+((Result)ar2dm.get(j)).get(1));		
-				it = rkvc.findSet(((Result)ar2dm.get(j)).get(0), ((Result)ar2dm.get(j)).get(1), '?');
-				while(it.hasNext()) {
-					Object o = it.next();
-					Result c = (Result)o;
-					displayCtrl();
-					if(DISPLAY || DISPLAYALL)
-						System.out.println(displayLine+"="+c);
-				}
-			}
+
 			System.out.println("ServerRetrievalBattery0 SUCCESS in "+(System.currentTimeMillis()-tims));
 		}
 		/**

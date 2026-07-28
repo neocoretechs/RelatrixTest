@@ -12,8 +12,8 @@ import com.neocoretechs.relatrix.AbstractRelation;
 import com.neocoretechs.relatrix.RangeDomainMap;
 import com.neocoretechs.relatrix.RangeMapDomain;
 import com.neocoretechs.relatrix.Result;
-import com.neocoretechs.relatrix.Result2;
-import com.neocoretechs.relatrix.Result3;
+import com.neocoretechs.relatrix.Result1;
+
 import com.neocoretechs.relatrix.client.RelatrixClient;
 
 /**
@@ -109,82 +109,21 @@ public class StreamRetrievalBattery1 {
 
 			System.out.println("Wildcard queries:");
 			displayLine = 0;
-			System.out.println("1.) findSubStream(*,*,*,String.class, String.class, Long.class)...");
-			rkvc.findSubStream('*', '*', '*',String.class, String.class, Long.class).forEach(e-> {
-				displayCtrl();
-				if(DISPLAY)
-					System.out.println(displayLine+"="+e);
-			});
+	
 			displayLine = 0;
 			System.out.println("2.) findSubStream(*,*,?,String.class, String.class, Long.class)...");		
-			rkvc.findSubStream('*', '*', '?',String.class, String.class, Long.class).forEach(e-> {
+			rkvc.findSubStream('*', '*', '*',String.class, String.class, Long.class).forEach(e-> {
 			//ar = new ArrayList<Comparable>();
 				displayCtrl();
 				if(DISPLAY)
 					System.out.println(displayLine+"="+e);
 				if(ar.size() == 0 )
 					ar.add((Result) e);
-			});
-			displayLine = 0;
-			System.out.println("3.) findSubStream(*,?,*,String.class, String.class, Long.class)...");		
-			rkvc.findSubStream('*', '?', '*',String.class, String.class, Long.class).forEach(e -> {
-				displayCtrl();
-				if(DISPLAY)
-					System.out.println(displayLine+"="+e);
-				if(ar.size() == 1 ) {
-					ar.add((Result) e);
-				}
-			});
-			displayLine = 0;
-			System.out.println("4.) findSubStream(?,*,*.String.class, String.class, Long.class)...");		
-			rkvc.findSubStream('?', '*', '*',String.class, String.class, Long.class).forEach(e -> {
-				displayCtrl();
-				if(DISPLAY)
-					System.out.println(displayLine+"="+e);
-				if(ar.size() == 2) {
-					ar.add((Result) e);
-				}
-			});
-			displayLine=0;
-			System.out.println("5.) findSubStream(*,?,?,String.class, String.class, Long.class)...");		
-			rkvc.findSubStream('*', '?', '?',String.class, String.class, Long.class).forEach(e -> {
-				displayCtrl();
-				if(DISPLAY)
-					System.out.println(displayLine+"="+e);
-				if(ar2.size() == 0) {
-					ar2.add((Result) e);
-				}
-			});
-			displayLine = 0;
-			System.out.println("6.) findSubStream(?,*,?,String.class, String.class, Long.class)...");		
-			rkvc.findSubStream('?', '*', '?',String.class, String.class, Long.class).forEach(e -> {
-				displayCtrl();
-				if(DISPLAY)
-					System.out.println(displayLine+"="+e);
-				if(ar2.size() == 1) {
-					ar2.add((Result) e);
-				}
-			});
-			displayLine = 0;
-			System.out.println("7.) findSubStream(?,?,*,String.class, String.class, Long.class)...");		
-			rkvc.findSubStream('?', '?', '*',String.class, String.class, Long.class).forEach(e -> {
-				displayCtrl();
-				if(DISPLAY)
-					System.out.println(displayLine+"="+e);
-				if(ar2.size() == 2) {
-					ar2.add((Result) e);
-				}
-			});
-			displayLine = 0;
-			System.out.println("8.) FindSubStream(?,?,?,String.class, String.class, Long.class)...");		
-			rkvc.findSubStream('?', '?', '?',String.class, String.class, Long.class).forEach(e -> {;
-				displayCtrl();
-				if(DISPLAY)
-					System.out.println(displayLine+"="+e);
 				if(ar3.size() == 0) {
 					ar3.add((Result) e);
 				}
 			});
+			displayLine = 0;
 			
 			System.out.println("Above are all the wildcard permutations. Now retrieve those with object references using the");
 			System.out.println("wildcard results. They should produce relationships with these elements");
@@ -214,13 +153,7 @@ public class StreamRetrievalBattery1 {
 				if(DISPLAY)
 					System.out.println(displayLine+"="+e);
 			});
-			displayLine =0;
-			System.out.println("12.) FindSubStream(<obj>,*,*,String.class, Long.class) using domain="+((Result)ar.get(2)).get(0));		
-			rkvc.findSubStream(((Result)ar.get(2)).get(0), '*', '*', String.class, Long.class).forEach(e-> {
-				displayCtrl();
-				if(DISPLAY)
-					System.out.println(displayLine+"="+e);
-			});
+	
 			// From a Result2 we can call get(0) and get(1), like an array, we can also call toArray
 			displayLine = 0;
 			System.out.println("13.) findSubStream(*,<obj>,<obj>,String.class) using map="+((Result)ar2.get(0)).toArray()[0]+" range="+((Result)ar2.get(0)).toArray()[1]);		
@@ -245,42 +178,42 @@ public class StreamRetrievalBattery1 {
 			});
 			displayLine =0;
 			System.out.println("16.) findSubStream(?,?,<obj>, String.class, String.class) using range="+((Result)ar.get(0)).get(0));		
-			rkvc.findSubStream('?', '?', ((Result)ar.get(0)).get(0), String.class, String.class).forEach(e-> {
+			rkvc.findSubStream('*', '*', ((Result)ar.get(0)).get(0), String.class, String.class).forEach(e-> {
 				displayCtrl();
 				if(DISPLAY)
 					System.out.println(displayLine+"="+e);
 			});
 			displayLine =0;
 			System.out.println("17.) findSubStream(?,<obj>,?, String.class, Long.class) using map="+((Result)ar.get(1)).get(0));		
-			rkvc.findSubStream('?', ((Result)ar.get(1)).get(0), '?', String.class, Long.class).forEach(e->{
+			rkvc.findSubStream('*', ((Result)ar.get(1)).get(0), '*', String.class, Long.class).forEach(e->{
 				displayCtrl();
 				if(DISPLAY)
 					System.out.println(displayLine+"="+e);
 			});
 			displayLine =0;
 			System.out.println("18.) findSubStream(<obj>,?,?, String.class, Long.class) using domain="+((Result)ar.get(2)).get(0));		
-			rkvc.findSubStream(((Result)ar.get(2)).get(0), '?', '?', String.class, Long.class).forEach(e -> {
+			rkvc.findSubStream(((Result)ar.get(2)).get(0), '*', '*', String.class, Long.class).forEach(e -> {
 				displayCtrl();
 				if(DISPLAY)
 					System.out.println(displayLine+"="+e);
 			});
 			displayLine =0;
 			System.out.println("19.) findSubStream(?,<obj>,<obj>, String.class) using map="+((Result)ar2.get(0)).get(0)+" range="+((Result)ar2.get(0)).get(1));		
-			rkvc.findSubSet('?', ((Result)ar2.get(0)).get(0), ((Result)ar2.get(0)).get(1), String.class).forEachRemaining(e-> {
+			rkvc.findSubSet('*', ((Result)ar2.get(0)).get(0), ((Result)ar2.get(0)).get(1), String.class).forEachRemaining(e-> {
 				displayCtrl();
 				if(DISPLAY)
 					System.out.println(displayLine+"="+e);
 			});
 			displayLine =0;
 			System.out.println("20.) findSubStream(<obj>,?,<obj>,String.class) using domain="+((Result)ar2.get(1)).get(0)+" range="+ ((Result)ar2.get(1)).get(1));		
-			rkvc.findSubStream(((Result)ar2.get(1)).get(0), '?', ((Result)ar2.get(1)).get(1), String.class).forEach(e -> {
+			rkvc.findSubStream(((Result)ar2.get(1)).get(0), '*', ((Result)ar2.get(1)).get(1), String.class).forEach(e -> {
 				displayCtrl();
 				if(DISPLAY)
 					System.out.println(displayLine+"="+e);
 			});
 			displayLine =0;
 			System.out.println("21.) findSubStream(<obj>,<obj>,?,Long.class) using domain="+((Result)ar2.get(2)).get(0)+" map="+((Result)ar2.get(2)).get(1));		
-			rkvc.findSubStream(((Result)ar2.get(2)).get(0), ((Result)ar2.get(2)).get(1), '?',Long.class).forEach(e-> {
+			rkvc.findSubStream(((Result)ar2.get(2)).get(0), ((Result)ar2.get(2)).get(1), '*',Long.class).forEach(e-> {
 				displayCtrl();
 				if(DISPLAY)
 					System.out.println(displayLine+"="+e);
@@ -289,7 +222,7 @@ public class StreamRetrievalBattery1 {
 			Long hi = (max/1000L);
 			displayLine =0;
 			System.out.println("22.) findSubStream(*,*,?,String.class, String.class,<obj>,<obj>) using range="+lo+" to "+hi);		
-			rkvc.findSubStream('*','*','?',String.class, String.class, lo,hi).forEach(e -> {
+			rkvc.findSubStream('*','*','*',String.class, String.class, lo,hi).forEach(e -> {
 				displayCtrl();
 				if(DISPLAY)
 					System.out.println(displayLine+"="+e);
@@ -297,7 +230,7 @@ public class StreamRetrievalBattery1 {
 			lo+=1000L;
 			hi+=1000L;
 			System.out.println("23.) findSubStream(*,*,?,String.class,String.class,<obj>,obj>) using range="+lo+" to "+hi);		
-			rkvc.findSubStream('*','*','?',String.class, String.class, lo,hi).forEach(e -> {
+			rkvc.findSubStream('*','*','*',String.class, String.class, lo,hi).forEach(e -> {
 				displayCtrl();
 				if(DISPLAY)
 					System.out.println(displayLine+"="+e);
@@ -305,7 +238,7 @@ public class StreamRetrievalBattery1 {
 			lo+=1000L;
 			hi+=1000L;
 			System.out.println("24.) findSubStream(*,*,?,<obj>,<obj>) using range="+lo+" to "+hi);		
-			rkvc.findSubStream('*','*','?',String.class, String.class, lo,hi).forEach(e -> {
+			rkvc.findSubStream('*','*','*',String.class, String.class, lo,hi).forEach(e -> {
 				displayCtrl();
 				if(DISPLAY)
 					System.out.println(displayLine+"="+e);

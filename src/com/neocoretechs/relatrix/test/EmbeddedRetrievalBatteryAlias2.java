@@ -15,8 +15,6 @@ import com.neocoretechs.relatrix.RangeDomainMap;
 import com.neocoretechs.relatrix.RangeMapDomain;
 import com.neocoretechs.relatrix.Relatrix;
 import com.neocoretechs.relatrix.Result;
-import com.neocoretechs.relatrix.Result2;
-import com.neocoretechs.relatrix.Result3;
 import com.neocoretechs.relatrix.AbstractRelation.displayLevels;
 import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.parallel.ExecutionContextHolder;
@@ -204,7 +202,7 @@ public class EmbeddedRetrievalBatteryAlias2 {
 		it = Relatrix.findHeadSet(alias12, '*', '?', '?',String.class, String.class, Long.class);
 		while(it.hasNext()) {
 			Object o = it.next();
-			Result2 c = (Result2)o; // result2
+			Result c = (Result)o; // result2
 			displayCtrl();
 			if(DISPLAY || DISPLAYALL)
 				System.out.println(displayLine+"="+c);
@@ -217,7 +215,7 @@ public class EmbeddedRetrievalBatteryAlias2 {
 		it = Relatrix.findHeadSet(alias12, '?', '*', '?',String.class, String.class, Long.class);
 		while(it.hasNext()) {
 			Object o = it.next();
-			Result2 c = (Result2)o;
+			Result c = (Result)o;
 			displayCtrl();
 			if(DISPLAY || DISPLAYALL)
 				System.out.println(displayLine+"="+c);
@@ -230,7 +228,7 @@ public class EmbeddedRetrievalBatteryAlias2 {
 		it = Relatrix.findHeadSet(alias12, '?', '?', '*',String.class, String.class, Long.class);
 		while(it.hasNext()) {
 			Object o = it.next();
-			Result2 c = (Result2)o;
+			Result c = (Result)o;
 			displayCtrl();
 			if(DISPLAY || DISPLAYALL)
 				System.out.println(displayLine+"="+c);
@@ -244,7 +242,7 @@ public class EmbeddedRetrievalBatteryAlias2 {
 		it = Relatrix.findHeadSet(alias12, '?', '?', '?',String.class, String.class, Long.class);
 		while(it.hasNext()) {
 			Object o = it.next();
-			Result3 c = (Result3)o;
+			Result c = (Result)o;
 			displayCtrl();
 			if(DISPLAY || DISPLAYALL)
 				System.out.println(displayLine+"="+c);
@@ -375,7 +373,7 @@ public class EmbeddedRetrievalBatteryAlias2 {
 			it = Relatrix.findHeadSet(alias12, '?', ((Result)am.get(j)).get(0), '?', String.class, Long.class);
 			while(it.hasNext()) {
 				Object o = it.next();
-				Result2 c = (Result2)o;
+				Result c = (Result)o;
 				displayCtrl();
 				if(DISPLAY || DISPLAYALL)
 					System.out.println(displayLine+"="+c);

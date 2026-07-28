@@ -15,8 +15,7 @@ import com.neocoretechs.relatrix.RangeMapDomain;
 import com.neocoretechs.relatrix.Relatrix;
 import com.neocoretechs.relatrix.RelatrixKV;
 import com.neocoretechs.relatrix.Result;
-import com.neocoretechs.relatrix.Result2;
-import com.neocoretechs.relatrix.Result3;
+
 import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.parallel.ExecutionContextHolder;
 import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
@@ -169,7 +168,7 @@ public class EmbeddedStreamRetrievalBattery2 {
 		displayLine=0;
 		System.out.println("5.) findHeadStream(*,?,?,String.class, String.class, Long.class)...");		
 		Relatrix.findHeadStream('*', '?', '?',String.class, String.class, Long.class).forEach(o->{
-			Result2 c = (Result2)o; // result2
+			Result c = (Result)o; // result2
 			displayCtrl();
 			if(DISPLAY || DISPLAYALL)
 				System.out.println(displayLine+"="+c);
@@ -180,7 +179,7 @@ public class EmbeddedStreamRetrievalBattery2 {
 		displayLine = 0;
 		System.out.println("6.) findHeadStream(?,*,?,String.class, String.class, Long.class)...");		
 		Relatrix.findHeadStream('?', '*', '?',String.class, String.class, Long.class).forEach(o->{
-			Result2 c = (Result2)o;
+			Result c = (Result)o;
 			displayCtrl();
 			if(DISPLAY || DISPLAYALL)
 				System.out.println(displayLine+"="+c);
@@ -191,7 +190,7 @@ public class EmbeddedStreamRetrievalBattery2 {
 		displayLine = 0;
 		System.out.println("7.) findHeadStream(?,?,*,String.class, String.class, Long.class)...");		
 		Relatrix.findHeadStream('?', '?', '*',String.class, String.class, Long.class).forEach(o->{
-			Result2 c = (Result2)o;
+			Result c = (Result)o;
 			displayCtrl();
 			if(DISPLAY || DISPLAYALL)
 				System.out.println(displayLine+"="+c);
@@ -203,7 +202,7 @@ public class EmbeddedStreamRetrievalBattery2 {
 		displayLine = 0;
 		System.out.println("8.) FindHeadStream(?,?,?,String.class, String.class, Long.class)...");		
 		Relatrix.findHeadStream('?', '?', '?',String.class, String.class, Long.class).forEach(o->{
-			Result3 c = (Result3)o;
+			Result c = (Result)o;
 			displayCtrl();
 			if(DISPLAY || DISPLAYALL)
 				System.out.println(displayLine+"="+c);
@@ -314,7 +313,7 @@ public class EmbeddedStreamRetrievalBattery2 {
 			displayLine=0;
 			System.out.println("17."+j+") findHeadStream(?,<obj>,?, String.class, Long.class) using map="+((Result)am.get(j)).get(0));		
 			Relatrix.findHeadStream('?', ((Result)am.get(j)).get(0), '?', String.class, Long.class).forEach(o->{
-				Result2 c = (Result2)o;
+				Result c = (Result)o;
 				displayCtrl();
 				if(DISPLAY || DISPLAYALL)
 					System.out.println(displayLine+"="+c);

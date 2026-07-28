@@ -16,8 +16,7 @@ import com.neocoretechs.relatrix.Relatrix;
 import com.neocoretechs.relatrix.RelatrixKV;
 import com.neocoretechs.relatrix.Result;
 import com.neocoretechs.relatrix.Result1;
-import com.neocoretechs.relatrix.Result2;
-import com.neocoretechs.relatrix.Result3;
+
 import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.parallel.ExecutionContextHolder;
 import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
@@ -110,74 +109,7 @@ public class EmbeddedRetrievalBattery {
 			System.out.println(++recs+"="+o);
 		}
 		recs = 0;
-		System.out.println("2.) Findset(*,*,?)...");		
-		it = Relatrix.findSet('*', '*', '?');
-		while(it.hasNext()) {
-			Object o = it.next();
-			System.out.println(++recs+"="+o);
-			if(ar.size() < SAMPLESIZE ) 
-				ar.add(((Result)o).get());
-		}
-		recs = 0;
-		System.out.println("3.) Findset(*,?,*)...");		
-		it = Relatrix.findSet('*', '?', '*');
-		while(it.hasNext()) {
-			Object o = it.next();
-			System.out.println(++recs+"="+o);
-			if(am.size() < SAMPLESIZE ) 
-				am.add(((Result)o).get());
-		}
-		recs = 0;
-		System.out.println("4.) Findset(?,*,*)...");		
-		it = Relatrix.findSet('?', '*', '*');
-		while(it.hasNext()) {
-			Object o = it.next();
-			System.out.println(++recs+"="+o);
-			if(ad.size() < SAMPLESIZE) 
-				ad.add(((Result)o).get());
-		}
-		recs=0;
-		System.out.println("5.) Findset(*,?,?)...");		
-		it = Relatrix.findSet('*', '?', '?');
-		while(it.hasNext()) {
-			Object o = it.next();
-			Comparable[] c = ((Result2)o).toArray();
-			System.out.println(++recs+"="+o);
-			if(ar2.size() < SAMPLESIZE) 
-				ar2.add(c);
-		}
-		recs = 0;
-		System.out.println("6.) Findset(?,*,?)...");		
-		it = Relatrix.findSet('?', '*', '?');
-		//ar = new ArrayList<Comparable>();
-		while(it.hasNext()) {
-			Object o = it.next();
-			Comparable[] c = ((Result2)o).toArray();
-			System.out.println(++recs+"="+c[0]+" --- "+c[1]);
-			if(ar2dr.size() < SAMPLESIZE) 
-				ar2dr.add(c);
-		}
-		recs = 0;
-		System.out.println("7.) Findset(?,?,*)...");		
-		it = Relatrix.findSet('?', '?', '*');
-		while(it.hasNext()) {
-			Object o = it.next();
-			Comparable[] c = ((Result2)o).toArray();
-			System.out.println(++recs+"="+c[0]+" --- "+c[1]);
-			if(ar2dm.size() < SAMPLESIZE) 
-				ar2dm.add(c);
-		}
-		recs = 0;
-		System.out.println("8.) Findset(?,?,?)...");		
-		it = Relatrix.findSet('?', '?', '?');
-		while(it.hasNext()) {
-			Object o = it.next();
-			Comparable[] c = ((Result3)o).toArray();
-			System.out.println(++recs+"="+c[0]+" --- "+c[1]+" --- "+c[2]);
-			if(ar3.size() < SAMPLESIZE) 
-				ar3.add(c);
-		}
-		
+	
 		System.out.println("Above are all the wildcard permutations. Now retrieve those with object references using the results");
 		System.out.println("3 object instances:");
 		for(int j = 0; j < ar3.size(); j++) {
@@ -240,30 +172,7 @@ public class EmbeddedRetrievalBattery {
 			}
 		}
 		recs = 0;
-		System.out.println("----------");
-		System.out.println("1 object instance with 2 returns:");
-		for(int j = 0; j < ar.size(); j++) {
-			System.out.println("16."+j+") Findset(?,?,<obj>) using range="+ar.get(j));		
-			it = Relatrix.findSet('?', '?', ar.get(j));
-			while(it.hasNext()) {
-				Object o = it.next();
-				System.out.println(++recs+"="+o);
-			}
-			recs =0;
-			System.out.println("17."+j+") Findset(?,<obj>,?) using map="+am.get(j));		
-			it = Relatrix.findSet('?', am.get(j), '?');
-			while(it.hasNext()) {
-				Object o = it.next();
-				System.out.println(++recs+"="+o);
-			}
-			recs =0;
-			System.out.println("18."+j+") Findset(<obj>,?,?) using domain="+ad.get(j));		
-			it = Relatrix.findSet(ad.get(j), '?', '?');
-			while(it.hasNext()) {
-				Object o = it.next();
-				System.out.println(++recs+"="+o);
-			}
-		}
+		
 		System.out.println("----------");
 		System.out.println("2 object instances with 1 return:");
 		for(int j = 0; j < ar2.size(); j++) {
