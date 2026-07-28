@@ -32,14 +32,14 @@ import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
  *
  */
 public class BatteryRelatrix2 {
-	public static boolean DEBUG = true;
+	public static boolean DEBUG = false;
 	static String key = "This is a test"; // holds the base random key string for tests
 	static String val = "Of a Relatrix element!"; // holds base random value string
 	static String uniqKeyFmt = "%0100d"; // base + counter formatted with this gives equal length strings for canonical ordering
 	static long timx;
 	static long i;
 	static int min = 0;
-	static int max = 1000;
+	static int max = 100000;
 
 	/**
 	* Main test fixture driver
@@ -172,13 +172,13 @@ public class BatteryRelatrix2 {
 		int j = 0;
 		long tims = System.currentTimeMillis();
 		String skey = key + String.format(uniqKeyFmt, i);
-		Iterator<?> its = Relatrix.findHeadSet('*', '*','?' , skey, String.class, Long.class);
+		Iterator<?> its = Relatrix.findHeadSet('*','*','*' , skey, String.class, Long.class);
 		System.out.println("Battery1C");
 		while(its.hasNext()) {
 			Result nex = (Result) its.next();
-			// one '?' in findset gives us one element returned
+			Comparable<?>[] nexc = nex.toArray();
 			if(DEBUG ) System.out.println("1C:"+i+" "+j+" "+nex);
-			if(j != ((Long)nex.get()) ) {
+			if(j != ((Long)nexc[2]) ) {
 				System.out.println("RANGE KEY MISMATCH:"+(i+j)+" "+skey+" - "+nex);
 				throw new Exception("RANGE KEY MISMATCH:"+(i+j)+" "+skey+" - "+nex);
 			}
@@ -204,15 +204,15 @@ public class BatteryRelatrix2 {
 		long tims = System.currentTimeMillis();
 		String skey = key + String.format(uniqKeyFmt, i);
 		String skey2 = key + String.format(uniqKeyFmt, i+range); // if 500 and 510 we should get 500 to 509
-		Iterator<?> its = Relatrix.findSubSet('?', '*', '*', skey, skey2, String.class, Long.class);
+		Iterator<?> its = Relatrix.findSubSet('*', '*', '*', skey, skey2, String.class, Long.class);
 		System.out.println("Battery1D");
 		while(its.hasNext()) {
 			Result nex = (Result) its.next();
-			// one '?' in findset gives us one element returned
+			Comparable<?>[] nexc = nex.toArray();
 			if(DEBUG) 
 				System.out.println("1D:"+j+" "+nex);
 			skey = key + String.format(uniqKeyFmt, (j+i));
-			if(skey.compareTo((String)nex.get()) != 0 ) {
+			if(skey.compareTo((String)nexc[0]) != 0 ) {
 				System.out.println("SUBSET MISMATCH:"+(i)+" "+skey+" - "+nex);
 				throw new Exception("SUBSET MISMATCH:"+(i)+" "+skey+" - "+nex);
 			}
@@ -236,13 +236,14 @@ public class BatteryRelatrix2 {
 		int j = 0;
 		int range = 10;
 		long tims = System.currentTimeMillis();
-		Iterator<?> its = Relatrix.findSubSet('*', '*', '?', String.class, String.class, Long.valueOf(i), Long.valueOf(i+range));
+		Iterator<?> its = Relatrix.findSubSet('*', '*', '*', String.class, String.class, Long.valueOf(i), Long.valueOf(i+range));
 		System.out.println("Battery1E");
 		while(its.hasNext()) {
 			Result nex = (Result) its.next();
+			Comparable<?>[] nexc = nex.toArray();
 			// one '?' in findset gives us one element returned
 			if(DEBUG ) System.out.println("1E:"+i+" "+nex);
-			if(i+j != ((Long)nex.get()) ) {
+			if(i+j != ((Long)nexc[2]) ) {
 				System.out.println("SUBSET MISMATCH:"+(i)+" "+j+" "+(i+j)+" - "+nex);
 				throw new Exception("SUBSET MISMATCH:"+(i)+" "+j+" "+(i+j)+" - "+nex);
 			}
@@ -268,14 +269,15 @@ public class BatteryRelatrix2 {
 		String skey = key + String.format(uniqKeyFmt, i);
 		String skey2 = key + String.format(uniqKeyFmt, i+range); // if 500 and 510 we should get 500 to 509
 		// Notice how we qualify the ranges here for subset. Should we have one range lesser, that range would supersede the greater.
-		Iterator<?> its = Relatrix.findSubSet('*', "Has unit", '?',skey, skey2, Long.valueOf(i), Long.valueOf(i+range));
+		Iterator<?> its = Relatrix.findSubSet('*', "Has unit", '*',skey, skey2, Long.valueOf(i), Long.valueOf(i+range));
 		System.out.println("Battery1F");
 		while(its.hasNext()) {
 			Result nex = (Result) its.next();
+			Comparable<?>[] nexc = nex.toArray();
 			// one '?' in findset gives us one element returned
 			if(DEBUG ) 
 				System.out.println("1F:"+j+" "+nex);
-			if(i+j != ((Long)nex.get()) ) {
+			if(i+j != (Long)nexc[2]) {
 				System.out.println("SUBSET MISMATCH:"+(i)+" "+j+" "+(i+j)+" "+skey+" - "+nex);
 				throw new Exception("SUBSET MISMATCH:"+(i)+" "+j+" "+(i+j)+" "+skey+" - "+nex);
 			}
