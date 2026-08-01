@@ -161,18 +161,10 @@ public class EmbeddedRetrievalBatteryTransactionAlias4 {
 		displayLine = 0;
 
 		System.out.println("1.) findSubSet("+alias12+",xid,*,*,*,String.class, String.class,"+lo+","+hi+");");
-		it =  RelatrixTransaction.findSubSet(alias12,xid2,'*', '*', '*',String.class, String.class, lo,hi);
-		while(it.hasNext()) {
-			Object o = it.next();
-			Result c = (Result)o;
-			displayCtrl();
-			if(DISPLAY || DISPLAYALL)
-				System.out.println(displayLine+"="+c);
-			//ar.add(c[0]);
-		}
+	
 		displayLine = 0;
-		System.out.println("2.) findSubSet("+alias12+",xid,*,*,?,String.class, String.class, "+lo+","+hi+");");	
-		it = RelatrixTransaction.findSubSet(alias12,xid2,'*', '*', '?',String.class, String.class, lo, hi);
+		System.out.println("2.) findSubSet("+alias12+",xid,*,*,*,String.class, String.class, "+lo+","+hi+");");	
+		it = RelatrixTransaction.findSubSet(alias12,xid2,'*', '*', '*',String.class, String.class, lo, hi);
 		while(it.hasNext()) {
 			Object o = it.next();
 			Result c = (Result)o;
@@ -185,8 +177,8 @@ public class EmbeddedRetrievalBatteryTransactionAlias4 {
 		displayLine = 0;
 		String slo = key + String.format(uniqKeyFmt, lo);
 		String shi = key  + String.format(uniqKeyFmt, hi);
-		System.out.println("3.) findSubset("+alias12+",xid,*,?,*,"+slo+","+shi+", String.class, Long.class);");		
-		it = RelatrixTransaction.findSubSet(alias12,xid2,'*', '?', '*',slo,shi, String.class, Long.class);
+		System.out.println("3.) findSubset("+alias12+",xid,*,*,*,"+slo+","+shi+", String.class, Long.class);");		
+		it = RelatrixTransaction.findSubSet(alias12,xid2,'*', '*', '*',slo,shi, String.class, Long.class);
 		while(it.hasNext()) {
 			Object o = it.next();
 			Result  c = (Result )o;
@@ -196,8 +188,8 @@ public class EmbeddedRetrievalBatteryTransactionAlias4 {
 			am.add(c);
 		}
 		displayLine = 0;
-		System.out.println("4.) findSubSet("+alias12+",xid,?,*,*.String.class, String.class, "+lo+","+hi+");");			
-		it = RelatrixTransaction.findSubSet(alias12,xid2,'?', '*', '*',String.class, String.class, lo, hi);
+		System.out.println("4.) findSubSet("+alias12+",xid,*,*,*.String.class, String.class, "+lo+","+hi+");");			
+		it = RelatrixTransaction.findSubSet(alias12,xid2,'*', '*', '*',String.class, String.class, lo, hi);
 		while(it.hasNext()) {
 			Object o = it.next();
 			Result  c = (Result )o;
@@ -206,20 +198,10 @@ public class EmbeddedRetrievalBatteryTransactionAlias4 {
 				System.out.println(displayLine+"="+c);
 			ad.add(c);
 		}
-		displayLine=0;
-		System.out.println("5.) findSubSet("+alias12+",xid,*,?,?,String.class, String.class, "+lo+","+hi+")...");		
-		it = RelatrixTransaction.findSubSet(alias12,xid2,'*', '?', '?',String.class, String.class, lo, hi);
-		while(it.hasNext()) {
-			Object o = it.next();
-			Result c = (Result)o; // result2
-			displayCtrl();
-			if(DISPLAY || DISPLAYALL)
-				System.out.println(displayLine+"="+c);
-			ar2.add(c);
-		}
+	
 		displayLine = 0;
-		System.out.println("6.) findSubSet("+alias12+",xid,?,*,?,"+slo+","+shi+",String.class, "+lo+","+hi+")...");		
-		it = RelatrixTransaction.findSubSet(alias12,xid2,'?', '*', '?',slo,shi, String.class, lo,hi);
+		System.out.println("6.) findSubSet("+alias12+",xid,*,*,*,"+slo+","+shi+",String.class, "+lo+","+hi+")...");		
+		it = RelatrixTransaction.findSubSet(alias12,xid2,'*', '*', '*',slo,shi, String.class, lo,hi);
 		while(it.hasNext()) {
 			Object o = it.next();
 			Result c = (Result)o;
@@ -229,8 +211,8 @@ public class EmbeddedRetrievalBatteryTransactionAlias4 {
 			ar2dr.add(c);
 		}
 		displayLine = 0;
-		System.out.println("7.) findSubSet("+alias12+",xid,?,?,*,"+slo+","+shi+", String.class, Long.class)...");		
-		it = RelatrixTransaction.findSubSet(alias12,xid2,'?', '?', '*',slo,shi, String.class, Long.class);
+		System.out.println("7.) findSubSet("+alias12+",xid,*,*,*,"+slo+","+shi+", String.class, Long.class)...");		
+		it = RelatrixTransaction.findSubSet(alias12,xid2,'*', '*', '*',slo,shi, String.class, Long.class);
 		while(it.hasNext()) {
 			Object o = it.next();
 			Result c = (Result)o;
@@ -240,16 +222,7 @@ public class EmbeddedRetrievalBatteryTransactionAlias4 {
 			ar2dm.add(c);
 		}
 		displayLine = 0;
-		System.out.println("8.) FindSubset("+alias12+",xid,?,?,?,"+slo+","+shi+", String.class, Long.class)...");		
-		it = RelatrixTransaction.findSubSet(alias12,xid2,'?', '?', '?',slo,shi, String.class, Long.class);
-		while(it.hasNext()) {
-			Object o = it.next();
-			Result c = (Result)o;
-			displayCtrl();
-			if(DISPLAY || DISPLAYALL)
-				System.out.println(displayLine+"="+c);
-			ar3.add(c);
-		}
+	
 		System.out.println("----------");
 		System.out.println("Above are all the wildcard permutations. Now retrieve those with object references using the wildcard results.");
 		for(int j = 0; j < ar3.size(); j++) {
@@ -343,8 +316,8 @@ public class EmbeddedRetrievalBatteryTransactionAlias4 {
 		System.out.println("Begin 1 instance match 2 element return testing");
 		for(int j = 0; j < ar.size(); j++) {
 			displayLine =0;
-			System.out.println("16."+j+") findSubSet("+alias12+",xid,?,?,<obj>, String.class, String.class) using range="+((Result)ar.get(j)).get(0));		
-			it = RelatrixTransaction.findSubSet(alias12,xid2,'?', '?', ((Result)ar.get(j)).get(0), String.class, String.class);
+			System.out.println("16."+j+") findSubSet("+alias12+",xid,*,*,<obj>, String.class, String.class) using range="+((Result)ar.get(j)).get(0));		
+			it = RelatrixTransaction.findSubSet(alias12,xid2,'*', '*', ((Result)ar.get(j)).get(0), String.class, String.class);
 			while(it.hasNext()) {
 				Object o = it.next();
 				Result c = (Result)o;
@@ -353,8 +326,8 @@ public class EmbeddedRetrievalBatteryTransactionAlias4 {
 					System.out.println(displayLine+"="+c);
 			}
 			displayLine =0;
-			System.out.println("17."+j+") findSubSet("+alias12+",xid,?,<obj>,?, String.class, Long.class) using map="+((Result)am.get(j)).get(0));		
-			it = RelatrixTransaction.findSubSet(alias12,xid2,'?', ((Result)am.get(j)).get(0), '?', String.class, Long.class);
+			System.out.println("17."+j+") findSubSet("+alias12+",xid,*,<obj>,*, String.class, Long.class) using map="+((Result)am.get(j)).get(0));		
+			it = RelatrixTransaction.findSubSet(alias12,xid2,'*', ((Result)am.get(j)).get(0), '*', String.class, Long.class);
 			while(it.hasNext()) {
 				Object o = it.next();
 				Result c = (Result)o;
@@ -363,8 +336,8 @@ public class EmbeddedRetrievalBatteryTransactionAlias4 {
 					System.out.println(displayLine+"="+c);
 			}
 			displayLine =0;
-			System.out.println("18."+j+") findSubSet("+alias12+",xid,<obj>,?,?, String.class, Long.class) using domain="+((Result)ad.get(j)).get(0));		
-			it = RelatrixTransaction.findSubSet(alias12,xid2,((Result)ad.get(j)).get(0), '?', '?', String.class, Long.class);
+			System.out.println("18."+j+") findSubSet("+alias12+",xid,<obj>,*,*, String.class, Long.class) using domain="+((Result)ad.get(j)).get(0));		
+			it = RelatrixTransaction.findSubSet(alias12,xid2,((Result)ad.get(j)).get(0), '*', '*', String.class, Long.class);
 			while(it.hasNext()) {
 				Object o = it.next();
 				Result c = (Result)o;
@@ -377,8 +350,8 @@ public class EmbeddedRetrievalBatteryTransactionAlias4 {
 		System.out.println("Begin 2 instance match 1 element return testing");
 		for(int j = 0; j < ar2.size(); j++) {
 			displayLine=0;
-			System.out.println("19."+j+") findSubSet("+alias12+",xid,?,<obj>,<obj>, String.class) using map="+((Result)ar2.get(j)).get(0)+" range="+((Result)ar2.get(j)).get(1));		
-			it = RelatrixTransaction.findSubSet(alias12,xid2,'?', ((Result)ar2.get(j)).get(0), ((Result)ar2.get(j)).get(1), String.class);
+			System.out.println("19."+j+") findSubSet("+alias12+",xid,*,<obj>,<obj>, String.class) using map="+((Result)ar2.get(j)).get(0)+" range="+((Result)ar2.get(j)).get(1));		
+			it = RelatrixTransaction.findSubSet(alias12,xid2,'*', ((Result)ar2.get(j)).get(0), ((Result)ar2.get(j)).get(1), String.class);
 			while(it.hasNext()) {
 				Object o = it.next();
 				Result c = (Result)o;
@@ -387,8 +360,8 @@ public class EmbeddedRetrievalBatteryTransactionAlias4 {
 					System.out.println(displayLine+"="+c);
 			}
 			displayLine=0;
-			System.out.println("20."+j+") findSubSet("+alias12+",xid,<obj>,?,<obj>,String.class) using domain="+((Result)ar2dr.get(j)).get(0)+" range="+ ((Result)ar2dr.get(j)).get(1));		
-			it = RelatrixTransaction.findSubSet(alias12,xid2,((Result)ar2dr.get(j)).get(0), '?', ((Result)ar2dr.get(j)).get(1), String.class);
+			System.out.println("20."+j+") findSubSet("+alias12+",xid,<obj>,*,<obj>,String.class) using domain="+((Result)ar2dr.get(j)).get(0)+" range="+ ((Result)ar2dr.get(j)).get(1));		
+			it = RelatrixTransaction.findSubSet(alias12,xid2,((Result)ar2dr.get(j)).get(0), '*', ((Result)ar2dr.get(j)).get(1), String.class);
 			while(it.hasNext()) {
 				Object o = it.next();
 				Result c = (Result)o;
@@ -397,8 +370,8 @@ public class EmbeddedRetrievalBatteryTransactionAlias4 {
 					System.out.println(displayLine+"="+c);
 			}
 			displayLine=0;
-			System.out.println("21."+j+") findSubSet("+alias12+",xid,<obj>,<obj>,?,Long.class) using domain="+((Result)ar2dm.get(j)).get(0)+" map="+((Result)ar2dm.get(j)).get(1));		
-			it = RelatrixTransaction.findSubSet(alias12,xid2,((Result)ar2dm.get(j)).get(0), ((Result)ar2dm.get(j)).get(1), '?',Long.class);
+			System.out.println("21."+j+") findSubSet("+alias12+",xid,<obj>,<obj>,*,Long.class) using domain="+((Result)ar2dm.get(j)).get(0)+" map="+((Result)ar2dm.get(j)).get(1));		
+			it = RelatrixTransaction.findSubSet(alias12,xid2,((Result)ar2dm.get(j)).get(0), ((Result)ar2dm.get(j)).get(1), '*',Long.class);
 			while(it.hasNext()) {
 				Object o = it.next();
 				Result c = (Result)o;
@@ -416,8 +389,8 @@ public class EmbeddedRetrievalBatteryTransactionAlias4 {
 			lo = lorange;
 			hi = hirange;
 			displayLine =0;
-			System.out.println("22."+j+") findSubSet("+alias12+",xid,*,*,?,<class>,<class>,<obj>,<obj>) using domain="+((Result)ar2dm.get(j)).get(0).getClass()+" map="+((Result)ar2dm.get(j)).get(1).getClass()+" range="+lo+" to "+hi);		
-			it = RelatrixTransaction.findSubSet(alias12,xid2,'*','*','?',((Result)ar2dm.get(j)).get(0).getClass(), ((Result)ar2dm.get(j)).get(1).getClass(),lo,hi);
+			System.out.println("22."+j+") findSubSet("+alias12+",xid,*,*,*,<class>,<class>,<obj>,<obj>) using domain="+((Result)ar2dm.get(j)).get(0).getClass()+" map="+((Result)ar2dm.get(j)).get(1).getClass()+" range="+lo+" to "+hi);		
+			it = RelatrixTransaction.findSubSet(alias12,xid2,'*','*','*',((Result)ar2dm.get(j)).get(0).getClass(), ((Result)ar2dm.get(j)).get(1).getClass(),lo,hi);
 			while(it.hasNext()) {
 				Object o = it.next();
 				Result c = (Result)o;
@@ -427,8 +400,8 @@ public class EmbeddedRetrievalBatteryTransactionAlias4 {
 			}
 			lo+=increment;
 			hi+=increment;
-			System.out.println("23."+j+") findSubSet("+alias12+",xid,?,?,?,<class>,<class>,<obj>,<obj>) using domain="+((Result)ar2dm.get(j)).get(0).getClass()+" map="+((Result)ar2dm.get(j)).get(1).getClass()+" range="+lo+" to "+hi);		
-			it = RelatrixTransaction.findSubSet(alias12,xid2,'?','?','?',((Result)ar2dm.get(j)).get(0).getClass(), ((Result)ar2dm.get(j)).get(1).getClass(),lo,hi);
+			System.out.println("23."+j+") findSubSet("+alias12+",xid,*,*,*,<class>,<class>,<obj>,<obj>) using domain="+((Result)ar2dm.get(j)).get(0).getClass()+" map="+((Result)ar2dm.get(j)).get(1).getClass()+" range="+lo+" to "+hi);		
+			it = RelatrixTransaction.findSubSet(alias12,xid2,'*','*','*',((Result)ar2dm.get(j)).get(0).getClass(), ((Result)ar2dm.get(j)).get(1).getClass(),lo,hi);
 			while(it.hasNext()) {
 				Object o = it.next();
 				Result c = (Result)o;
@@ -438,8 +411,8 @@ public class EmbeddedRetrievalBatteryTransactionAlias4 {
 			}
 			lo+=increment;
 			hi+=increment;
-			System.out.println("24."+j+") findSubSet("+alias12+",xid,?,*,?,<class>,<class>,<obj>,<obj>) using domain="+((Result)ar2dm.get(j)).get(0).getClass()+" map="+((Result)ar2dm.get(j)).get(1).getClass()+" range="+lo+" to "+hi);		
-			it = RelatrixTransaction.findSubSet(alias12,xid2,'?','*','?',((Result)ar2dm.get(j)).get(0).getClass(), ((Result)ar2dm.get(j)).get(1).getClass(),lo,hi);
+			System.out.println("24."+j+") findSubSet("+alias12+",xid,*,*,*,<class>,<class>,<obj>,<obj>) using domain="+((Result)ar2dm.get(j)).get(0).getClass()+" map="+((Result)ar2dm.get(j)).get(1).getClass()+" range="+lo+" to "+hi);		
+			it = RelatrixTransaction.findSubSet(alias12,xid2,'*','*','*',((Result)ar2dm.get(j)).get(0).getClass(), ((Result)ar2dm.get(j)).get(1).getClass(),lo,hi);
 			while(it.hasNext()) {
 				Object o = it.next();
 				Result c = (Result)o;
