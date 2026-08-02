@@ -1,5 +1,6 @@
 package com.neocoretechs.relatrix.test.server;
 
+import java.util.Iterator;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
@@ -30,6 +31,7 @@ public class BatteryRelatrix {
 	static RelatrixClient session = null;
 	static String fkey;
 	static int i;
+	static Result r = null;
 
 	/**
 	* Analysis test fixture
@@ -48,6 +50,7 @@ public class BatteryRelatrix {
 		if(session.size() == 0) {
 			battery1();
 		}
+		battery1A();
 		battery2();
 		System.out.println("TEST BATTERY COMPLETE.");	
 		System.exit(0);
@@ -74,6 +77,81 @@ public class BatteryRelatrix {
 		}
 		System.out.println("BATTERY0 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms. Stored "+recs+" records, rejected "+dupes+" dupes.");
 	}
+	
+	public static void battery1A() throws Exception {
+		System.out.println("Battery1A ");
+		long tims = System.currentTimeMillis();
+		int recs = 0;
+		for(i = min; i < max; i++) {
+			fkey = key + String.format(uniqKeyFmt, i);
+			//Optional<?> o =  ((Stream)session.findStream(fkey, "Has unit", Long.valueOf(i)).parallel()).findFirst();
+			Iterator<?> it =  session.findSet(fkey, "Has unit", Long.valueOf(i));
+			System.out.println(i+".) Obtained primary Optional iterator -- PASSED");
+			while(it.hasNext()) {
+				r = (Result) it.next();
+				System.out.println(i+".) Obtained primary Optional Result -- PASSED");
+			}
+			//Optional<?> p = session.findStream(((Result)o.get()).get(), '*', '*').findFirst();
+			it = session.findSet(r.get(), '*', '*');
+			System.out.println(i+".) Obtained secondary Optional iterator -- PASSED");
+			while(it.hasNext()) {
+				r = (Result) it.next();
+				System.out.println(i+".) Obtained secondary Optional Result -- PASSED");
+			}
+			if(!(r.get() instanceof AbstractRelation))
+				System.out.println(r.get().getClass()+" isnt AbstractRelation; value:"+r.get()+" FAIL");
+			else {
+				// main morphism
+				Relation m = (Relation) r.get();
+				System.out.println("Obtained Primary Relation from secondary Result  -- PASSED.");
+				if(!(m.getDomain() instanceof AbstractRelation)) 
+					System.out.println(m.getDomain().getClass()+" isnt AbstractRelation; value:"+m+" FAIL");
+				else {
+					System.out.println("Obtained Domain Relation  -- PASSED.");
+					// morphism in domain "has unit"
+					Relation d = (Relation) m.getDomain();
+					if(!(d.getDomain() instanceof String))
+						System.out.println(d.getDomain().getClass()+" domain isnt String; value:"+d+" FAIL");
+					else {
+						System.out.println("Obtained Relation Domain value  -- PASSED.");
+						if(!d.getDomain().equals(fkey))
+							System.out.println("Domain doesnt match "+fkey+" FAIL");
+						else
+							System.out.println("Domain matches fkey  -- PASSED.");
+					}
+					if(!(d.getMap() instanceof String))
+						System.out.println(d.getMap().getClass()+" map isnt String; value:"+d);
+					else {
+						System.out.println("Map is expected vale  -- PASSED.");
+						if(!d.getMap().equals("Has unit"))
+							System.out.println("Map doesnt match 'Has unit'"+d+" FAIL");
+					}
+					if(!(d.getRange() instanceof Long))
+						System.out.println(d.getRange().getClass()+" range isnt Long; value:"+d+" FAIL");
+					else {
+						System.out.println("Map is expected value  -- PASSED.");
+						if(!d.getRange().equals(Long.valueOf(i)))
+							System.out.println("Range doesnt match "+i+" FAIL");
+						else
+							System.out.println("Range is expected value  -- PASSED.");
+					}
+					// that takes care of morphism within morphism, now check remainder of composite morphism
+					if(!(m.getMap() instanceof String))
+						System.out.println(m.getMap().getClass()+" composite relation map isnt String; value:"+m+ "FAIL");
+					else {
+						System.out.println("Composite relation map is expected value  -- PASSED.");
+						if(!m.getMap().equals("has identity"))
+							System.out.println("Composite relation Map doesnt match 'has identity'"+m+" FAIL");
+						else
+							System.out.println("Composite relation map is expected value  -- PASSED.");
+					}
+				}
+			}
+			++recs;
+		}
+		System.out.println("BATTERY1A verification SUCCESS in "+(System.currentTimeMillis()-tims)+" ms. Retrieved "+recs);
+	}
+
 	/**
 	 * This test battery should print nothing if successful.
 	 * @throws Exception
@@ -84,14 +162,10 @@ public class BatteryRelatrix {
 		int recs = 0;
 		for(i = min; i < max; i++) {
 			fkey = key + String.format(uniqKeyFmt, i);
-			//Optional<?> o =  ((Stream)session.findStream(fkey, "Has unit", Long.valueOf(i)).parallel()).findFirst();
-			 Optional<?> o = (Optional<?>) SynchronizedThreadManager.getInstance().submitWithContext(
-					()->((Stream<?>) session.findStream(fkey, "Has unit", Long.valueOf(i))).parallel().findFirst(),session.getContext()).get();
+			Optional<?> o =  ((Stream)session.findStream(fkey, "Has unit", Long.valueOf(i)).parallel()).findFirst();
 			if(o.isPresent()) {
 				System.out.println(i+".) Obtained primary Optional relation -- PASSED");
-				//Optional<?> p = session.findStream(((Result)o.get()).get(), '*', '*').findFirst();
-				 Optional<?> p = (Optional<?>) SynchronizedThreadManager.getInstance().submitWithContext(
-							()->((Stream<?>) session.findStream(((Result)o.get()).get(), '*', '*')).parallel().findFirst(),session.getContext()).get();
+				Optional<?> p = ((Stream)session.findStream(((Result)o.get()).get(), '*', '*').parallel()).findFirst();
 				if(p.isPresent()) {
 					System.out.println(i+".) Obtained secondary Optional relation -- PASSED");
 					Result c = (Result) p.get();
