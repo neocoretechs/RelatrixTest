@@ -82,20 +82,26 @@ public class BatteryRelatrix {
 		System.out.println("Battery1A ");
 		long tims = System.currentTimeMillis();
 		int recs = 0;
+		Iterator<?> itPrimary = null;
+		Iterator itSecondary = null;
 		for(i = min; i < max; i++) {
 			fkey = key + String.format(uniqKeyFmt, i);
 			//Optional<?> o =  ((Stream)session.findStream(fkey, "Has unit", Long.valueOf(i)).parallel()).findFirst();
-			Iterator<?> it =  session.findSet(fkey, "Has unit", Long.valueOf(i));
+			if(itPrimary != null)
+				session.setIterator(itPrimary);
+			itPrimary =  session.findSet(fkey, "Has unit", Long.valueOf(i));
 			System.out.println(i+".) Obtained primary Optional iterator -- PASSED");
-			while(it.hasNext()) {
-				r = (Result) it.next();
+			while(itPrimary.hasNext()) {
+				r = (Result) itPrimary.next();
 				System.out.println(i+".) Obtained primary Optional Result -- PASSED");
 			}
 			//Optional<?> p = session.findStream(((Result)o.get()).get(), '*', '*').findFirst();
-			it = session.findSet(r.get(), '*', '*');
+			if(itSecondary != null)
+				session.setIterator(itSecondary);
+			itSecondary = session.findSet(r.get(), '*', '*');
 			System.out.println(i+".) Obtained secondary Optional iterator -- PASSED");
-			while(it.hasNext()) {
-				r = (Result) it.next();
+			while(itSecondary.hasNext()) {
+				r = (Result) itSecondary.next();
 				System.out.println(i+".) Obtained secondary Optional Result -- PASSED");
 			}
 			if(!(r.get() instanceof AbstractRelation))
@@ -160,12 +166,20 @@ public class BatteryRelatrix {
 		System.out.println("Battery2 ");
 		long tims = System.currentTimeMillis();
 		int recs = 0;
+		Stream streamPrimary = null;
+		Stream streamSecondary = null;
 		for(i = min; i < max; i++) {
 			fkey = key + String.format(uniqKeyFmt, i);
-			Optional<?> o =  ((Stream)session.findStream(fkey, "Has unit", Long.valueOf(i)).parallel()).findFirst();
+			if(streamPrimary != null)
+				session.setStream(streamPrimary);
+			streamPrimary = (Stream)session.findStream(fkey, "Has unit", Long.valueOf(i)).parallel();
+			Optional<?> o =  streamPrimary.findFirst();
 			if(o.isPresent()) {
 				System.out.println(i+".) Obtained primary Optional relation -- PASSED");
-				Optional<?> p = ((Stream)session.findStream(((Result)o.get()).get(), '*', '*').parallel()).findFirst();
+				if(streamSecondary != null)
+					session.setStream(streamSecondary);
+				streamSecondary = (Stream)session.findStream(((Result)o.get()).get(), '*', '*').parallel();
+				Optional<?> p = streamSecondary.findFirst();
 				if(p.isPresent()) {
 					System.out.println(i+".) Obtained secondary Optional relation -- PASSED");
 					Result c = (Result) p.get();
