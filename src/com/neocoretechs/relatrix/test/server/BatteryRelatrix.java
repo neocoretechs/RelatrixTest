@@ -52,6 +52,7 @@ public class BatteryRelatrix {
 		}
 		battery1A();
 		battery2();
+		battery2A();
 		System.out.println("TEST BATTERY COMPLETE.");	
 		System.exit(0);
 	}
@@ -77,7 +78,10 @@ public class BatteryRelatrix {
 		}
 		System.out.println("BATTERY0 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms. Stored "+recs+" records, rejected "+dupes+" dupes.");
 	}
-	
+	/**
+	 * sequential iterator with client re-use via setIterator()
+	 * @throws Exception
+	 */
 	public static void battery1A() throws Exception {
 		System.out.println("Battery1A ");
 		long tims = System.currentTimeMillis();
@@ -159,7 +163,7 @@ public class BatteryRelatrix {
 	}
 
 	/**
-	 * This test battery should print nothing if successful.
+	 * Parallel stream
 	 * @throws Exception
 	 */
 	public static void battery2() throws Exception {
@@ -172,13 +176,95 @@ public class BatteryRelatrix {
 			fkey = key + String.format(uniqKeyFmt, i);
 			if(streamPrimary != null)
 				session.setStream(streamPrimary);
-			streamPrimary = (Stream)session.findStream(fkey, "Has unit", Long.valueOf(i)).parallel();
+			streamPrimary = session.findStream(fkey, "Has unit", Long.valueOf(i));
+			Optional<?> o =  ((Stream) streamPrimary.parallel()).findFirst();
+			if(o.isPresent()) {
+				System.out.println(i+".) Obtained primary Optional relation -- PASSED");
+				if(streamSecondary != null)
+					session.setStream(streamSecondary);
+				streamSecondary = session.findStream(((Result)o.get()).get(), '*', '*');
+				Optional<?> p = ((Stream) streamSecondary.parallel()).findFirst();
+				if(p.isPresent()) {
+					System.out.println(i+".) Obtained secondary Optional relation -- PASSED");
+					Result c = (Result) p.get();
+					if(!(c.get() instanceof AbstractRelation))
+						System.out.println(c.get().getClass()+" isnt AbstractRelation; value:"+c.get()+" FAIL");
+					else {
+						// main morphism
+						Relation m = (Relation) c.get();
+						System.out.println("Obtained Primary Relation from secondary Result  -- PASSED.");
+						if(!(m.getDomain() instanceof AbstractRelation)) 
+							System.out.println(m.getDomain().getClass()+" isnt AbstractRelation; value:"+m+" FAIL");
+						else {
+							System.out.println("Obtained Domain Relation  -- PASSED.");
+							// morphism in domain "has unit"
+							Relation d = (Relation) m.getDomain();
+							if(!(d.getDomain() instanceof String))
+								System.out.println(d.getDomain().getClass()+" domain isnt String; value:"+d+" FAIL");
+							else {
+								System.out.println("Obtained Relation Domain value  -- PASSED.");
+								if(!d.getDomain().equals(fkey))
+									System.out.println("Domain doesnt match "+fkey+" FAIL");
+								else
+									System.out.println("Domain matches fkey  -- PASSED.");
+							}
+							if(!(d.getMap() instanceof String))
+								System.out.println(d.getMap().getClass()+" map isnt String; value:"+d);
+							else {
+								System.out.println("Map is expected vale  -- PASSED.");
+								if(!d.getMap().equals("Has unit"))
+									System.out.println("Map doesnt match 'Has unit'"+d+" FAIL");
+							}
+							if(!(d.getRange() instanceof Long))
+								System.out.println(d.getRange().getClass()+" range isnt Long; value:"+d+" FAIL");
+							else {
+								System.out.println("Map is expected value  -- PASSED.");
+								if(!d.getRange().equals(Long.valueOf(i)))
+									System.out.println("Range doesnt match "+i+" FAIL");
+								else
+									System.out.println("Range is expected value  -- PASSED.");
+							}
+							// that takes care of morphism within morphism, now check remainder of composite morphism
+							if(!(m.getMap() instanceof String))
+								System.out.println(m.getMap().getClass()+" composite relation map isnt String; value:"+m+ "FAIL");
+							else {
+								System.out.println("Composite relation map is expected value  -- PASSED.");
+								if(!m.getMap().equals("has identity"))
+									System.out.println("Composite relation Map doesnt match 'has identity'"+m+" FAIL");
+								else
+									System.out.println("Composite relation map is expected value  -- PASSED.");
+							}
+						}
+					}
+				} else
+					System.out.println("Failed to find any result set for "+o.get()+" FAIL!");	
+			} else
+				System.out.println("Failed to find any result set for domain:"+fkey+" FAIL!");
+			++recs;
+		}
+		System.out.println("BATTERY2 verification SUCCESS in "+(System.currentTimeMillis()-tims)+" ms. Retrieved "+recs);
+	}
+	/**
+	 * Sequential stream
+	 * @throws Exception
+	 */
+	public static void battery2A() throws Exception {
+		System.out.println("Battery2 ");
+		long tims = System.currentTimeMillis();
+		int recs = 0;
+		Stream streamPrimary = null;
+		Stream streamSecondary = null;
+		for(i = min; i < max; i++) {
+			fkey = key + String.format(uniqKeyFmt, i);
+			if(streamPrimary != null)
+				session.setStream(streamPrimary);
+			streamPrimary = (Stream)session.findStream(fkey, "Has unit", Long.valueOf(i));
 			Optional<?> o =  streamPrimary.findFirst();
 			if(o.isPresent()) {
 				System.out.println(i+".) Obtained primary Optional relation -- PASSED");
 				if(streamSecondary != null)
 					session.setStream(streamSecondary);
-				streamSecondary = (Stream)session.findStream(((Result)o.get()).get(), '*', '*').parallel();
+				streamSecondary = (Stream)session.findStream(((Result)o.get()).get(), '*', '*');
 				Optional<?> p = streamSecondary.findFirst();
 				if(p.isPresent()) {
 					System.out.println(i+".) Obtained secondary Optional relation -- PASSED");
