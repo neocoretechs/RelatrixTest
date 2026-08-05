@@ -173,7 +173,7 @@ public class BatteryRelatrixStream {
 		long tims = System.currentTimeMillis();
 		System.out.println("Battery1AR6");
 		i = new AtomicInteger(min.get());
-		Relatrix.findStream('?', '?', '?').parallel().forEach(e->
+		Relatrix.findStream('*', '*', '*').parallel().forEach(e->
 			ScopedValue.where(ExecutionContextHolder.CONTEXT, pec).run(() -> {
 			Result nex = (Result)e;
 			// 3 question marks = dimension 3 in return array
@@ -193,7 +193,7 @@ public class BatteryRelatrixStream {
 		 System.out.println("BATTERY1AR6 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 	/**
-	 * Testing of Stream Relatrix.findStream('?', '*', '*');
+	 * Testing of Stream Relatrix.findStream('*', '*', '*');
 	 * @param argv
 	 * @throws Exception
 	 */
@@ -201,10 +201,10 @@ public class BatteryRelatrixStream {
 		i = new AtomicInteger(min.get());
 		long tims = System.currentTimeMillis();
 		System.out.println("Battery1AR7");
-		Relatrix.findStream('?', '*', '*').parallel().forEach(e->
+		Relatrix.findStream('*', '*', '*').parallel().forEach(e->
 		ScopedValue.where(ExecutionContextHolder.CONTEXT, pec).run(() -> {
 			Result nex = (Result)e;
-			// one '?' in findStream gives us one element returned
+			// one '*' in findStream gives us one element returned
 			if(DEBUG ) System.out.println("1AR7:"+i+" "+nex);
 			//String fkey = key + String.format(uniqKeyFmt, i);
 			// No guarantee of order with unqualified findSet/findStream
@@ -221,7 +221,7 @@ public class BatteryRelatrixStream {
 		 System.out.println("BATTERY1AR7 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 	/**
-	 * Testing of Stream Relatrix.findStream('?', '?', '*');
+	 * Testing of Stream Relatrix.findStream('*', '*', '*');
 	 * @param argv
 	 * @throws Exception
 	 */
@@ -229,16 +229,16 @@ public class BatteryRelatrixStream {
 		i = new AtomicInteger(min.get());
 		long tims = System.currentTimeMillis();
 		System.out.println("Battery1AR8");
-		Relatrix.findStream('?', '?', '*').parallel().forEach(e ->
+		Relatrix.findStream('*', '*', '*').parallel().forEach(e ->
 		ScopedValue.where(ExecutionContextHolder.CONTEXT, pec).run(() -> {
 			Result nex = (Result)e;
-			// two '?' in findStream gives use 2 element array, the domain and map
 			if( DEBUG ) System.out.println("1AR8:"+i+" "+nex);
 			//String fkey = key + String.format(uniqKeyFmt, i);
 			// no guarantee of ordering with unqualified findSet/findStream
-			if(!((String) nex.get(0)).startsWith(key) || !nex.get(1).equals("Has unit") || nex.length() != 2) {
-				System.out.println("KEY MISMATCH:"+(i)+" "+nex.get(0)+" Has unit - "+nex.get(1)+" length:"+nex.length());
-				throw new RuntimeException("KEY MISMATCH:"+(i)+" Has unit - "+nex.get(1)+" length:"+nex.length());
+			Comparable[] nexc = nex.toArray();
+			if(!((String) nexc[0]).startsWith(key) || !nexc[1].equals("Has unit")) {
+				System.out.println("KEY MISMATCH:"+(i)+" "+nexc[0]+" Has unit - "+nexc[1]);
+				throw new RuntimeException("KEY MISMATCH:"+(i)+" Has unit - "+nexc[1]);
 			}
 			i.getAndIncrement();
 		}));

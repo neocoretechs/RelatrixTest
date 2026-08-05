@@ -17,18 +17,14 @@ import com.neocoretechs.relatrix.RangeDomainMap;
 import com.neocoretechs.relatrix.RangeMapDomain;
 import com.neocoretechs.relatrix.Relation;
 import com.neocoretechs.relatrix.DomainRangeMap;
-import com.neocoretechs.relatrix.Relatrix;
 import com.neocoretechs.relatrix.RelatrixTransaction;
 import com.neocoretechs.relatrix.Result;
 import com.neocoretechs.rocksack.TransactionId;
 
 /**
  * The set of tests verifies the higher level 'findSet' functions in the {@link RelatrixTransaction} in conjunction with database alias.
- * Yes, this should be a nice JUnit fixture someday
- * TEsts show examples of RelatrixTransaction processing. In general the tests compare the number of items retrieved 
+ * Tests show examples of RelatrixTransaction processing. In general the tests compare the number of items retrieved 
  * against expected value since findSet retrieves items in no particular order.
- * NOTES:
- * program argument is tablespace i.e. C:/users/you/Relatrix/ which will create databases in C:/users/you/Relatrix/ALIAS1, 2, 3..
  * optional arguments are [ [init] [max nnn] ]
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2016,2017,2024
  *
@@ -218,7 +214,7 @@ public class BatteryRelatrixTransactionAlias {
 	public static void battery1AR6(Alias alias12, TransactionId xid2) throws Exception {
 		int i = min;
 		long tims = System.currentTimeMillis();
-		Iterator<?> its = RelatrixTransaction.findSet(alias12, xid2, '?', '?', '?');
+		Iterator<?> its = RelatrixTransaction.findSet(alias12, xid2, '*', '*', '*');
 		System.out.println(alias12+" Battery1AR6 findSet in "+(System.currentTimeMillis()-tims)+" ms. for id:"+xid2);
 		while(its.hasNext()) {
 			Result nex = (Result) its.next();
@@ -244,7 +240,7 @@ public class BatteryRelatrixTransactionAlias {
 		 System.out.println("BATTERY1AR6 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 	/**
-	 * Testing of Iterator<?> its = RelatrixTransaction.findSet(alias, xid, '?', '*', '*');
+	 * Testing of Iterator<?> its = RelatrixTransaction.findSet(alias, xid, '*', '*', '*');
 	 * @param argv
 	 * @param alias12 
 	 * @param xid2 
@@ -253,11 +249,11 @@ public class BatteryRelatrixTransactionAlias {
 	public static void battery1AR7(Alias alias12, TransactionId xid2) throws Exception {
 		int i = min;
 		long tims = System.currentTimeMillis();
-		Iterator<?> its = RelatrixTransaction.findSet(alias12, xid2, '?', '*', '*');
+		Iterator<?> its = RelatrixTransaction.findSet(alias12, xid2, '*', '*', '*');
 		System.out.println(alias12+" Battery1AR7 findSet in "+(System.currentTimeMillis()-tims)+" ms. for id:"+xid2);
 		while(its.hasNext()) {
 			Result nex = (Result) its.next();
-			// one '?' in findset gives us one element returned
+			// one '*' in findset gives us one element returned
 			if(DEBUG ) System.out.println("1AR7:"+i+" "+nex);
 			if(!((String) nex.get(0)).startsWith(key) || nex.length() != 1) {
 				System.out.println("DOMAIN KEY MISMATCH:"+(i)+"  "+nex+" length:"+nex.length());
@@ -275,7 +271,7 @@ public class BatteryRelatrixTransactionAlias {
 		 System.out.println("BATTERY1AR7 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 	/**
-	 * Testing of Iterator<?> its = RelatrixTransaction.findSet(alias, xid, '?', '?', '*');
+	 * Testing of Iterator<?> its = RelatrixTransaction.findSet(alias, xid, '*', '*', '*');
 	 * @param argv
 	 * @param alias12 
 	 * @param xid2 
@@ -284,18 +280,15 @@ public class BatteryRelatrixTransactionAlias {
 	public static void battery1AR8(Alias alias12, TransactionId xid2) throws Exception {
 		int i = min;
 		long tims = System.currentTimeMillis();
-		Iterator<?> its = RelatrixTransaction.findSet(alias12, xid2, '?', '?', '*');
+		Iterator<?> its = RelatrixTransaction.findSet(alias12, xid2, '*', '*', '*');
 		System.out.println(alias12+" Battery1AR8 findSet in "+(System.currentTimeMillis()-tims)+" ms. for id:"+xid2);
 		while(its.hasNext()) {
 			Result nex = (Result) its.next();
-			// two '?' in findset gives use 2 element array, the domain and map
 			if( DEBUG ) System.out.println("1AR8:"+i+" "+nex);
-			//String skey = key + String.format(uniqKeyFmt, i);
-			//if(!skey.equals(nex[0]) )
-				//System.out.println("DOMAIN KEY MISMATCH:"+(i)+" "+skey+" - "+nex[0]);
-			if(!((String) nex.get(0)).startsWith(key) || !nex.get(1).equals("Has unit "+alias12) || nex.length() != 2) {
-				System.out.println("KEY MISMATCH:"+(i)+" "+nex.get(0)+" Has unit "+alias12+" - "+nex.get(1)+" length:"+nex.length());
-				throw new Exception("KEY MISMATCH:"+(i)+" Has unit "+alias12+" - "+nex.get(1)+" length:"+nex.length());
+			Comparable[] nexc = nex.toArray();
+			if(!((String) nexc[0]).startsWith(key) || !nexc[1].equals("Has unit "+alias12)) {
+				System.out.println("KEY MISMATCH:"+(i)+" "+nexc[0]+" Has unit "+alias12+" - "+nexc[1]);
+				throw new Exception("KEY MISMATCH:"+(i)+" Has unit "+alias12+" - "+nexc[1]);
 			}
 			++i;
 		}

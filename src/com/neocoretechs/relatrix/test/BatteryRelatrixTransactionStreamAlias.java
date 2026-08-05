@@ -215,7 +215,7 @@ public class BatteryRelatrixTransactionStreamAlias {
 		i = new AtomicInteger(min.get());
 		long tims = System.currentTimeMillis();
 		System.out.println(xid2+" Battery1AR6 "+alias12);
-		RelatrixTransaction.findStream(alias12, xid2,'?', '?', '?').parallel().forEach(e->
+		RelatrixTransaction.findStream(alias12, xid2,'*', '*', '*').parallel().forEach(e->
 		ScopedValue.where(ExecutionContextHolder.CONTEXT, pec).run(() -> {
 			Result nex = (Result)e;
 			// 3 question marks = dimension 3 in return array
@@ -235,7 +235,7 @@ public class BatteryRelatrixTransactionStreamAlias {
 		 System.out.println("BATTERY1AR6 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 	/**
-	 * Testing of Iterator<?> its = Relatrix.findSet('?', '*', '*');
+	 * Testing of Iterator<?> its = Relatrix.findSet('*', '*', '*');
 	 * @param xid2 
 	 * @param alias12 
 	 * @param pec 
@@ -245,10 +245,10 @@ public class BatteryRelatrixTransactionStreamAlias {
 		i = new AtomicInteger(min.get());
 		long tims = System.currentTimeMillis();
 		System.out.println(xid2+" Battery1AR7 "+alias12);
-		RelatrixTransaction.findStream(alias12, xid2, '?', '*', '*').parallel().forEach(e->
+		RelatrixTransaction.findStream(alias12, xid2, '*', '*', '*').parallel().forEach(e->
 		ScopedValue.where(ExecutionContextHolder.CONTEXT, pec).run(() -> {
 			Result nex = (Result)e;
-			// one '?' in findStream gives us one element returned
+			// one '*' in findStream gives us one element returned
 			if(DEBUG ) System.out.println("1AR7:"+i.get()+" "+nex);
 			//String fkey = key + String.format(uniqKeyFmt, i);
 			// No guarantee of order with unqualified findSet/findStream
@@ -265,7 +265,7 @@ public class BatteryRelatrixTransactionStreamAlias {
 		 System.out.println("BATTERY1AR7 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 	/**
-	 * Testing of Iterator<?> its = Relatrix.findSet('?', '?', '*');
+	 * Testing of Iterator<?> its = Relatrix.findSet('*', '*', '*');
 	 * @param xid2 
 	 * @param alias12 
 	 * @param pec 
@@ -275,16 +275,16 @@ public class BatteryRelatrixTransactionStreamAlias {
 		i = new AtomicInteger(min.get());
 		long tims = System.currentTimeMillis();
 		System.out.println(xid2+" Battery1AR8 "+alias12);
-		RelatrixTransaction.findStream(alias12, xid2,'?', '?', '*').parallel().forEach(e ->
+		RelatrixTransaction.findStream(alias12, xid2,'*', '*', '*').parallel().forEach(e ->
 		ScopedValue.where(ExecutionContextHolder.CONTEXT, pec).run(() -> {
 			Result nex = (Result)e;
-			// two '?' in findStream gives use 2 element array, the domain and map
+			Comparable[] nexc = nex.toArray();
 			if( DEBUG ) System.out.println("1AR8:"+i.get()+" "+nex);
 			//String fkey = key + String.format(uniqKeyFmt, i);
 			// no guarantee of ordering with unqualified findSet/findStream
-			if(!((String) nex.get(0)).startsWith(key) || !nex.get(1).equals("Has unit "+alias12) || nex.length() != 2) {
-				System.out.println("KEY MISMATCH:"+(i)+" "+nex.get(0)+" Has unit "+alias12+" - "+nex.get(1)+" length:"+nex.length());
-				throw new RuntimeException("KEY MISMATCH:"+(i)+" Has unit "+alias12+" - "+nex.get(1)+" length:"+nex.length());
+			if(!((String) nexc[0]).startsWith(key) || !nexc[1].equals("Has unit "+alias12)) {
+				System.out.println("KEY MISMATCH:"+(i)+" "+nexc[0]+" Has unit "+alias12+" - "+nexc[1]);
+				throw new RuntimeException("KEY MISMATCH:"+(i)+" Has unit "+alias12+" - "+nexc[1]);
 			}
 			i.getAndIncrement();
 		}));

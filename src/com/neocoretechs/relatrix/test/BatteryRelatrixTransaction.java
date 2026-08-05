@@ -174,7 +174,7 @@ public class BatteryRelatrixTransaction {
 	public static void battery1AR6(TransactionId xid2) throws Exception {
 		int i = min;
 		long tims = System.currentTimeMillis();
-		Iterator<?> its = RelatrixTransaction.findSet(xid2, '?', '?', '?');
+		Iterator<?> its = RelatrixTransaction.findSet(xid2, '*', '*', '*');
 		System.out.println(xid2+" Battery1AR6");
 		while(its.hasNext()) {
 			Result nex = (Result) its.next();
@@ -207,11 +207,11 @@ public class BatteryRelatrixTransaction {
 	public static void battery1AR7(TransactionId xid2) throws Exception {
 		int i = min;
 		long tims = System.currentTimeMillis();
-		Iterator<?> its = RelatrixTransaction.findSet(xid2, '?', '*', '*');
+		Iterator<?> its = RelatrixTransaction.findSet(xid2, '*', '*', '*');
 		System.out.println(xid2+" Battery1AR7");
 		while(its.hasNext()) {
 			Result nex = (Result) its.next();
-			// one '?' in findset gives us one element returned
+			// one '*' in findset gives us one element returned
 			if(DEBUG ) System.out.println("1AR7:"+i+" "+nex);
 			if(!((String) nex.get(0)).startsWith(key) || nex.length() != 1) {
 				System.out.println("DOMAIN KEY MISMATCH:"+(i)+"  "+nex+" length:"+nex.length());
@@ -237,18 +237,15 @@ public class BatteryRelatrixTransaction {
 	public static void battery1AR8(TransactionId xid2) throws Exception {
 		int i = min;
 		long tims = System.currentTimeMillis();
-		Iterator<?> its = RelatrixTransaction.findSet(xid2, '?', '?', '*');
+		Iterator<?> its = RelatrixTransaction.findSet(xid2, '*', '*', '*');
 		System.out.println(xid2+" Battery1AR8");
 		while(its.hasNext()) {
 			Result nex = (Result) its.next();
-			// two '?' in findset gives use 2 element array, the domain and map
 			if( DEBUG ) System.out.println("1AR8:"+i+" "+nex);
-			//String skey = key + String.format(uniqKeyFmt, i);
-			//if(!skey.equals(nex[0]) )
-				//System.out.println("DOMAIN KEY MISMATCH:"+(i)+" "+skey+" - "+nex[0]);
-			if(!((String) nex.get(0)).startsWith(key) || !nex.get(1).equals("Has unit") || nex.length() != 2) {
-				System.out.println("KEY MISMATCH:"+(i)+" "+nex.get(0)+" Has unit - "+nex.get(1)+" length:"+nex.length());
-				throw new Exception("KEY MISMATCH:"+(i)+" Has unit - "+nex.get(1)+" length:"+nex.length());
+			Comparable[] nexc = nex.toArray();
+			if(!((String) nexc[0]).startsWith(key) || !nexc[1].equals("Has unit")) {
+				System.out.println("KEY MISMATCH:"+(i)+" "+nexc[0]+" Has unit - "+nexc[1]);
+				throw new Exception("KEY MISMATCH:"+(i)+" Has unit - "+nexc[1]);
 			}
 			++i;
 		}
