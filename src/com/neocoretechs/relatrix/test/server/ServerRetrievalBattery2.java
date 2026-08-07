@@ -39,7 +39,7 @@ public class ServerRetrievalBattery2 {
 		public static void main(String[] argv) throws Exception {
 			 //System.out.println("Analysis of all");
 			if(argv.length < 3) {
-				System.out.println("Usage: <bootNode> <remoteNode> <remotePort> [init]");
+				System.out.println("Usage: <remoteNode> <remotePort> [init]");
 			}
 			rkvc = new RelatrixClient(argv[1], Integer.parseInt(argv[2]) );
 			AbstractRelation.displayLevel = AbstractRelation.displayLevels.MINIMAL;
