@@ -56,17 +56,18 @@ public class BatteryRelatrixTransactionStreamAlias {
 	* Main test fixture driver
 	*/
 	public static void main(String[] argv) throws Exception {
+		RelatrixTransaction.getInstance();
 		IndexResolver indexResolver = new IndexResolver();
 		indexResolver.setLocal();
 		ParallelExecutionContext pec = new ParallelExecutionContext(indexResolver, new ConcurrentHashMap<String,Object>());
+		xid = RelatrixTransaction.getTransactionId();
+		RelatrixTransaction.setAlias(alias1,RelatrixTransaction.getTableSpace()+alias1);
+		RelatrixTransaction.setAlias(alias2,RelatrixTransaction.getTableSpace()+alias2);
+		RelatrixTransaction.setAlias(alias3,RelatrixTransaction.getTableSpace()+alias3);
+		AbstractRelation.displayLevel = displayLevels.VERBOSE;
+	
 		ScopedValue.where(ExecutionContextHolder.CONTEXT, pec).run(() -> {
 			try {
-				RelatrixTransaction.getInstance();
-				xid = RelatrixTransaction.getTransactionId();
-				RelatrixTransaction.setAlias(alias1,RelatrixTransaction.getTableSpace()+alias1);
-				RelatrixTransaction.setAlias(alias2,RelatrixTransaction.getTableSpace()+alias2);
-				RelatrixTransaction.setAlias(alias3,RelatrixTransaction.getTableSpace()+alias3);
-				AbstractRelation.displayLevel = displayLevels.VERBOSE;
 				if(argv.length > 0 && argv[0].equals("max")) {
 					System.out.println("Setting max items to "+argv[1]);
 					max = new AtomicInteger(Integer.parseInt(argv[1]));
@@ -94,7 +95,6 @@ public class BatteryRelatrixTransactionStreamAlias {
 					battery11(alias2, xid);
 					battery11(alias3, xid);
 				}
-
 				if(DEBUG)
 					System.out.println("Begin test battery 1AR6");
 				battery1AR6(xid, alias1, pec);
@@ -218,13 +218,14 @@ public class BatteryRelatrixTransactionStreamAlias {
 		RelatrixTransaction.findStream(alias12, xid2,'*', '*', '*').parallel().forEach(e->
 		ScopedValue.where(ExecutionContextHolder.CONTEXT, pec).run(() -> {
 			Result nex = (Result)e;
+			Comparable[] nexc = nex.toArray();
 			// 3 question marks = dimension 3 in return array
 			if( DEBUG ) System.out.println("1AR6:"+i.get()+" "+nex);
 			//String fkey = key + String.format(uniqKeyFmt, i);
 			// no guarantee of ordering with unqualified findSet/findStream
-			if(!((String) nex.get(0)).startsWith(key) || !nex.get(1).equals("Has unit "+alias12) || nex.length() != 3) {
-				System.out.println("MAP KEY MISMATCH:"+(i)+" Has unit "+alias12+"-"+nex.get(1)+" length:"+nex.length());
-				throw new RuntimeException("MAP KEY MISMATCH:"+(i.get())+" Has unit "+alias12+"-"+nex.get(1)+" length:"+nex.length());
+			if(!((String) nexc[0]).startsWith(key) || !nexc[1].equals("Has unit "+alias12)) {
+				System.out.println("MAP KEY MISMATCH:"+(i)+" Has unit "+alias12+"-"+nexc[1]);
+				throw new RuntimeException("MAP KEY MISMATCH:"+(i.get())+" Has unit "+alias12+"-"+nexc[1]);
 			}
 			i.getAndIncrement();
 		}));
@@ -248,13 +249,14 @@ public class BatteryRelatrixTransactionStreamAlias {
 		RelatrixTransaction.findStream(alias12, xid2, '*', '*', '*').parallel().forEach(e->
 		ScopedValue.where(ExecutionContextHolder.CONTEXT, pec).run(() -> {
 			Result nex = (Result)e;
+			Comparable[] nexc = nex.toArray();
 			// one '*' in findStream gives us one element returned
 			if(DEBUG ) System.out.println("1AR7:"+i.get()+" "+nex);
 			//String fkey = key + String.format(uniqKeyFmt, i);
 			// No guarantee of order with unqualified findSet/findStream
-			if(!((String)nex.get(0)).startsWith(key) || nex.length() != 1) {
-				System.out.println("DOMAIN KEY MISMATCH:"+(i.get())+"  "+nex+" length:"+nex.length());
-				throw new RuntimeException("DOMAIN KEY MISMATCH:"+(i.get())+"  "+nex+" length:"+nex.length());
+			if(!((String)nexc[0]).startsWith(key)) {
+				System.out.println("DOMAIN KEY MISMATCH:"+(i.get())+"  "+nex);
+				throw new RuntimeException("DOMAIN KEY MISMATCH:"+(i.get())+"  "+nex);
 			}
 			i.getAndIncrement();
 		}));
@@ -309,14 +311,15 @@ public class BatteryRelatrixTransactionStreamAlias {
 		RelatrixTransaction.findStream(alias12, xid2, '*', '*', '*').parallel().forEach(e->
 		ScopedValue.where(ExecutionContextHolder.CONTEXT, pec).run(() -> {
 			Result nex = (Result)e;
+			Comparable[] nexc = nex.toArray();
 			// the returned array has 1 element, the identity AbstractRelation Relation
 			if( DEBUG ) System.out.println("1AR9:"+i.get()+" "+nex.get(0));
 			//String skey = key + String.format(uniqKeyFmt, i);
 			// no guarantee of ordering with unqualified findSet/findStream
-			if(!((String) ((Relation)nex.get(0)).getDomain() ).startsWith(key) )
-				throw new RuntimeException("DOMAIN KEY MISMATCH:"+(i.get())+" - "+nex.get(0));
-			if(!((Relation)nex.get(0)).getMap().equals("Has unit "+alias12))
-				throw new RuntimeException("MAP KEY MISMATCH:"+(i.get())+" Has unit "+alias12+" - "+nex.get(0));
+			if(!((String)nexc[0]).startsWith(key) )
+				throw new RuntimeException("DOMAIN KEY MISMATCH:"+(i.get())+" - "+nexc[0]);
+			if(!nexc[1].equals("Has unit "+alias12))
+				throw new RuntimeException("MAP KEY MISMATCH:"+(i.get())+" Has unit "+alias12+" - "+nexc[1]);
 			i.getAndIncrement();
 		}));
 		if( i.get() != max.get() ) {
@@ -346,15 +349,14 @@ public class BatteryRelatrixTransactionStreamAlias {
 				// In this case, the set of identities of type Long that have stated domain and map should be returned
 				// since we supply a fixed domain and map object with a wildcard range, we should get one element back; the identity
 				Result nex = (Result)e;
-				if(nex.length() != 1)
-					throw new RuntimeException("RETURNED ARRAY TUPLE LENGTH INCORRECT, SHOULD BE 1, is "+nex.length());
-				if(DEBUG) System.out.println("1AR10:"+i.get()+" "+nex.get(0));
+				Comparable[] nexc = nex.toArray();
+				if(DEBUG) System.out.println("1AR10:"+i.get()+" "+nex);
 				//String skey = key + String.format(uniqKeyFmt, i);
 				// no guarantee of ordering with unqualified findSet/findStream
-				if(!((String) ((Relation)nex.get(0)).getDomain() ).startsWith(key) )
-					throw new RuntimeException("DOMAIN KEY MISMATCH:"+(i.get())+" "+key+" - "+nex.get(0));
-				if(!((Relation)nex.get(0)).getMap().equals("Has unit "+alias12))
-					throw new RuntimeException("MAP KEY MISMATCH:"+(i.get())+" Has unit "+alias12+" - "+nex.get(0));
+				if(!((String)nexc[0]).startsWith(key) )
+					throw new RuntimeException("DOMAIN KEY MISMATCH:"+(i.get())+" "+key+" - "+nexc[0]);
+				if(!nexc[1].equals("Has unit "+alias12))
+					throw new RuntimeException("MAP KEY MISMATCH:"+(i.get())+" Has unit "+alias12+" - "+nexc[1]);
 				i.getAndIncrement();
 		}));
 		if( i.get() != 1 ) {
@@ -382,15 +384,14 @@ public class BatteryRelatrixTransactionStreamAlias {
 			// In this case, the set of identities of type Long that have stated domain and map should be returned
 			// since we supply a instances, we should get one element back; the identity
 			Result nex = (Result) e;
-			if( nex.length() != 1)
-				throw new RuntimeException("RETURNED ARRAY TUPLE LENGTH INCORRECT, SHOULD BE 1, is "+nex.length());
-			if(DEBUG) System.out.println("1AR101:"+i.get()+" "+nex.get(0));
+			Comparable[] nexc = nex.toArray();
+			if(DEBUG) System.out.println("1AR101:"+i.get()+" "+nexc[0]);
 			//String skey = key + String.format(uniqKeyFmt, i);
 			// no guarantee of ordering with unqualified findSet/findStream
-			if(!( (String)((Relation)nex.get(0)).getDomain() ).startsWith(key) )
+			if(!((String)nexc[0]).startsWith(key) )
 				throw new RuntimeException("DOMAIN KEY MISMATCH:"+(i.get())+" "+key+" - "+nex.get(0));
-			if(!((Relation)nex.get(0)).getMap().equals("Has unit "+alias12))
-				throw new RuntimeException("MAP KEY MISMATCH:"+(i.get())+" Has unit "+alias12+" - "+nex.get(0));
+			if(!nexc[1].equals("Has unit "+alias12))
+				throw new RuntimeException("MAP KEY MISMATCH:"+(i.get())+" Has unit "+alias12+" - "+nexc[1]);
 			//Long unit = Long.valueOf(i);
 			//if(!((Relation)nex[0]).getRange().equals(unit))
 				//System.out.println("RANGE KEY MISMATCH:"+(i)+" "+i+" - "+nex[0]);

@@ -177,7 +177,7 @@ public class ServerRetrievalBattery4 {
 			ar2dr.add(c);
 		}
 	
-	
+		it = null;
 		System.out.println("----------");
 		System.out.println("Above are all the wildcard permutations. Now retrieve those with object references using the wildcard results.");
 		for(int j = 0; j < ar.size(); j++) {

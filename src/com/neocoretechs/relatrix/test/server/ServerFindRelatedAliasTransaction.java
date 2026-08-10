@@ -1,4 +1,4 @@
-package com.neocoretechs.relatrix.test;
+package com.neocoretechs.relatrix.test.server;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -6,17 +6,15 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 
-import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.MapDomainRange;
 import com.neocoretechs.relatrix.MapRangeDomain;
 import com.neocoretechs.relatrix.AbstractRelation;
 import com.neocoretechs.relatrix.AbstractRelation.displayLevels;
-import com.neocoretechs.relatrix.key.IndexResolver;
-import com.neocoretechs.relatrix.parallel.ExecutionContextHolder;
-import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
+
+import com.neocoretechs.relatrix.client.RelatrixClientTransaction;
+
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.relatrix.RangeDomainMap;
 import com.neocoretechs.relatrix.RangeMapDomain;
@@ -36,7 +34,7 @@ import com.neocoretechs.rocksack.TransactionId;
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2024
  *
  */
-public class BatteryRelatrixFindRelatedAliasTransaction {
+public class ServerFindRelatedAliasTransaction {
 	public static boolean DEBUG = false;
 	static String uniqKeyFmt = "%010d"; // base + counter formatted with this gives equal length strings for canonical ordering
 	static int min = 0;
@@ -47,27 +45,24 @@ public class BatteryRelatrixFindRelatedAliasTransaction {
 	static Alias alias2 = new Alias("ALIAS2");
 	static Alias alias3 = new Alias("ALIAS3");
 	private static TransactionId xid;
+	private static RelatrixClientTransaction rtc ;
 	/**
 	* Main test fixture driver
 	*/
 	public static void main(String[] argv) throws Exception {
 		AbstractRelation.displayLevel = displayLevels.MINIMAL;
 		AbstractRelation.displayLevel = displayLevels.MINIMAL;
-		IndexResolver indexResolver = new IndexResolver();
-		ParallelExecutionContext pec = new ParallelExecutionContext(indexResolver, new ConcurrentHashMap<String,Object>());
-		ScopedValue.where(ExecutionContextHolder.CONTEXT, pec).run(() -> {
 			try {
-				RelatrixTransaction.getInstance();
-				RelatrixTransaction.setAlias(alias1,RelatrixTransaction.getTableSpace()+alias1);
-				RelatrixTransaction.setAlias(alias2,RelatrixTransaction.getTableSpace()+alias2);
-				RelatrixTransaction.setAlias(alias3,RelatrixTransaction.getTableSpace()+alias3);
-				xid = RelatrixTransaction.getTransactionId();
-
-				if(argv.length > 0 && argv[0].equals("max")) {
-					System.out.println("Setting max items to "+argv[1]);
-					max = Integer.parseInt(argv[1]);
+				rtc = new RelatrixClientTransaction(argv[0], Integer.parseInt(argv[1]) );
+				xid = rtc.getTransactionId();
+				rtc.setRelativeAlias(alias1);
+				rtc.setRelativeAlias(alias2);
+				rtc.setRelativeAlias(alias3);
+				if(argv.length > 2 && argv[2].equals("max")) {
+					System.out.println("Setting max items to "+argv[3]);
+					max = Integer.parseInt(argv[3]);
 				} else {
-					if(argv.length > 0 && argv[0].equals("init")) {
+					if(argv.length > 2 && argv[2].equals("init")) {
 						System.out.println("Initialize database to zero items, then terminate...");
 						battery1AR17(alias1, xid);
 						battery1AR17(alias2, xid);
@@ -76,7 +71,7 @@ public class BatteryRelatrixFindRelatedAliasTransaction {
 					}
 				}
 
-				if(RelatrixTransaction.size(alias1, xid) == 0) {
+				if(rtc.size(alias1, xid) == 0) {
 					if(DEBUG)
 						System.out.println("Zero items, Begin insertion from "+min+" to "+max);
 					battery1(alias1, xid);
@@ -91,7 +86,6 @@ public class BatteryRelatrixFindRelatedAliasTransaction {
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-		});
 		System.out.println("TEST BATTERY COMPLETE.");
 		System.exit(0);
 	}
@@ -111,33 +105,31 @@ public class BatteryRelatrixFindRelatedAliasTransaction {
 		String fkey = null;
 		for(int i = min; i < max; i++) {
 			fkey = alias12+" Bone " + String.format(uniqKeyFmt, i);	
-			try {
-				Relation dmr1 = RelatrixTransaction.store(alias12, xid2, fkey, "part", "leg "+String.format(uniqKeyFmt, i));
-				++recs;
-				Relation dmr2 = RelatrixTransaction.store(alias12, xid2, dmr1, "part", "torso "+String.format(uniqKeyFmt, i));
-				++recs;	
-				Relation dmr3 = RelatrixTransaction.store(alias12, xid2, dmr2, "part", "body "+String.format(uniqKeyFmt, i));
-				++recs;
-				Relation dmr4 = RelatrixTransaction.store(alias12, xid2, "dog "+String.format(uniqKeyFmt, i), "has", dmr3);
-				++recs;
-				Relation dmr5 = RelatrixTransaction.store(alias12, xid2, dmr4, "eats", "food");
-				++recs;
-				Relation dmr6 = RelatrixTransaction.store(alias12, xid2, dmr5, "but not", dmr4);
-				++recs;
-				Relation dmr7 = RelatrixTransaction.store(alias12, xid2, fkey, dmr6, "food");
-				++recs;
-				if((System.currentTimeMillis()-tims) > 1000) {
-					System.out.println("storing "+recs+" "+fkey);
-					tims = System.currentTimeMillis();
-				}
-			} catch(DuplicateKeyException dke) { ++dupes; }
+			Relation dmr1 = rtc.store(alias12, xid2, fkey, "part", "leg "+String.format(uniqKeyFmt, i));
+			++recs;
+			Relation dmr2 = rtc.store(alias12, xid2, dmr1, "part", "torso "+String.format(uniqKeyFmt, i));
+			++recs;	
+			Relation dmr3 = rtc.store(alias12, xid2, dmr2, "part", "body "+String.format(uniqKeyFmt, i));
+			++recs;
+			Relation dmr4 = rtc.store(alias12, xid2, "dog "+String.format(uniqKeyFmt, i), "has", dmr3);
+			++recs;
+			Relation dmr5 = rtc.store(alias12, xid2, dmr4, "eats", "food");
+			++recs;
+			Relation dmr6 = rtc.store(alias12, xid2, dmr5, "but not", dmr4);
+			++recs;
+			Relation dmr7 = rtc.store(alias12, xid2, fkey, dmr6, "food");
+			++recs;
+			if((System.currentTimeMillis()-tims) > 1000) {
+				System.out.println("storing "+recs+" "+fkey);
+				tims = System.currentTimeMillis();
+			}
 		}
-		RelatrixTransaction.commit(alias12, xid2);
+		rtc.commit(alias12, xid2);
 		System.out.println("BATTERY1 SUCCESS in "+(System.currentTimeMillis()-timt)+" ms. Stored "+recs+" records, rejected "+dupes+" dupes.");
 	}
 	
 	/**
-	 * Test the higher level functions in the RelatrixTransaction. Use the 'findSet' permutations to
+	 * Test the higher level functions in the rtc. Use the 'findSet' permutations to
 	 * verify the previously inserted data. Start from the relationship "leg "+sequence
 	 * @param argv
 	 * @param alias12 
@@ -148,16 +140,30 @@ public class BatteryRelatrixFindRelatedAliasTransaction {
 		i = min;
 		long tims = System.currentTimeMillis();
 		System.out.println(xid2+" Battery1AR6 "+alias12);
+		Stream<?> s = null;
 		for(; i < max; i++) {
 			String irec = "leg "+String.format(uniqKeyFmt, i);
-			Stream<?> s = RelatrixTransaction.findStream(alias12, xid2, '*', '*', irec);
+			/*
+			Iterator<?> s = null;
+			if(s != null)
+				rtc.setIterator(s);
+			s = rtc.findSet(alias12,  xid2, '*','*', irec);
+			if(s == null)
+				throw new Exception("findStream of "+irec+" came back null");
+			AbstractRelation m = null ;
+			if(s.hasNext())
+				m = (AbstractRelation) ((Result)s.next()).get();
+			*/
+			if(s != null)
+				rtc.setStream(s);
+			s = rtc.findStream(alias12, xid2, '*', '*', irec);
 			if(s == null )
 				throw new Exception("findStream of "+irec+" came back null");
 			Optional<?> ff = s.findFirst();
 			if(ff.isEmpty())
 				throw new Exception("findStream of "+irec+" had no elements");
 			AbstractRelation m = (AbstractRelation) ((Result)ff.get()).get();
-			List<Comparable> lm = RelatrixTransaction.findSet(alias12, xid2, m);
+			List<Comparable> lm = rtc.findSet(alias12, xid2, m);
 			// For each AbstractRelation that comprises all the related elements, resolve it and its embedded relationship morphisms
 			for(Comparable co: lm) {
 				AbstractRelation mo = (AbstractRelation) co;
@@ -179,20 +185,20 @@ public class BatteryRelatrixFindRelatedAliasTransaction {
 	 */
 	public static void battery1AR17(Alias alias12, TransactionId xid2) throws Exception {
 		long tims = System.currentTimeMillis();
-		System.out.println(alias12+" CleanDB DMR size="+RelatrixTransaction.size(alias12,xid2));
-		System.out.println("CleanDB DRM size="+RelatrixTransaction.size(alias12,xid2,DomainRangeMap.class));
-		System.out.println("CleanDB MDR size="+RelatrixTransaction.size(alias12,xid2,MapDomainRange.class));
-		System.out.println("CleanDB MDR size="+RelatrixTransaction.size(alias12,xid2,MapRangeDomain.class));
-		System.out.println("CleanDB RDM size="+RelatrixTransaction.size(alias12,xid2,RangeDomainMap.class));
-		System.out.println("CleanDB RMD size="+RelatrixTransaction.size(alias12,xid2,RangeMapDomain.class));
+		System.out.println(alias12+" CleanDB DMR size="+rtc.size(alias12,xid2));
+		System.out.println("CleanDB DRM size="+rtc.size(alias12,xid2,DomainRangeMap.class));
+		System.out.println("CleanDB MDR size="+rtc.size(alias12,xid2,MapDomainRange.class));
+		System.out.println("CleanDB MDR size="+rtc.size(alias12,xid2,MapRangeDomain.class));
+		System.out.println("CleanDB RDM size="+rtc.size(alias12,xid2,RangeDomainMap.class));
+		System.out.println("CleanDB RMD size="+rtc.size(alias12,xid2,RangeMapDomain.class));
 		AbstractRelation.displayLevel = AbstractRelation.displayLevels.MINIMAL;
-		Iterator<?> it = RelatrixTransaction.findSet(alias12,xid2,'*','*','*');
+		Iterator<?> it = rtc.findSet(alias12,xid2,'*','*','*');
 		timx = System.currentTimeMillis();
 		it.forEachRemaining(fkey-> {
 			Relation dmr = (Relation)((Result)fkey).get(0);
 			try {
-				RelatrixTransaction.remove(alias12,xid2,dmr);
-			} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
+				rtc.remove(alias12,xid2,dmr);
+			} catch (IllegalArgumentException | IOException e) {
 				throw new RuntimeException(e);
 			}
 			++i;
