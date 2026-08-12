@@ -12,7 +12,7 @@ import com.neocoretechs.relatrix.MapDomainRange;
 import com.neocoretechs.relatrix.MapRangeDomain;
 import com.neocoretechs.relatrix.AbstractRelation;
 import com.neocoretechs.relatrix.AbstractRelation.displayLevels;
-
+import com.neocoretechs.relatrix.client.RelatrixClient;
 import com.neocoretechs.relatrix.client.RelatrixClientTransaction;
 
 import com.neocoretechs.rocksack.Alias;
@@ -23,7 +23,6 @@ import com.neocoretechs.relatrix.Relation;
 
 import com.neocoretechs.relatrix.DomainRangeMap;
 import com.neocoretechs.relatrix.Result;
-import com.neocoretechs.rocksack.TransactionId;
 
 /**
  * The set of tests verifies the findSet relation function in the {@link  RelatrixTransaction}<p>
@@ -34,7 +33,7 @@ import com.neocoretechs.rocksack.TransactionId;
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2024
  *
  */
-public class ServerFindRelatedAliasTransaction {
+public class ServerFindRelatedAlias {
 	public static boolean DEBUG = false;
 	static String uniqKeyFmt = "%010d"; // base + counter formatted with this gives equal length strings for canonical ordering
 	static int min = 0;
@@ -44,8 +43,7 @@ public class ServerFindRelatedAliasTransaction {
 	static Alias alias1 = new Alias("ALIAS1");
 	static Alias alias2 = new Alias("ALIAS2");
 	static Alias alias3 = new Alias("ALIAS3");
-	private static TransactionId xid;
-	private static RelatrixClientTransaction rtc ;
+	private static RelatrixClient rtc ;
 	/**
 	* Main test fixture driver
 	*/
@@ -53,8 +51,7 @@ public class ServerFindRelatedAliasTransaction {
 		AbstractRelation.displayLevel = displayLevels.MINIMAL;
 		AbstractRelation.displayLevel = displayLevels.MINIMAL;
 			try {
-				rtc = new RelatrixClientTransaction(argv[0], Integer.parseInt(argv[1]) );
-				xid = rtc.getTransactionId();
+				rtc = new RelatrixClient(argv[0], Integer.parseInt(argv[1]) );
 				rtc.setRelativeAlias(alias1);
 				rtc.setRelativeAlias(alias2);
 				rtc.setRelativeAlias(alias3);
@@ -64,25 +61,25 @@ public class ServerFindRelatedAliasTransaction {
 				} else {
 					if(argv.length > 2 && argv[2].equals("init")) {
 						System.out.println("Initialize database to zero items, then terminate...");
-						battery1AR17(alias1, xid);
-						battery1AR17(alias2, xid);
-						battery1AR17(alias3, xid);
+						battery1AR17(alias1);
+						battery1AR17(alias2);
+						battery1AR17(alias3);
 						System.exit(0);
 					}
 				}
 
-				if(rtc.size(alias1, xid) == 0) {
+				if(rtc.size(alias1) == 0) {
 					if(DEBUG)
 						System.out.println("Zero items, Begin insertion from "+min+" to "+max);
-					battery1(alias1, xid);
-					battery1(alias2, xid);
-					battery1(alias3, xid);
+					battery1(alias1);
+					battery1(alias2);
+					battery1(alias3);
 				}
 				if(DEBUG)
 					System.out.println("Begin test battery 1AR6");
-				battery1AR6(alias1, xid);
-				battery1AR6(alias2, xid);
-				battery1AR6(alias3, xid);
+				battery1AR6(alias1);
+				battery1AR6(alias2);
+				battery1AR6(alias3);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -91,13 +88,12 @@ public class ServerFindRelatedAliasTransaction {
 	}
 	/**
 	 * Loads up on keys. Store a set of nested relationships for later retrieval.
-	 * @param argv
 	 * @param alias12 
-	 * @param xid2 
+	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery1(Alias alias12, TransactionId xid2) throws Exception {
-		System.out.println(xid2+" Battery1 "+alias12);
+	public static void battery1(Alias alias12) throws Exception {
+		System.out.println(" Battery1 "+alias12);
 		long tims = System.currentTimeMillis();
 		long timt = System.currentTimeMillis();
 		int dupes = 0;
@@ -105,41 +101,39 @@ public class ServerFindRelatedAliasTransaction {
 		String fkey = null;
 		for(int i = min; i < max; i++) {
 			fkey = alias12+" Bone " + String.format(uniqKeyFmt, i);	
-			Relation dmr1 = rtc.store(alias12, xid2, fkey, "part", "leg "+String.format(uniqKeyFmt, i));
+			Relation dmr1 = rtc.store(alias12,  fkey, "part", "leg "+String.format(uniqKeyFmt, i));
 			++recs;
-			Relation dmr2 = rtc.store(alias12, xid2, dmr1, "part", "torso "+String.format(uniqKeyFmt, i));
+			Relation dmr2 = rtc.store(alias12,  dmr1, "part", "torso "+String.format(uniqKeyFmt, i));
 			++recs;	
-			Relation dmr3 = rtc.store(alias12, xid2, dmr2, "part", "body "+String.format(uniqKeyFmt, i));
+			Relation dmr3 = rtc.store(alias12,  dmr2, "part", "body "+String.format(uniqKeyFmt, i));
 			++recs;
-			Relation dmr4 = rtc.store(alias12, xid2, "dog "+String.format(uniqKeyFmt, i), "has", dmr3);
+			Relation dmr4 = rtc.store(alias12,  "dog "+String.format(uniqKeyFmt, i), "has", dmr3);
 			++recs;
-			Relation dmr5 = rtc.store(alias12, xid2, dmr4, "eats", "food");
+			Relation dmr5 = rtc.store(alias12,  dmr4, "eats", "food");
 			++recs;
-			Relation dmr6 = rtc.store(alias12, xid2, dmr5, "but not", dmr4);
+			Relation dmr6 = rtc.store(alias12,  dmr5, "but not", dmr4);
 			++recs;
-			Relation dmr7 = rtc.store(alias12, xid2, fkey, dmr6, "food");
+			Relation dmr7 = rtc.store(alias12,  fkey, dmr6, "food");
 			++recs;
 			if((System.currentTimeMillis()-tims) > 1000) {
 				System.out.println("storing "+recs+" "+fkey);
 				tims = System.currentTimeMillis();
 			}
 		}
-		rtc.commit(alias12, xid2);
 		System.out.println("BATTERY1 SUCCESS in "+(System.currentTimeMillis()-timt)+" ms. Stored "+recs+" records, rejected "+dupes+" dupes.");
 	}
 	
 	/**
 	 * Test the higher level functions in the rtc. Use the 'findSet' permutations to
 	 * verify the previously inserted data. Start from the relationship "leg "+sequence
-	 * @param argv
 	 * @param alias12 
-	 * @param xid2 
+	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery1AR6(Alias alias12, TransactionId xid2) throws Exception {
+	public static void battery1AR6(Alias alias12) throws Exception {
 		i = min;
 		long tims = System.currentTimeMillis();
-		System.out.println(xid2+" Battery1AR6 "+alias12);
+		System.out.println(" Battery1AR6 "+alias12);
 		Stream<?> s = null;
 		for(; i < max; i++) {
 			String irec = "leg "+String.format(uniqKeyFmt, i);
@@ -147,7 +141,7 @@ public class ServerFindRelatedAliasTransaction {
 			Iterator<?> s = null;
 			if(s != null)
 				rtc.setIterator(s);
-			s = rtc.findSet(alias12,  xid2, '*','*', irec);
+			s = rtc.findSet(alias12,   '*','*', irec);
 			if(s == null)
 				throw new Exception("findStream of "+irec+" came back null");
 			AbstractRelation m = null ;
@@ -156,16 +150,14 @@ public class ServerFindRelatedAliasTransaction {
 			*/
 			if(s != null)
 				rtc.setStream(s);
-			s = rtc.findStream(alias12, xid2, '*', '*', irec);
+			s = rtc.findStream(alias12,  '*', '*', irec);
 			if(s == null )
 				throw new Exception("findStream of "+irec+" came back null");
-			System.out.println("Stream successful");
 			Optional<?> ff = s.findFirst();
 			if(ff.isEmpty())
 				throw new Exception("findStream of "+irec+" had no elements");
 			AbstractRelation m = (AbstractRelation) ((Result)ff.get()).get();
-			System.out.println("Found Relation:"+m);
-			List<Comparable> lm = rtc.findSet(alias12, xid2, m);
+			List<Comparable> lm = rtc.findSet(alias12,  m);
 			// For each AbstractRelation that comprises all the related elements, resolve it and its embedded relationship morphisms
 			for(Comparable co: lm) {
 				AbstractRelation mo = (AbstractRelation) co;
@@ -180,26 +172,25 @@ public class ServerFindRelatedAliasTransaction {
 
 	/**
 	 * remove entries, all relationships should be recursively deleted
-	 * @param argv
 	 * @param alias12 
-	 * @param xid2 
+	 * @param argv
 	 * @throws Exception
 	 */
-	public static void battery1AR17(Alias alias12, TransactionId xid2) throws Exception {
+	public static void battery1AR17(Alias alias12) throws Exception {
 		long tims = System.currentTimeMillis();
-		System.out.println(alias12+" CleanDB DMR size="+rtc.size(alias12,xid2));
-		System.out.println("CleanDB DRM size="+rtc.size(alias12,xid2,DomainRangeMap.class));
-		System.out.println("CleanDB MDR size="+rtc.size(alias12,xid2,MapDomainRange.class));
-		System.out.println("CleanDB MDR size="+rtc.size(alias12,xid2,MapRangeDomain.class));
-		System.out.println("CleanDB RDM size="+rtc.size(alias12,xid2,RangeDomainMap.class));
-		System.out.println("CleanDB RMD size="+rtc.size(alias12,xid2,RangeMapDomain.class));
+		System.out.println(alias12+" CleanDB DMR size="+rtc.size(alias12));
+		System.out.println("CleanDB DRM size="+rtc.size(alias12,DomainRangeMap.class));
+		System.out.println("CleanDB MDR size="+rtc.size(alias12,MapDomainRange.class));
+		System.out.println("CleanDB MDR size="+rtc.size(alias12,MapRangeDomain.class));
+		System.out.println("CleanDB RDM size="+rtc.size(alias12,RangeDomainMap.class));
+		System.out.println("CleanDB RMD size="+rtc.size(alias12,RangeMapDomain.class));
 		AbstractRelation.displayLevel = AbstractRelation.displayLevels.MINIMAL;
-		Iterator<?> it = rtc.findSet(alias12,xid2,'*','*','*');
+		Iterator<?> it = rtc.findSet(alias12,'*','*','*');
 		timx = System.currentTimeMillis();
 		it.forEachRemaining(fkey-> {
 			Relation dmr = (Relation)((Result)fkey).get(0);
 			try {
-				rtc.remove(alias12,xid2,dmr);
+				rtc.remove(alias12,dmr);
 			} catch (IllegalArgumentException | IOException e) {
 				throw new RuntimeException(e);
 			}

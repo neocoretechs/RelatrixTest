@@ -150,7 +150,7 @@ public class BatteryRelatrixFindRelatedAliasTransaction {
 		System.out.println(xid2+" Battery1AR6 "+alias12);
 		for(; i < max; i++) {
 			String irec = "leg "+String.format(uniqKeyFmt, i);
-			Stream<?> s = RelatrixTransaction.findStream(alias12, xid2, '*', '*', irec);
+			Stream<?> s = RelatrixTransaction.findStream(alias12, xid2, '*', '*', irec).parallel();
 			if(s == null )
 				throw new Exception("findStream of "+irec+" came back null");
 			Optional<?> ff = s.findFirst();
