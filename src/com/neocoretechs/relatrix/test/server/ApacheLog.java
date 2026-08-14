@@ -56,7 +56,7 @@ import com.neocoretechs.relatrix.type.Tuple;
  * it.forEachRemaining(e->{<br/>
  *			Iterator it2 = null;<br/>
  *			try {<br/>
- *				it2 = Relatrix.findSet(((Result)e).get(),'?','?');<br/>
+ *				it2 = Relatrix.findSet(((Result)e).get(),'*','*');<br/>
  *			} catch (Exception e1) {<br/>
  *				e1.printStackTrace();<br/>
  *			} <br/>
@@ -94,6 +94,8 @@ public class ApacheLog {
 	static RelatrixClientTransaction session;
 	static TransactionId xid = null;
 
+	static Iterator it = null;
+	static Iterator it2 = null;
 
 	SimpleDateFormat accesslogDateFormat = new SimpleDateFormat(dateForm);
 	Pattern accessLogPattern = Pattern.compile(getAccessLogRegex(),Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
@@ -590,7 +592,7 @@ public class ApacheLog {
 		// If we provide ranges for wildcard qualifiers, we can obtain a set sorted in order of those qualifiers
 		// in the case of tailSet, we provide lower bounds and elements will be retrieved in order starting from the lower bounds
 		// retrieve all identity relationships that contain the concrete object specified
-		//Iterator<?> it = session.findTailSet(xid, '?','*','*',Long.class, String.class, String.class);
+		//Iterator<?> it = session.findTailSet(xid, '*','*','*',Long.class, String.class, String.class);
 		// If the order does not matter, we can merely specify findSet to retrieve randomly ordered elements
 		// Iterator it = Relatrix.findSet("*","accessed by","*");
 		// Iterate all the retrieved identity relationships
@@ -622,7 +624,7 @@ public class ApacheLog {
 			 * alternate method without findSet(comparable)
 			 *
 			try {
-				it2 = session.findSet(xid, result.get(),'?','?');
+				it2 = session.findSet(xid, result.get(),'*','*');
 			} catch (Exception e1) {
 				e1.printStackTrace();
 			} 
@@ -645,9 +647,14 @@ public class ApacheLog {
 			// option 3 use the findSet with Tuple to reconstruct the original store
 			// Iterate all the retrieved identity relationships
 			cnt2 = 0;
+			it = null;
+
 			session.keySet(xid, Long.class).forEachRemaining(trequest->{
 			try {
-				session.findSet(xid, trequest,'*','*').forEachRemaining(e->{
+				if(it != null)
+					session.setIterator(it);
+				it = session.findSet(xid, trequest,'*','*');
+				it.forEachRemaining(e->{
 					// findSet returns Result as the lambda, which contains components of the relationships
 					result = (Result) e;
 					Relation rel = (Relation)result.get();
