@@ -45,44 +45,44 @@ public class ServerFindRelatedAlias {
 	static Alias alias3 = new Alias("ALIAS3");
 	private static RelatrixClient rtc ;
 	/**
-	* Main test fixture driver
-	*/
+	 * Main test fixture driver
+	 */
 	public static void main(String[] argv) throws Exception {
 		AbstractRelation.displayLevel = displayLevels.MINIMAL;
 		AbstractRelation.displayLevel = displayLevels.MINIMAL;
-			try {
-				rtc = new RelatrixClient(argv[0], Integer.parseInt(argv[1]) );
-				rtc.setRelativeAlias(alias1);
-				rtc.setRelativeAlias(alias2);
-				rtc.setRelativeAlias(alias3);
-				if(argv.length > 2 && argv[2].equals("max")) {
-					System.out.println("Setting max items to "+argv[3]);
-					max = Integer.parseInt(argv[3]);
-				} else {
-					if(argv.length > 2 && argv[2].equals("init")) {
-						System.out.println("Initialize database to zero items, then terminate...");
-						battery1AR17(alias1);
-						battery1AR17(alias2);
-						battery1AR17(alias3);
-						System.exit(0);
-					}
+		try {
+			rtc = new RelatrixClient(argv[0], Integer.parseInt(argv[1]) );
+			rtc.setRelativeAlias(alias1);
+			rtc.setRelativeAlias(alias2);
+			rtc.setRelativeAlias(alias3);
+			if(argv.length > 2 && argv[2].equals("max")) {
+				System.out.println("Setting max items to "+argv[3]);
+				max = Integer.parseInt(argv[3]);
+			} else {
+				if(argv.length > 2 && argv[2].equals("init")) {
+					System.out.println("Initialize database to zero items, then terminate...");
+					battery1AR17(alias1);
+					battery1AR17(alias2);
+					battery1AR17(alias3);
+					System.exit(0);
 				}
-
-				if(rtc.size(alias1) == 0) {
-					if(DEBUG)
-						System.out.println("Zero items, Begin insertion from "+min+" to "+max);
-					battery1(alias1);
-					battery1(alias2);
-					battery1(alias3);
-				}
-				if(DEBUG)
-					System.out.println("Begin test battery 1AR6");
-				battery1AR6(alias1);
-				battery1AR6(alias2);
-				battery1AR6(alias3);
-			} catch (Exception e) {
-				e.printStackTrace();
 			}
+
+			if(rtc.size(alias1) == 0) {
+				if(DEBUG)
+					System.out.println("Zero items, Begin insertion from "+min+" to "+max);
+				battery1(alias1);
+				battery1(alias2);
+				battery1(alias3);
+			}
+			if(DEBUG)
+				System.out.println("Begin test battery 1AR6");
+			battery1AR6(alias1);
+			battery1AR6(alias2);
+			battery1AR6(alias3);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		System.out.println("TEST BATTERY COMPLETE.");
 		System.exit(0);
 	}
@@ -122,7 +122,7 @@ public class ServerFindRelatedAlias {
 		}
 		System.out.println("BATTERY1 SUCCESS in "+(System.currentTimeMillis()-timt)+" ms. Stored "+recs+" records, rejected "+dupes+" dupes.");
 	}
-	
+
 	/**
 	 * Test the higher level functions in the rtc. Use the 'findSet' permutations to
 	 * verify the previously inserted data. Start from the relationship "leg "+sequence
@@ -147,7 +147,7 @@ public class ServerFindRelatedAlias {
 			AbstractRelation m = null ;
 			if(s.hasNext())
 				m = (AbstractRelation) ((Result)s.next()).get();
-			*/
+			 */
 			if(s != null)
 				rtc.setStream(s);
 			s = rtc.findStream(alias12,  '*', '*', irec);

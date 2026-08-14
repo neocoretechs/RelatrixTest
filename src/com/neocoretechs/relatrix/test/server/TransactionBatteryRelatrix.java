@@ -1,6 +1,7 @@
 package com.neocoretechs.relatrix.test.server;
 
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import com.neocoretechs.relatrix.Relation;
 import com.neocoretechs.relatrix.AbstractRelation;
@@ -30,14 +31,17 @@ public class TransactionBatteryRelatrix {
 	*/
 	public static void main(String[] argv) throws Exception {
 		DATABASE = argv[0];
-		//session.setTablespace(DATABASE);
-		session = new RelatrixClientTransaction(argv[1], Integer.parseInt(argv[2]) );
+		if(argv.length > 2 && argv[2].equals("max")) {
+			System.out.println("Setting max items to "+argv[3]);
+			max = Integer.parseInt(argv[3]);
+		}
+		session = new RelatrixClientTransaction(argv[0], Integer.parseInt(argv[1]) );
 		TransactionId xid = session.getTransactionId();
 		System.out.println("Test battery got trans Id:"+xid);
 		if(session.size(xid) == 0) {
 			battery1(xid);
 			session.commit(xid);
-		}
+		}	
 		battery2(xid);
 		session.endTransaction(xid);
 		System.out.println("TEST BATTERY COMPLETE.");	
@@ -47,7 +51,7 @@ public class TransactionBatteryRelatrix {
 	 * Loads up on keys
 	 */
 	public static void battery1(TransactionId xid) throws Exception {
-		System.out.println("Battery0 "+xid);
+		System.out.println("Battery1 "+xid);
 		long tims = System.currentTimeMillis();
 		int dupes = 0;
 		int recs = 0;
@@ -69,11 +73,19 @@ public class TransactionBatteryRelatrix {
 		long tims = System.currentTimeMillis();
 		int recs = 0;
 		String fkey = null;
+		Stream<?> s1 = null;
+		Stream<?> s2 = null;
 		for(int i = min; i < max; i++) {
 			fkey = key + String.format(uniqKeyFmt, i);
-				Optional<?> o =  session.findStream(xid, fkey, "Has unit", Long.valueOf(i)).findFirst();
+				if(s1 != null)
+					session.setStream(s1);
+				s1 = session.findStream(xid, fkey, "Has unit", Long.valueOf(i));
+				Optional<?> o =  s1.findFirst();
 				if(o.isPresent()) {
-					Optional<?> p = session.findStream(xid, ((Result)o.get()).get(), '*', '*').findFirst();
+					if(s2 != null)
+						session.setStream(s2);
+					s2 = session.findStream(xid, ((Result)o.get()).get(), '*', '*');
+					Optional<?> p = s2.findFirst();
 					if(p.isPresent()) {
 						Result c = (Result) p.get();
 						if(!(c.get() instanceof AbstractRelation))
