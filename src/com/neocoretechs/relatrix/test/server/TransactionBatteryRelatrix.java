@@ -65,7 +65,7 @@ public class TransactionBatteryRelatrix {
 			System.out.println(i+".)"+dmr2);
 			++recs;
 		}
-		System.out.println("BATTERY0 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms. Stored "+recs+" records, rejected "+dupes+" dupes.");
+		System.out.println("BATTERY1 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms. Stored "+recs+" records, rejected "+dupes+" dupes.");
 	}
 	
 	public static void battery2(TransactionId xid) throws Exception {

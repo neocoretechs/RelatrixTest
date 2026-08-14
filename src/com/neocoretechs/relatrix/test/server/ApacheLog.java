@@ -547,20 +547,20 @@ public class ApacheLog {
 		lin3 += "\"GET /flabicon.ico HTTP/1.1\" 200 894 \"http://lizahanum.blogspot.com/2011/02/falafel.html\" ";
 		lin3 += "\"Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/535.6 (KHTML, like Gecko) Chrome/16.0.899.0 Safari/535.6\" \"-\"";
 		
-		if(args.length < 3 || args.length > 5) {
-			System.out.println("usage java com.neocoretechs.relatrix.test.ApacheLog <local node> <remote node> <port> [log file dir | *] [true or false simplified log format]");
+		if(args.length < 2 || args.length > 5) {
+			System.out.println("usage java com.neocoretechs.relatrix.test.ApacheLog <remote node> <port> [log file dir | *] [true or false simplified log format]");
 			System.exit(1);
 		}
 		// get either the test line or a directory of log files, assume simple log format unless we have extra cmdl arg
 		// supplying only local, remote, port results in retrieval of previously loaded data
 		ApacheLog alfoo = new ApacheLog();
-		if(args.length == 3 || args.length == 4 || args.length == 5) {
-			session = new RelatrixClientTransaction(args[1], Integer.parseInt(args[2]));
+		if(args.length == 2 || args.length == 3 || args.length == 4) {
+			session = new RelatrixClientTransaction(args[0], Integer.parseInt(args[1]));
 			//xid = session.getTransactionId(300000);
 			xid = session.getTransactionId();
 			// substitution * for file name loads test data
 			if(args.length == 4) {
-				if(args[3].equals("*")) {
+				if(args[2].equals("*")) {
 					alfoo.readAndProcess(lin);
 					storeRelatrix(xid);
 					alfoo.readAndProcess(lin2);
@@ -569,12 +569,12 @@ public class ApacheLog {
 					storeRelatrix(xid);
 					System.exit(0);
 				} else {
-					if(args[4].equals("false")) {
+					if(args[3].equals("false")) {
 						alfoo.getFiles(args[3], false, xid);
 						System.exit(0);
 					} else {
-						if(args[4].equals("true")) {
-							alfoo.getFiles(args[3], true, xid);
+						if(args[3].equals("true")) {
+							alfoo.getFiles(args[4], true, xid);
 							System.exit(0);
 						} else {
 							System.out.println("usage java com.neocoretechs.relatrix.test.ApacheLog <local node> <remote node> <port> [log file dir | *] [true or false simplified log format]");
