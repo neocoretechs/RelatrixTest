@@ -83,10 +83,9 @@ public class StreamRetrievalBattery1 {
 			long tims = System.currentTimeMillis();
 			int recs = 0;
 			String fkey = null;
-			Relation dmr = null;
 			for(int i = min; i < max; i++) {
 				fkey = key + String.format(uniqKeyFmt, i);
-				dmr = rkvc.store(fkey, "Has unit", Long.valueOf(i));
+				rkvc.store(fkey, "Has unit", Long.valueOf(i));
 				++recs;
 			}
 			 System.out.println("BATTERY0 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms. Stored "+recs+" records");
@@ -98,9 +97,7 @@ public class StreamRetrievalBattery1 {
 		 */
 		public static void battery1(String[] argv) throws Exception {
 			System.out.println("Stream Retrieval Battery1 ");
-			String fmap;
 			long tims = System.currentTimeMillis();
-			int recs = 0;
 			// this list will store an object used to test subsequent queries where a named object is needed
 			// it will be extracted from the wildcard queries
 			ArrayList<Result> ar = new ArrayList<Result>();

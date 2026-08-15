@@ -98,13 +98,8 @@ public class ServerRetrievalBattery0 {
 			int recs = 0;
 			// this list will store an object used to test subsequent queries where a named object is needed
 			// it will be extracted from the wildcard queries
-			ArrayList<Comparable> ar = new ArrayList<Comparable>(); // range
-			ArrayList<Comparable> am = new ArrayList<Comparable>(); // map
-			ArrayList<Comparable> ad = new ArrayList<Comparable>(); // domain
-			ArrayList<Comparable> ar2 = new ArrayList<Comparable>(); // will store 2 element result sets map, range
-			ArrayList<Comparable> ar2dr = new ArrayList<Comparable>(); // will store 2 element result sets domain,range
-			ArrayList<Comparable> ar2dm = new ArrayList<Comparable>(); // will store 2 element result sets domain,map
-			ArrayList<Comparable> ar3 = new ArrayList<Comparable>(); // will store 3 element result sets
+			ArrayList<Result> ar = new ArrayList<Result>(); // range
+		
 			Iterator<?> it = null;
 			System.out.println("Wildcard queries:");
 			displayLine = 0;
@@ -113,6 +108,7 @@ public class ServerRetrievalBattery0 {
 			while(it.hasNext()) {
 				Object o = it.next();
 				Result c = (Result)o;
+				ar.add(c);
 				displayCtrl();
 				if(DISPLAY || DISPLAYALL)
 					System.out.println(displayLine+"="+c);
@@ -120,14 +116,18 @@ public class ServerRetrievalBattery0 {
 			displayLine = 0;
 	
 			System.out.println("----------");
-			System.out.println("Above are all the wildcard permutations. Now retrieve those with object references ");
-			for(int j = 0; j < ar3.size(); j++) {
+			System.out.println("Above are all the wildcard permutations. Now retrieve those with object references from array size:"+ar.size());
+			it = null;
+			for(int j = 0; j < ar.size(); j++) {
 				displayLine = 0;
+				Comparable[] arel = ((Result)ar.get(j)).toArray();
 				System.out.println("9."+j+") findSet(<obj>,<obj>,<obj>) using ="+
-						((Result)ar3.get(j)).get(0)+",("+((Result)ar3.get(j)).get(0).getClass().getName()+"),"+
-						((Result)ar3.get(j)).get(1)+",("+((Result)ar3.get(j)).get(1).getClass().getName()+"),"+
-						((Result)ar3.get(j)).get(2)+",("+((Result)ar3.get(j)).get(2).getClass().getName());
-				it = rkvc.findSet(((Result)ar3.get(j)).get(0), ((Result)ar3.get(j)).get(1), ((Result)ar3.get(j)).get(2));
+						arel[0]+",("+arel[0].getClass().getName()+"),"+
+						arel[1]+",("+arel[1].getClass().getName()+"),"+
+						arel[2]+",("+arel[2].getClass().getName());
+				if(it != null)
+					rkvc.setIterator(it);
+				it = rkvc.findSet(arel[0], arel[1], arel[2]);
 				while(it.hasNext()) {
 					Object o = it.next();
 					Result c = (Result)o;
@@ -136,11 +136,15 @@ public class ServerRetrievalBattery0 {
 						System.out.println(displayLine+"="+c);
 				}
 			}
+			it = null;
 			for(int j = 0; j < ar.size(); j++) {
 				displayLine=0;
 				//RelatrixHeadsetIterator.DEBUG = true;
-				System.out.println("10."+j+") findSet(*,*,<obj>) using range="+((Result)ar.get(j)).get());		
-				it = rkvc.findSet('*', '*', ((Result)ar.get(j)).get());
+				Comparable[] arel = ((Result)ar.get(j)).toArray();
+				System.out.println("10."+j+") findSet(*,*,<obj>) using range="+arel[2]);
+				if(it != null)
+					rkvc.setIterator(it);
+				it = rkvc.findSet('*', '*', arel[2]);
 				while(it.hasNext()) {
 					Object o = it.next();
 					Result c = (Result)o;
@@ -149,11 +153,15 @@ public class ServerRetrievalBattery0 {
 						System.out.println(displayLine+"="+c);
 				}
 			}
-			for(int j = 0; j < am.size(); j++) {
+			it = null;
+			for(int j = 0; j < ar.size(); j++) {
 				displayLine = 0;
 				//RelatrixHeadsetIterator.DEBUG = true;
-				System.out.println("11."+j+") findSet(*,<obj>,*) using map="+((Result)am.get(j)).get(0));		
-				it = rkvc.findSet('*', ((Result)am.get(j)).get(0), '*');
+				Comparable[] arel = ((Result)ar.get(j)).toArray();
+				System.out.println("11."+j+") findSet(*,<obj>,*) using map="+arel[1]);
+				if(it != null)
+					rkvc.setIterator(it);
+				it = rkvc.findSet('*', arel[1], '*');
 				while(it.hasNext()) {
 					Object o = it.next();
 					Result c = (Result)o;
@@ -162,10 +170,14 @@ public class ServerRetrievalBattery0 {
 						System.out.println(displayLine+"="+c);
 				}
 			}
-			for(int j = 0; j < ad.size(); j++) {
-				displayLine =0;
-				System.out.println("12."+j+") FindSet(<obj>,*,*) using domain="+((Result)ad.get(j)).get(0));		
-				it = rkvc.findSet(((Result)ad.get(j)).get(0), '*', '*');
+			it = null;
+			for(int j = 0; j < ar.size(); j++) {
+				displayLine = 0;
+				Comparable[] arel = ((Result)ar.get(j)).toArray();
+				System.out.println("12."+j+") FindSet(<obj>,*,*) using domain="+arel[0]);
+				if(it != null)
+					rkvc.setIterator(it);
+				it = rkvc.findSet(arel[0], '*', '*');
 				while(it.hasNext()) {
 					Object o = it.next();
 					Result c = (Result)o;
@@ -175,10 +187,14 @@ public class ServerRetrievalBattery0 {
 				}
 			}
 			// From a Result2 we can call get(0) and get(1), like an array, we can also call toArray
-			for(int j = 0; j < ar2.size(); j++) {
+			it = null;
+			for(int j = 0; j < ar.size(); j++) {
 				displayLine = 0;
-				System.out.println("13."+j+") findSet(*,<obj>,<obj>) using map="+((Result)ar2.get(j)).toArray()[0]+" range="+((Result)ar2.get(j)).toArray()[1]);		
-				it = rkvc.findSet('*', ((Result)ar2.get(j)).toArray()[0], ((Result)ar2.get(j)).toArray()[1]);
+				Comparable[] arel = ((Result)ar.get(j)).toArray();
+				System.out.println("13."+j+") findSet(*,<obj>,<obj>) using map="+arel[1]+" range="+arel[2]);
+				if(it != null)
+					rkvc.setIterator(it);
+				it = rkvc.findSet('*', arel[1], arel[2]);
 				while(it.hasNext()) {
 					Object o = it.next();
 					Result c = (Result)o;
@@ -187,10 +203,14 @@ public class ServerRetrievalBattery0 {
 						System.out.println(displayLine+"="+c);
 				}
 			}
-			for(int j = 0; j < ar2dr.size(); j++) {
+			it = null;
+			for(int j = 0; j < ar.size(); j++) {
 				displayLine = 0;
-				System.out.println("14."+j+") findSet(<obj>,*,<obj>) using ="+((Result)ar2dr.get(j)).toArray()[0]+", "+((Result)ar2dr.get(j)).toArray()[1]);		
-				it = rkvc.findSet(((Result)ar2dr.get(j)).toArray()[0], '*', ((Result)ar2dr.get(j)).toArray()[1]);
+				Comparable[] arel = ((Result)ar.get(j)).toArray();
+				System.out.println("14."+j+") findSet(<obj>,*,<obj>) using ="+arel[0]+", "+arel[2]);
+				if(it != null)
+					rkvc.setIterator(it);
+				it = rkvc.findSet(arel[0], '*', arel[2]);
 				while(it.hasNext()) {
 					Object o = it.next();
 					Result c = (Result)o;
@@ -199,10 +219,14 @@ public class ServerRetrievalBattery0 {
 						System.out.println(displayLine+"="+c);
 				}
 			}
-			for(int j = 0; j < ar2dm.size(); j++) {
+			it = null;
+			for(int j = 0; j < ar.size(); j++) {
 				displayLine=0;
-				System.out.println("15."+j+") findSet(<obj>,<obj>,*) using domain="+((Result)ar2dm.get(j)).toArray()[0]+", map="+((Result)ar2dm.get(j)).toArray()[1]);		
-				it = rkvc.findSet(((Result)ar2dm.get(j)).toArray()[0], ((Result)ar2dm.get(j)).toArray()[1], '*');
+				Comparable[] arel = ((Result)ar.get(j)).toArray();
+				System.out.println("15."+j+") findSet(<obj>,<obj>,*) using domain="+arel[0]+", map="+arel[1]);
+				if(it != null)
+					rkvc.setIterator(it);
+				it = rkvc.findSet(arel[0], arel[1], '*');
 				while(it.hasNext()) {
 					Object o = it.next();
 					Result c = (Result)o;
