@@ -18,7 +18,7 @@ import com.neocoretechs.relatrix.client.RelatrixClient;
  * This series of tests loads up arrays to create a cascading set of retrievals mostly checking
  * and verifying findHeadSet retrieval using the client to a remote {@link com.neocoretechs.relatrix.server.RelatrixServer}.
  * NOTES:
- * program arguments are local_node remote_node remote_port_for_database
+ * program arguments are  remote_node remote_port_for_database
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2024
  */
 public class ServerRetrievalBattery2 {
@@ -37,14 +37,14 @@ public class ServerRetrievalBattery2 {
 		/**
 		*/
 		public static void main(String[] argv) throws Exception {
-			 //System.out.println("Analysis of all");
-			if(argv.length < 3) {
+			//System.out.println("Analysis of all");
+			if(argv.length < 2) {
 				System.out.println("Usage: <remoteNode> <remotePort> [init]");
 			}
-			rkvc = new RelatrixClient(argv[1], Integer.parseInt(argv[2]) );
+			rkvc = new RelatrixClient(argv[0], Integer.parseInt(argv[1]) );
 			AbstractRelation.displayLevel = AbstractRelation.displayLevels.MINIMAL;
 			if(argv.length == 4 && argv[3].equals("init")) {
-					battery1AR17(argv);
+				battery1AR17(argv);
 			}
 			if(rkvc.size() == 0) {
 				battery0(argv);
@@ -53,12 +53,10 @@ public class ServerRetrievalBattery2 {
 			System.out.println("TEST BATTERY COMPLETE.");	
 			System.exit(1);
 		}
-		
+
 		public static void displayCtrl() {
-			if(displayLine == 0) {
+			if(displayLine == 0)
 				displayLineCtr = 0;
-				DISPLAY = true;
-			}
 			if(displayLine >= displayLinesOn[displayLineCtr] && displayLine <= displayLinesOff[displayLineCtr]) {
 				if(!DISPLAY)
 					displayTimer = System.currentTimeMillis();
@@ -88,7 +86,7 @@ public class ServerRetrievalBattery2 {
 				dmr = rkvc.store(fkey, "Has unit", Long.valueOf(i));
 				++recs;
 			}
-			 System.out.println("BATTERY0 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms. Stored "+recs+" records");
+			System.out.println("BATTERY0 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms. Stored "+recs+" records");
 		}
 
 		/**
@@ -102,9 +100,8 @@ public class ServerRetrievalBattery2 {
 			int recs = 0;
 			// this list will store an object used to test subsequent queries where a named object is needed
 			// it will be extracted from the wildcard queries
-			ArrayList<Comparable> ar = new ArrayList<Comparable>();
-			ArrayList<Comparable> ar2 = new ArrayList<Comparable>(); // will store 2 element result sets
-			ArrayList<Comparable> ar3 = new ArrayList<Comparable>(); // will store 3 element result sets
+			ArrayList<Result> ar = new ArrayList<Result>();
+
 			Iterator<?> it = null;
 			System.out.println("Wildcard queries:");
 			displayLine = 0;
@@ -116,307 +113,188 @@ public class ServerRetrievalBattery2 {
 				displayCtrl();
 				if(DISPLAY)
 					System.out.println(displayLine+"="+c);
-				//ar.add(c[0]);
+				ar.add(c);
 			}
-			displayLine = 0;
-			System.out.println("2.) findHeadSet(*,*,?,String.class, String.class, Long.class)...");		
-			it = rkvc.findHeadSet('*', '*', '*',String.class, String.class, Long.class);
-			//ar = new ArrayList<Comparable>();
-			while(it.hasNext()) {
-				Object o = it.next();
-				Result c = (Result)o;
-				displayCtrl();
-				if(DISPLAY)
-					System.out.println(displayLine+"="+c);
-				if(ar.size() == 0 ) {
-					ar.add(c);
+			//-----------------
+			System.out.println("Above are the wildcard permutations. Now retrieve those with object references using the "+ar.size());
+			System.out.println("wildcard results. NOTE: Concrete object references in findHeadSet typically produce null sets.");
+			long dsiz = ar.size();
+			long inc = dsiz/100;
+			it = null;
+			for(int j = 0; j < dsiz; j+=inc) {
+				displayLine =0;
+				Comparable[] arel = ((Result)ar.get(j)).toArray();	
+				System.out.println("2.) findHeadSet(<obj>,<obj>,<obj>) using ="+
+						arel[0]+",("+arel[0].getClass().getName()+"),"+
+						arel[1]+",("+arel[1].getClass().getName()+"),"+
+						arel[2]+",("+arel[2].getClass().getName());
+				if(it != null)
+					rkvc.setIterator(it);
+				it = rkvc.findHeadSet(arel[0],arel[1],arel[2]);
+				while(it.hasNext()) {
+					Object o = it.next();
+					Result c = (Result)o;
+					displayCtrl();
+					if(DISPLAY)
+						System.out.println(displayLine+"="+c);
+				}
+				displayLine=0;
+				//RelatrixHeadsetIterator.DEBUG = true;
+				System.out.println("3.) findHeadSet(*,*,<obj>,String.class, String.class) using range="+arel[2]);
+				if(it != null)
+					rkvc.setIterator(it);
+				it = rkvc.findHeadSet('*', '*', arel[2], String.class, String.class);
+				while(it.hasNext()) {
+					Object o = it.next();
+					Result c = (Result)o;
+					displayCtrl();
+					if(DISPLAY)
+						System.out.println(displayLine+"="+c);
+				}
+				displayLine = 0;
+				//RelatrixHeadsetIterator.DEBUG = true;
+				System.out.println("4.) findHeadSet(*,<obj>,*, String.class, Long.class) using map="+arel[1]);
+				if(it != null)
+					rkvc.setIterator(it);
+				it = rkvc.findHeadSet('*', arel[1], '*',String.class, Long.class);
+				while(it.hasNext()) {
+					Object o = it.next();
+					Result c = (Result)o;
+					displayCtrl();
+					if(DISPLAY)
+						System.out.println(displayLine+"="+c);
+				}
+				displayLine =0;
+				System.out.println("5.) FindHeadset(<obj>,*,*,String.class, Long.class) using domain="+arel[0]);
+				if(it != null)
+					rkvc.setIterator(it);
+				it = rkvc.findHeadSet(arel[0], '*', '*', String.class, Long.class);
+				while(it.hasNext()) {
+					Object o = it.next();
+					Result c = (Result)o;
+					displayCtrl();
+					if(DISPLAY)
+						System.out.println(displayLine+"="+c);
+				}
+				displayLine = 0;
+				System.out.println("6.) findHeadSet(*,<obj>,<obj>,String.class) using map="+arel[1]+" range="+arel[2]);
+				if(it != null)
+					rkvc.setIterator(it);
+				it = rkvc.findHeadSet('*', arel[1], arel[2], String.class);
+				//ar = new ArrayList<Comparable>();
+				while(it.hasNext()) {
+					Object o = it.next();
+					Result c = (Result)o;
+					displayCtrl();
+					if(DISPLAY)
+						System.out.println(displayLine+"="+c);
+					//if(ar2.size() == 0) ar2.add(c);
+				}
+				displayLine = 0;
+				System.out.println("7.) findHeadSet(<obj>,*,<obj>,String.class) using domain="+arel[0]+", range="+arel[2]);	
+				if(it != null)
+					rkvc.setIterator(it);
+				it = rkvc.findHeadSet(arel[0], '*', arel[2], String.class);
+				//ar = new ArrayList<Comparable>();
+				while(it.hasNext()) {
+					Object o = it.next();
+					Result c = (Result)o;
+					displayCtrl();
+					if(DISPLAY)
+						System.out.println(displayLine+"="+c);
+					//if(ar2.size() == 1) ar2.add(c);
+				}
+				displayLine =0;
+				System.out.println("8.) findHeadSet(<obj>,<obj>,*, Long.class) using domain="+arel[0]+", map="+arel[1]);
+				if(it != null)
+					rkvc.setIterator(it);
+				it = rkvc.findHeadSet(arel[0], arel[1], '*',Long.class);
+				//ar = new ArrayList<Comparable>();
+				while(it.hasNext()) {
+					Object o = it.next();
+					Result c = (Result)o;
+					displayCtrl();
+					if(DISPLAY)
+						System.out.println(displayLine+"="+c);
+					//if(ar2.size() == 2) ar2.add(c);
 				}
 			}
-			displayLine = 0;
-			System.out.println("3.) findHeadset(*,?,*,String.class, String.class, Long.class)...");		
-			it = rkvc.findHeadSet('*', '*', '*',String.class, String.class, Long.class);
-			//ar = new ArrayList<Comparable>();
-			while(it.hasNext()) {
-				Object o = it.next();
-				Result  c = (Result )o;
-				displayCtrl();
-				if(DISPLAY)
-					System.out.println(displayLine+"="+c);
-				if(ar.size() == 1 ) {
-					ar.add(c);
-				}
-			}
-			displayLine = 0;
-			System.out.println("4.) findHeadSet(?,*,*.String.class, String.class, Long.class)...");		
-			it = rkvc.findHeadSet('*', '*', '*',String.class, String.class, Long.class);
-			//ar = new ArrayList<Comparable>();
-			while(it.hasNext()) {
-				Object o = it.next();
-				Result  c = (Result )o;
-				displayCtrl();
-				if(DISPLAY)
-					System.out.println(displayLine+"="+c);
-				if(ar.size() == 2) {
-					ar.add(c);
-				}
-			}
-			displayLine=0;
-			System.out.println("5.) findHeadSet(*,?,?,String.class, String.class, Long.class)...");		
-			it = rkvc.findHeadSet('*', '*', '*',String.class, String.class, Long.class);
-			//ar = new ArrayList<Comparable>();
-			while(it.hasNext()) {
-				Object o = it.next();
-				Result1 c = (Result1)o; // Result1
-				displayCtrl();
-				if(DISPLAY)
-					System.out.println(displayLine+"="+c);
-				if(ar2.size() == 0) {
-					ar2.add(c);
-				}
-			}
-			displayLine = 0;
-			System.out.println("6.) findHeadSet(?,*,?,String.class, String.class, Long.class)...");		
-			it = rkvc.findHeadSet('*', '*', '*',String.class, String.class, Long.class);
-			//ar = new ArrayList<Comparable>();
-			while(it.hasNext()) {
-				Object o = it.next();
-				Result1 c = (Result1)o;
-				displayCtrl();
-				if(DISPLAY)
-					System.out.println(displayLine+"="+c);
-				if(ar2.size() == 1) {
-					ar2.add(c);
-				}
-			}
-			displayLine = 0;
-			System.out.println("7.) findHeadSet(?,?,*,String.class, String.class, Long.class)...");		
-			it = rkvc.findHeadSet('*', '*', '*',String.class, String.class, Long.class);
-			//ar = new ArrayList<Comparable>();
-			while(it.hasNext()) {
-				Object o = it.next();
-				Result1 c = (Result1)o;
-				displayCtrl();
-				if(DISPLAY)
-					System.out.println(displayLine+"="+c);
-				if(ar2.size() == 2) {
-					ar2.add(c);
-				}
-
-			}
-			displayLine = 0;
-			System.out.println("8.) FindHeadset(?,?,?,String.class, String.class, Long.class)...");		
-			it = rkvc.findHeadSet('*', '*', '*',String.class, String.class, Long.class);
-			//ar = new ArrayList<Comparable>();
-			while(it.hasNext()) {
-				Object o = it.next();
-				Result c = (Result)o;
-				displayCtrl();
-				if(DISPLAY)
-					System.out.println(displayLine+"="+c);
-				if(ar3.size() == 0) {
-					ar3.add(c);
-				}
-			}
-			
-			System.out.println("Above are all the wildcard permutations. Now retrieve those with object references using the");
-			System.out.println("wildcard results. They should produce relationships with these elements");
-			displayLine = 0;
-			System.out.println("9.) findHeadSet(<obj>,<obj>,<obj>) using ="+
-			((Result)ar3.get(0)).get(0)+",("+((Result)ar3.get(0)).get(0).getClass().getName()+"),"+
-			((Result)ar3.get(0)).get(1)+",("+((Result)ar3.get(0)).get(1).getClass().getName()+"),"+
-			((Result)ar3.get(0)).get(2)+",("+((Result)ar3.get(0)).get(2).getClass().getName());
-			it = rkvc.findHeadSet(((Result)ar3.get(0)).get(0), ((Result)ar3.get(0)).get(1), ((Result)ar3.get(0)).get(2));
-			while(it.hasNext()) {
-				Object o = it.next();
-				Result c = (Result)o;
-				displayCtrl();
-				if(DISPLAY)
-					System.out.println(displayLine+"="+c);
-				//ar.add(c[0]);
-			}
-			displayLine=0;
-			//RelatrixHeadsetIterator.DEBUG = true;
-			System.out.println("10.) findHeadSet(*,*,<obj>,String.class, String.class) using range="+((Result)ar3.get(0)).get(3));		
-			it = rkvc.findHeadSet('*', '*', ((Result)ar3.get(0)).get(3), String.class, String.class);
-			//ar = new ArrayList<Comparable>();
-			while(it.hasNext()) {
-				Object o = it.next();
-				Result c = (Result)o;
-				displayCtrl();
-				if(DISPLAY)
-					System.out.println(displayLine+"="+c);
-			}
-			displayLine = 0;
-			//RelatrixHeadsetIterator.DEBUG = true;
-			System.out.println("11.) findHeadSet(*,<obj>,*, String.class, Long.class) using map="+((Result)ar.get(1)).get(0));		
-			it = rkvc.findHeadSet('*', ((Result)ar.get(1)).get(0), '*',String.class, Long.class);
-			while(it.hasNext()) {
-				Object o = it.next();
-				Result c = (Result)o;
-				displayCtrl();
-				if(DISPLAY)
-					System.out.println(displayLine+"="+c);
-			}
-			displayLine =0;
-			System.out.println("12.) FindSubset(<obj>,*,*,String.class, Long.class) using domain="+((Result)ar.get(2)).get(0));		
-			it = rkvc.findHeadSet(((Result)ar.get(2)).get(0), '*', '*', String.class, Long.class);
-			//ar = new ArrayList<Comparable>();
-			while(it.hasNext()) {
-				Object o = it.next();
-				Result c = (Result)o;
-				displayCtrl();
-				if(DISPLAY)
-					System.out.println(displayLine+"="+c);
-				//if(ar.size() == 2) ar.add(c[0]);
-			}
-			// From a Result1 we can call get(0) and get(1), like an array, we can also call toArray
-			displayLine = 0;
-			System.out.println("13.) findHeadSet(*,<obj>,<obj>,String.class) using map="+((Result)ar2.get(0)).toArray()[0]+" range="+((Result)ar2.get(0)).toArray()[1]);		
-			it = rkvc.findHeadSet('*', ((Result)ar2.get(0)).toArray()[0], ((Result)ar2.get(0)).toArray()[1], String.class);
-			//ar = new ArrayList<Comparable>();
-			while(it.hasNext()) {
-				Object o = it.next();
-				Result c = (Result)o;
-				displayCtrl();
-				if(DISPLAY)
-					System.out.println(displayLine+"="+c);
-				//if(ar2.size() == 0) ar2.add(c);
-			}
-			displayLine = 0;
-			System.out.println("14.) findHeadSet(<obj>,*,<obj>,String.class) using ="+((Result)ar2.get(1)).toArray()[0]+", "+((Result)ar2.get(1)).toArray()[1]);		
-			it = rkvc.findHeadSet(((Result)ar2.get(1)).toArray()[0], '*', ((Result)ar2.get(1)).toArray()[1], String.class);
-			//ar = new ArrayList<Comparable>();
-			while(it.hasNext()) {
-				Object o = it.next();
-				Result c = (Result)o;
-				displayCtrl();
-				if(DISPLAY)
-					System.out.println(displayLine+"="+c);
-				//if(ar2.size() == 1) ar2.add(c);
-			}
-			displayLine =0;
-			System.out.println("15.) findHeadSet(<obj>,<obj>,*, Long.class) using domain="+((Result)ar2.get(2)).toArray()[0]+", map="+((Result)ar2.get(2)).toArray()[1]);		
-			it = rkvc.findHeadSet(((Result)ar2.get(2)).toArray()[0], ((Result)ar2.get(2)).toArray()[1], '*',Long.class);
-			//ar = new ArrayList<Comparable>();
-			while(it.hasNext()) {
-				Object o = it.next();
-				Result c = (Result)o;
-				displayCtrl();
-				if(DISPLAY)
-					System.out.println(displayLine+"="+c);
-				//if(ar2.size() == 2) ar2.add(c);
-			}
-			displayLine =0;
-			System.out.println("16.) findHeadSet(?,?,<obj>, String.class, String.class) using range="+((Result)ar.get(0)).get(0));		
-			it = rkvc.findHeadSet('*', '*', ((Result)ar.get(0)).get(0), String.class, String.class);
-			//ar = new ArrayList<Comparable>();
-			while(it.hasNext()) {
-				Object o = it.next();
-				Result c = (Result)o;
-				displayCtrl();
-				if(DISPLAY)
-					System.out.println(displayLine+"="+c);
-				//if(ar.size() == 0 ) ar.add(c[0]);
-			}
-			displayLine =0;
-			System.out.println("17.) findHeadSet(?,<obj>,?, String.class, Long.class) using map="+((Result)ar.get(1)).get(0));		
-			it = rkvc.findHeadSet('*', ((Result)ar.get(1)).get(0), '*', String.class, Long.class);
-			//ar = new ArrayList<Comparable>();
-			while(it.hasNext()) {
-				Object o = it.next();
-				Result1 c = (Result1)o;
-				displayCtrl();
-				if(DISPLAY)
-					System.out.println(displayLine+"="+c);
-				//if(ar.size() == 1 ) ar.add(c[0]);
-			}
-			displayLine =0;
-			System.out.println("18.) findHeadSet(<obj>,?,?, String.class, Long.class) using domain="+((Result)ar.get(2)).get(0));		
-			it = rkvc.findHeadSet(((Result)ar.get(2)).get(0), '*', '*', String.class, Long.class);
-			//ar = new ArrayList<Comparable>();
-			while(it.hasNext()) {
-				Object o = it.next();
-				Result c = (Result)o;
-				displayCtrl();
-				if(DISPLAY)
-					System.out.println(displayLine+"="+c);
-				//if(ar.size() == 2) ar.add(c[0]);
-			}
-			displayLine =0;
-			System.out.println("19.) findHeadSet(?,<obj>,<obj>, String.class) using map="+((Result)ar2.get(0)).get(0)+" range="+((Result)ar2.get(0)).get(1));		
-			it = rkvc.findHeadSet('*', ((Result)ar2.get(0)).get(0), ((Result)ar2.get(0)).get(1), String.class);
-			//ar = new ArrayList<Comparable>();
-			while(it.hasNext()) {
-				Object o = it.next();
-				Result c = (Result)o;
-				displayCtrl();
-				if(DISPLAY)
-					System.out.println(displayLine+"="+c);
-				//if(ar2.size() == 0) ar2.add(c);
-			}
-			displayLine =0;
-			System.out.println("20.) findHeadSet(<obj>,?,<obj>,String.class) using domain="+((Result)ar2.get(1)).get(0)+" range="+ ((Result)ar2.get(1)).get(1));		
-			it = rkvc.findHeadSet(((Result)ar2.get(1)).get(0), '*', ((Result)ar2.get(1)).get(1), String.class);
-			//ar = new ArrayList<Comparable>();
-			while(it.hasNext()) {
-				Object o = it.next();
-				Result c = (Result)o;
-				displayCtrl();
-				if(DISPLAY)
-					System.out.println(displayLine+"="+c);
-				//if(ar2.size() == 1) ar2.add(c);
-			}
-			displayLine =0;
-			System.out.println("21.) findHeadSet(<obj>,<obj>,?,Long.class) using domain="+((Result)ar2.get(2)).get(0)+" map="+((Result)ar2.get(2)).get(1));		
-			it = rkvc.findHeadSet(((Result)ar2.get(2)).get(0), ((Result)ar2.get(2)).get(1), '*',Long.class);
-			//ar = new ArrayList<Comparable>();
-			while(it.hasNext()) {
-				Object o = it.next();
-				Result c = (Result)o;
-				displayCtrl();
-				if(DISPLAY)
-					System.out.println(displayLine+"="+c);
-				//if(ar2.size() == 2) ar2.add(c);
-			}
-
+			//
+			// ---------- range test
+			it = null;	
 			Long hi = (max/1000L);
 			displayLine =0;
-			System.out.println("22.) findHeadSet(<obj>,<obj>,?,<obj>,<obj>) using domain="+((Result)ar2.get(2)).get(0)+" map="+((Result)ar2.get(2)).get(1)+" range= to "+hi);		
-			it = rkvc.findHeadSet(((Result)ar2.get(2)).get(0), ((Result)ar2.get(2)).get(1), '*',hi);
-			//ar = new ArrayList<Comparable>();
+			String fkey2 = key + String.format(uniqKeyFmt, hi);
+			System.out.println("9.) findHeadSet(*,*,*,<obj>,String.class,<obj>) using domain to "+fkey2+" map=String.class "+" range to "+hi);		
+			it = rkvc.findHeadSet('*', '*', '*',fkey2,String.class,hi);
 			while(it.hasNext()) {
 				Object o = it.next();
 				Result c = (Result)o;
 				displayCtrl();
 				if(DISPLAY)
 					System.out.println(displayLine+"="+c);
-				//if(ar2.size() == 2) ar2.add(c);
 			}
-		
 			hi+=1000L;
-			System.out.println("23.) findHeadSet(<obj>,<obj>,?,<obj>,<obj>) using domain="+((Result)ar2.get(2)).get(0)+" map="+((Result)ar2.get(2)).get(1)+" range= to "+hi);		
-			it = rkvc.findSubSet(((Result)ar2.get(2)).get(0), ((Result)ar2.get(2)).get(1), '*',hi);
-			//ar = new ArrayList<Comparable>();
+			if(it != null)
+				rkvc.setIterator(it);
+			fkey2 = key + String.format(uniqKeyFmt, hi);
+			System.out.println("10.) findHeadSet(*,*,*,<obj>,String.class,<obj>) using domain to "+fkey2+" map=String.class"+" range to "+hi);		
+			it = rkvc.findHeadSet('*', '*', '*',fkey2,String.class,hi);
 			while(it.hasNext()) {
 				Object o = it.next();
 				Result c = (Result)o;
 				displayCtrl();
 				if(DISPLAY)
 					System.out.println(displayLine+"="+c);
-				//if(ar2.size() == 2) ar2.add(c);
 			}
-	
 			hi+=1000L;
-			System.out.println("23.) findHeadSet(<obj>,<obj>,?,<obj>,<obj>) using domain="+((Result)ar2.get(2)).get(0)+" map="+((Result)ar2.get(2)).get(1)+" range= to "+hi);		
-			it = rkvc.findHeadSet(((Result)ar2.get(2)).get(0), ((Result)ar2.get(2)).get(1), '*',hi);
-			//ar = new ArrayList<Comparable>();
+			if(it != null)
+				rkvc.setIterator(it);
+			fkey2 = key + String.format(uniqKeyFmt, hi);
+			System.out.println("11.) findHeadSet(*,*,*,<obj>,String.class,<obj>) using domain to "+fkey2+" map=String.class"+" range to "+hi);		
+			it = rkvc.findHeadSet('*', '*', '*',fkey2,String.class,hi);
 			while(it.hasNext()) {
 				Object o = it.next();
 				Result c = (Result)o;
 				displayCtrl();
 				if(DISPLAY)
 					System.out.println(displayLine+"="+c);
-				//if(ar2.size() == 2) ar2.add(c);
+			}
+			it = null;	
+			hi = (max/1000L);
+			displayLine =0;
+			System.out.println("12.) findHeadSet(*,*,*,String.class,String.class,<obj>) using domain=String.class map=String.class "+" range= to "+hi);		
+			it = rkvc.findHeadSet('*', '*', '*',String.class,String.class,hi);
+			while(it.hasNext()) {
+				Object o = it.next();
+				Result c = (Result)o;
+				displayCtrl();
+				if(DISPLAY)
+					System.out.println(displayLine+"="+c);
+			}
+			hi+=1000L;
+			if(it != null)
+				rkvc.setIterator(it);
+			System.out.println("13.) findHeadSet(*,*,*,String.class,String.class,<obj>) using domain=String.class map=String.class"+" range to "+hi);		
+			it = rkvc.findHeadSet('*', '*', '*',String.class,String.class,hi);
+			while(it.hasNext()) {
+				Object o = it.next();
+				Result c = (Result)o;
+				displayCtrl();
+				if(DISPLAY)
+					System.out.println(displayLine+"="+c);
+			}
+			hi+=1000L;
+			if(it != null)
+				rkvc.setIterator(it);
+			System.out.println("14.) findHeadSet(*,*,*,<obj>,<obj>,<obj>) using domain=String.class map=String.class"+" range to "+hi);		
+			it = rkvc.findHeadSet('*', '*', '*',String.class,String.class,hi);
+			while(it.hasNext()) {
+				Object o = it.next();
+				Result c = (Result)o;
+				displayCtrl();
+				if(DISPLAY)
+					System.out.println(displayLine+"="+c);
 			}
 			System.out.println("BATTERY4A SUCCESS in "+(System.currentTimeMillis()-tims));
 		}
@@ -514,38 +392,40 @@ public class ServerRetrievalBattery2 {
 				System.out.println("KV RANGE 1AR17 RangeMapDomain MISMATCH:"+siz+" > 0 after all deleted and committed");
 				throw new Exception("KV RANGE 1AR17 RangeMapDomain MISMATCH:"+siz+" > 0 after delete/commit");
 			}/*
-			it = RelatrixKV.entrySet(DBKey.class);
-			while(it.hasNext()) {
-				Comparable nex = (Comparable) it.next();
-				System.out.println("DBKey:"+nex);
-			}
-			siz = RelatrixKV.size(DBKey.class);
-			if(siz > 0) {
-				System.out.println("KV RANGE 1AR17 DBKEY MISMATCH:"+siz+" > 0 after all deleted and committed");
-				throw new Exception("KV RANGE 1AR17 DBKEY MISMATCH:"+siz+" > 0 after delete/commit");
-			}
-			it = RelatrixKV.entrySet(Long.class);
-			while(it.hasNext()) {
-				Comparable nex = (Comparable) it.next();
-				System.out.println("Long:"+nex);
-			}
-			siz = RelatrixKV.size(Long.class);
-			if(siz > 0) {
-				System.out.println("KV RANGE 1AR17 Long MISMATCH:"+siz+" > 0 after all deleted and committed");
-				throw new Exception("KV RANGE 1AR17 Long MISMATCH:"+siz+" > 0 after delete/commit");
-			}
-			it = RelatrixKV.entrySet(String.class);
-			while(it.hasNext()) {
-				Comparable nex = (Comparable) it.next();
-				System.out.println("String:"+nex);
-			}
-			siz = RelatrixKV.size(String.class);
-			if(siz > 0) {
-				System.out.println("KV RANGE 1AR17 String MISMATCH:"+siz+" > 0 after all deleted and committed");
-				throw new Exception("KV RANGE 1AR17 String MISMATCH:"+siz+" > 0 after delete/commit");
-			}
-			*/
+				it = RelatrixKV.entrySet(DBKey.class);
+				while(it.hasNext()) {
+					Comparable nex = (Comparable) it.next();
+					System.out.println("DBKey:"+nex);
+				}
+				siz = RelatrixKV.size(DBKey.class);
+				if(siz > 0) {
+					System.out.println("KV RANGE 1AR17 DBKEY MISMATCH:"+siz+" > 0 after all deleted and committed");
+					throw new Exception("KV RANGE 1AR17 DBKEY MISMATCH:"+siz+" > 0 after delete/commit");
+				}
+				it = RelatrixKV.entrySet(Long.class);
+				while(it.hasNext()) {
+					Comparable nex = (Comparable) it.next();
+					System.out.println("Long:"+nex);
+				}
+				siz = RelatrixKV.size(Long.class);
+				if(siz > 0) {
+					System.out.println("KV RANGE 1AR17 Long MISMATCH:"+siz+" > 0 after all deleted and committed");
+					throw new Exception("KV RANGE 1AR17 Long MISMATCH:"+siz+" > 0 after delete/commit");
+				}
+				it = RelatrixKV.entrySet(String.class);
+				while(it.hasNext()) {
+					Comparable nex = (Comparable) it.next();
+					System.out.println("String:"+nex);
+				}
+				siz = RelatrixKV.size(String.class);
+				if(siz > 0) {
+					System.out.println("KV RANGE 1AR17 String MISMATCH:"+siz+" > 0 after all deleted and committed");
+					throw new Exception("KV RANGE 1AR17 String MISMATCH:"+siz+" > 0 after delete/commit");
+				}
+			 */
 			System.out.println("BATTERY1AR17 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 		}
+
+	}
+
 	
-}
