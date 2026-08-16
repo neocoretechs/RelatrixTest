@@ -1,4 +1,4 @@
-package com.neocoretechs.relatrix.test.server;
+package com.neocoretechs.relatrix.test.server.transaction;
 
 import java.util.Optional;
 import java.util.stream.Stream;
