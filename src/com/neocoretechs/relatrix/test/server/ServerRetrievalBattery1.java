@@ -138,7 +138,7 @@ public class ServerRetrievalBattery1 {
 				Result c = (Result)o;
 				displayCtrl();
 				if(DISPLAY)
-					System.out.println(displayLine+"="+c);
+					System.out.println("(2."+j+" of "+ar.size()+") "+displayLine+"="+c);
 			}
 			displayLine=0;
 			//RelatrixHeadsetIterator.DEBUG = true;
@@ -151,7 +151,7 @@ public class ServerRetrievalBattery1 {
 				Result c = (Result)o;
 				displayCtrl();
 				if(DISPLAY)
-					System.out.println(displayLine+"="+c);
+					System.out.println("(3."+j+" of "+ar.size()+") "+displayLine+"="+c);
 			}
 			displayLine = 0;
 			//RelatrixHeadsetIterator.DEBUG = true;
@@ -164,7 +164,7 @@ public class ServerRetrievalBattery1 {
 				Result c = (Result)o;
 				displayCtrl();
 				if(DISPLAY)
-					System.out.println(displayLine+"="+c);
+					System.out.println("(4."+j+" of "+ar.size()+") "+displayLine+"="+c);
 			}
 			displayLine =0;
 			System.out.println("5.) FindSubset(<obj>,*,*,String.class, Long.class) using domain="+arel[0]);
@@ -176,7 +176,7 @@ public class ServerRetrievalBattery1 {
 				Result c = (Result)o;
 				displayCtrl();
 				if(DISPLAY)
-					System.out.println(displayLine+"="+c);
+					System.out.println("(5."+j+" of "+ar.size()+") "+displayLine+"="+c);
 			}
 			displayLine = 0;
 			System.out.println("6.) findSubSet(*,<obj>,<obj>,String.class) using map="+arel[1]+" range="+arel[2]);
@@ -189,7 +189,7 @@ public class ServerRetrievalBattery1 {
 				Result c = (Result)o;
 				displayCtrl();
 				if(DISPLAY)
-					System.out.println(displayLine+"="+c);
+					System.out.println("(6."+j+" of "+ar.size()+") "+displayLine+"="+c);
 				//if(ar2.size() == 0) ar2.add(c);
 			}
 			displayLine = 0;
@@ -203,7 +203,7 @@ public class ServerRetrievalBattery1 {
 				Result c = (Result)o;
 				displayCtrl();
 				if(DISPLAY)
-					System.out.println(displayLine+"="+c);
+					System.out.println("(7."+j+" of "+ar.size()+") "+displayLine+"="+c);
 				//if(ar2.size() == 1) ar2.add(c);
 			}
 			displayLine =0;
@@ -217,7 +217,7 @@ public class ServerRetrievalBattery1 {
 				Result c = (Result)o;
 				displayCtrl();
 				if(DISPLAY)
-					System.out.println(displayLine+"="+c);
+					System.out.println("(8."+j+" of "+ar.size()+") "+displayLine+"="+c);
 				//if(ar2.size() == 2) ar2.add(c);
 			}
 		}

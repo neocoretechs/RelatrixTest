@@ -121,7 +121,7 @@ public class ServerRetrievalBattery0 {
 			for(int j = 0; j < ar.size(); j++) {
 				displayLine = 0;
 				Comparable[] arel = ((Result)ar.get(j)).toArray();
-				System.out.println("9."+j+") findSet(<obj>,<obj>,<obj>) using ="+
+				System.out.println("2."+j+") findSet(<obj>,<obj>,<obj>) using ="+
 						arel[0]+",("+arel[0].getClass().getName()+"),"+
 						arel[1]+",("+arel[1].getClass().getName()+"),"+
 						arel[2]+",("+arel[2].getClass().getName());
@@ -133,7 +133,7 @@ public class ServerRetrievalBattery0 {
 					Result c = (Result)o;
 					displayCtrl();
 					if(DISPLAY || DISPLAYALL)
-						System.out.println(displayLine+"="+c);
+						System.out.println("(2."+j+" of "+ar.size()+") "+displayLine+"="+c);
 				}
 			}
 			it = null;
@@ -141,7 +141,7 @@ public class ServerRetrievalBattery0 {
 				displayLine=0;
 				//RelatrixHeadsetIterator.DEBUG = true;
 				Comparable[] arel = ((Result)ar.get(j)).toArray();
-				System.out.println("10."+j+") findSet(*,*,<obj>) using range="+arel[2]);
+				System.out.println("3."+j+") findSet(*,*,<obj>) using range="+arel[2]);
 				if(it != null)
 					rkvc.setIterator(it);
 				it = rkvc.findSet('*', '*', arel[2]);
@@ -150,7 +150,7 @@ public class ServerRetrievalBattery0 {
 					Result c = (Result)o;
 					displayCtrl();
 					if(DISPLAY || DISPLAYALL)
-						System.out.println(displayLine+"="+c);
+						System.out.println("(3."+j+" of "+ar.size()+") "+displayLine+"="+c);
 				}
 			}
 			it = null;
@@ -158,7 +158,7 @@ public class ServerRetrievalBattery0 {
 				displayLine = 0;
 				//RelatrixHeadsetIterator.DEBUG = true;
 				Comparable[] arel = ((Result)ar.get(j)).toArray();
-				System.out.println("11."+j+") findSet(*,<obj>,*) using map="+arel[1]);
+				System.out.println("4."+j+") findSet(*,<obj>,*) using map="+arel[1]);
 				if(it != null)
 					rkvc.setIterator(it);
 				it = rkvc.findSet('*', arel[1], '*');
@@ -167,14 +167,14 @@ public class ServerRetrievalBattery0 {
 					Result c = (Result)o;
 					displayCtrl();
 					if(DISPLAY || DISPLAYALL)
-						System.out.println(displayLine+"="+c);
+						System.out.println("(4."+j+" of "+ar.size()+") "+displayLine+"="+c);
 				}
 			}
 			it = null;
 			for(int j = 0; j < ar.size(); j++) {
 				displayLine = 0;
 				Comparable[] arel = ((Result)ar.get(j)).toArray();
-				System.out.println("12."+j+") FindSet(<obj>,*,*) using domain="+arel[0]);
+				System.out.println("5."+j+") FindSet(<obj>,*,*) using domain="+arel[0]);
 				if(it != null)
 					rkvc.setIterator(it);
 				it = rkvc.findSet(arel[0], '*', '*');
@@ -183,7 +183,7 @@ public class ServerRetrievalBattery0 {
 					Result c = (Result)o;
 					displayCtrl();
 					if(DISPLAY || DISPLAYALL)
-						System.out.println(displayLine+"="+c);
+						System.out.println("(5."+j+" of "+ar.size()+") "+displayLine+"="+c);
 				}
 			}
 			// From a Result2 we can call get(0) and get(1), like an array, we can also call toArray
@@ -191,7 +191,7 @@ public class ServerRetrievalBattery0 {
 			for(int j = 0; j < ar.size(); j++) {
 				displayLine = 0;
 				Comparable[] arel = ((Result)ar.get(j)).toArray();
-				System.out.println("13."+j+") findSet(*,<obj>,<obj>) using map="+arel[1]+" range="+arel[2]);
+				System.out.println("6."+j+") findSet(*,<obj>,<obj>) using map="+arel[1]+" range="+arel[2]);
 				if(it != null)
 					rkvc.setIterator(it);
 				it = rkvc.findSet('*', arel[1], arel[2]);
@@ -200,14 +200,14 @@ public class ServerRetrievalBattery0 {
 					Result c = (Result)o;
 					displayCtrl();
 					if(DISPLAY || DISPLAYALL)
-						System.out.println(displayLine+"="+c);
+						System.out.println("(6."+j+" of "+ar.size()+") "+displayLine+"="+c);
 				}
 			}
 			it = null;
 			for(int j = 0; j < ar.size(); j++) {
 				displayLine = 0;
 				Comparable[] arel = ((Result)ar.get(j)).toArray();
-				System.out.println("14."+j+") findSet(<obj>,*,<obj>) using ="+arel[0]+", "+arel[2]);
+				System.out.println("7."+j+") findSet(<obj>,*,<obj>) using ="+arel[0]+", "+arel[2]);
 				if(it != null)
 					rkvc.setIterator(it);
 				it = rkvc.findSet(arel[0], '*', arel[2]);
@@ -216,14 +216,14 @@ public class ServerRetrievalBattery0 {
 					Result c = (Result)o;
 					displayCtrl();
 					if(DISPLAY || DISPLAYALL)
-						System.out.println(displayLine+"="+c);
+						System.out.println("(7."+j+" of "+ar.size()+") "+displayLine+"="+c);
 				}
 			}
 			it = null;
 			for(int j = 0; j < ar.size(); j++) {
 				displayLine=0;
 				Comparable[] arel = ((Result)ar.get(j)).toArray();
-				System.out.println("15."+j+") findSet(<obj>,<obj>,*) using domain="+arel[0]+", map="+arel[1]);
+				System.out.println("8."+j+") findSet(<obj>,<obj>,*) using domain="+arel[0]+", map="+arel[1]);
 				if(it != null)
 					rkvc.setIterator(it);
 				it = rkvc.findSet(arel[0], arel[1], '*');
@@ -232,7 +232,7 @@ public class ServerRetrievalBattery0 {
 					Result c = (Result)o;
 					displayCtrl();
 					if(DISPLAY || DISPLAYALL)
-						System.out.println(displayLine+"="+c);
+						System.out.println("(8."+j+" of "+ar.size()+") "+displayLine+"="+c);
 				}
 			}
 
