@@ -18,13 +18,13 @@ import com.neocoretechs.relatrix.client.RelatrixClient;
 
 /**
  * This series of tests loads up arrays to create a cascading set of retrievals mostly checking
- * and verifying findSubStream retrieval using the client to a remote {@link com.neocoretechs.relatrix.server.RelatrixServer}.
+ * and verifying findTailStream retrieval using the client to a remote {@link com.neocoretechs.relatrix.server.RelatrixServer}.
  * NOTES:
  * program arguments are local_node remote_node remote_port_for_database
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2024
  *
  */
-public class StreamRetrievalBattery1 {
+public class StreamRetrievalBattery3 {
 	public static boolean DEBUG = false;
 	private static RelatrixClient rkvc ;
 		public static int displayLinesOn[]= {0,1000,5000,9990,15000,20000,30000,40000,50000,60000,70000,80000,90000,99000};
@@ -55,7 +55,7 @@ public class StreamRetrievalBattery1 {
 				battery0(argv);
 			}
 			battery1(argv);
-			System.out.println("StreamRetrievalBattery1 COMPLETE.");	
+			System.out.println("StreamRetrievalBattery3 COMPLETE.");	
 			System.exit(1);
 		}
 		
@@ -109,8 +109,8 @@ public class StreamRetrievalBattery1 {
 			Stream<?> it = null;
 			System.out.println("Wildcard queries:");
 			displayLine = 0;
-			System.out.println("1.) findSubStream(*,*,*,String.class, String.class, Long.class)...");
-			it =  rkvc.findSubStream('*', '*', '*',String.class, String.class, Long.class);
+			System.out.println("1.) findTailStream(*,*,*,String.class, String.class, Long.class)...");
+			it =  rkvc.findTailStream('*', '*', '*',String.class, String.class, Long.class);
 			it.parallel().forEach(e-> {
 				Result c = (Result)e;
 				displayCtrl();
@@ -120,18 +120,18 @@ public class StreamRetrievalBattery1 {
 			});
 			//-----------------
 			System.out.println("Above are the wildcard permutations. Now retrieve those with object references using the "+ar.size());
-			System.out.println("wildcard results. NOTE: Concrete object references in findSubStream typically produce null sets.");
+			System.out.println("wildcard results. NOTE: Concrete object references in findTailStream typically produce null sets.");
 			it = null;
 			for(j = 0; j < ar.size(); j++) {
 				displayLine =0;
 				Comparable[] arel = ((Result)ar.get(j)).toArray();	
-				System.out.println("2.) findSubStream(<obj>,<obj>,<obj>) using ="+
+				System.out.println("2.) findTailStream(<obj>,<obj>,<obj>) using ="+
 						arel[0]+",("+arel[0].getClass().getName()+"),"+
 						arel[1]+",("+arel[1].getClass().getName()+"),"+
 						arel[2]+",("+arel[2].getClass().getName());
 				if(it != null)
 					rkvc.setStream(it);
-				it = rkvc.findSubStream(arel[0],arel[1],arel[2]);
+				it = rkvc.findTailStream(arel[0],arel[1],arel[2]);
 				it.parallel().forEach(e-> {
 					Result c = (Result)e;
 					displayCtrl();
@@ -143,10 +143,10 @@ public class StreamRetrievalBattery1 {
 				displayLine=0;
 				//RelatrixHeadsetStream.DEBUG = true;
 				Comparable[] arel = ((Result)ar.get(j)).toArray();	
-				System.out.println("3.) findSubStream(*,*,<obj>,String.class, String.class) using range="+arel[2]);
+				System.out.println("3.) findTailStream(*,*,<obj>,String.class, String.class) using range="+arel[2]);
 				if(it != null)
 					rkvc.setStream(it);
-				it = rkvc.findSubStream('*', '*', arel[2], String.class, String.class);
+				it = rkvc.findTailStream('*', '*', arel[2], String.class, String.class);
 				it.parallel().forEach(e-> {
 					Result c = (Result)e;
 					displayCtrl();
@@ -158,10 +158,10 @@ public class StreamRetrievalBattery1 {
 				displayLine = 0;
 				//RelatrixHeadsetStream.DEBUG = true;
 				Comparable[] arel = ((Result)ar.get(j)).toArray();
-				System.out.println("4.) findSubStream(*,<obj>,*, String.class, Long.class) using map="+arel[1]);
+				System.out.println("4.) findTailStream(*,<obj>,*, String.class, Long.class) using map="+arel[1]);
 				if(it != null)
 					rkvc.setStream(it);
-				it = rkvc.findSubStream('*', arel[1], '*',String.class, Long.class);
+				it = rkvc.findTailStream('*', arel[1], '*',String.class, Long.class);
 				it.parallel().forEach(e-> {
 					Result c = (Result)e;
 					displayCtrl();
@@ -172,10 +172,10 @@ public class StreamRetrievalBattery1 {
 			for(j = 0; j < ar.size(); j++) {
 				displayLine = 0;
 				Comparable[] arel = ((Result)ar.get(j)).toArray();
-				System.out.println("5.) findSubStream(<obj>,*,*,String.class, Long.class) using domain="+arel[0]);
+				System.out.println("5.) findTailStream(<obj>,*,*,String.class, Long.class) using domain="+arel[0]);
 				if(it != null)
 					rkvc.setStream(it);
-				it = rkvc.findSubStream(arel[0], '*', '*', String.class, Long.class);
+				it = rkvc.findTailStream(arel[0], '*', '*', String.class, Long.class);
 				it.parallel().forEach(e-> {
 					Result c = (Result)e;
 					displayCtrl();
@@ -186,10 +186,10 @@ public class StreamRetrievalBattery1 {
 			for(j = 0; j < ar.size(); j++) {
 				displayLine = 0;
 				Comparable[] arel = ((Result)ar.get(j)).toArray();
-				System.out.println("6.) findSubStream(*,<obj>,<obj>,String.class) using map="+arel[1]+" range="+arel[2]);
+				System.out.println("6.) findTailStream(*,<obj>,<obj>,String.class) using map="+arel[1]+" range="+arel[2]);
 				if(it != null)
 					rkvc.setStream(it);
-				it = rkvc.findSubStream('*', arel[1], arel[2], String.class);
+				it = rkvc.findTailStream('*', arel[1], arel[2], String.class);
 				//ar = new ArrayList<Comparable>();
 				it.parallel().forEach(e-> {
 					Result c = (Result)e;
@@ -202,10 +202,10 @@ public class StreamRetrievalBattery1 {
 			for(j = 0; j < ar.size(); j++) {
 				displayLine = 0;
 				Comparable[] arel = ((Result)ar.get(j)).toArray();
-				System.out.println("7.) findSubStream(<obj>,*,<obj>,String.class) using domain="+arel[0]+", range="+arel[2]);	
+				System.out.println("7.) findTailStream(<obj>,*,<obj>,String.class) using domain="+arel[0]+", range="+arel[2]);	
 				if(it != null)
 					rkvc.setStream(it);
-				it = rkvc.findSubStream(arel[0], '*', arel[2], String.class);
+				it = rkvc.findTailStream(arel[0], '*', arel[2], String.class);
 				//ar = new ArrayList<Comparable>();
 				it.parallel().forEach(e-> {
 					Result c = (Result)e;
@@ -218,10 +218,10 @@ public class StreamRetrievalBattery1 {
 			for(j = 0; j < ar.size(); j++) {
 				displayLine = 0;
 				Comparable[] arel = ((Result)ar.get(j)).toArray();
-				System.out.println("8.) findSubStream(<obj>,<obj>,*, Long.class) using domain="+arel[0]+", map="+arel[1]);
+				System.out.println("8.) findTailStream(<obj>,<obj>,*, Long.class) using domain="+arel[0]+", map="+arel[1]);
 				if(it != null)
 					rkvc.setStream(it);
-				it = rkvc.findSubStream(arel[0], arel[1], '*',Long.class);
+				it = rkvc.findTailStream(arel[0], arel[1], '*',Long.class);
 				it.parallel().forEach(e-> {
 					Result c = (Result)e;
 					displayCtrl();
@@ -231,45 +231,39 @@ public class StreamRetrievalBattery1 {
 				});
 			}
 			//
-			// ---------- hi/lo test
+			// ---------- range test
 			it = null;	
-			Long lo = (max/20L);
 			Long hi = (max/10L);
-			displayLine =0;
-			String fkey1 = key + String.format(uniqKeyFmt, lo);
+			displayLine = 0;
 			String fkey2 = key + String.format(uniqKeyFmt, hi);
-			System.out.println("9.) findSubStream(*,*,*,<obj>,<obj>,String.class,<obj>,<obj>) using domain="+fkey1+" to "+fkey2+" map=String.class "+" range="+lo+" to "+hi);		
-			it = rkvc.findSubStream('*', '*', '*',fkey1,fkey2,String.class,lo,hi);
+			System.out.println("9.) findTailStream(*,*,*,<obj>,<obj>,String.class,<obj>,<obj>) using domain from "+fkey2+" map=String.class range from "+hi);		
+			it = rkvc.findTailStream('*', '*', '*',fkey2,String.class,hi);
 			it.parallel().forEach(e-> {
 				Result c = (Result)e;
 				displayCtrl();
 				if(DISPLAY)
 					System.out.println(displayLine+"="+c);
 			});
-			lo+=10L;
 			hi+=10L;
 			displayLine = 0;
 			if(it != null)
 				rkvc.setStream(it);
-			fkey1 = key + String.format(uniqKeyFmt, lo);
 			fkey2 = key + String.format(uniqKeyFmt, hi);
-			System.out.println("10.) findSubStream(*,*,*,<obj>,<obj>,String.class,<obj>,<obj>) using domain="+fkey1+" to "+fkey2+" map=String.class"+" range="+lo+" to "+hi);		
-			it = rkvc.findSubStream('*', '*', '*',fkey1,fkey2,String.class,lo,hi);
+			System.out.println("10.) findTailStream(*,*,*,<obj>,<obj>,String.class,<obj>,<obj>) using domain from "+fkey2+" map=String.class range from "+hi);		
+			it = rkvc.findTailStream('*', '*', '*',fkey2,String.class,hi);
 			it.parallel().forEach(e-> {
 				Result c = (Result)e;
 				displayCtrl();
 				if(DISPLAY)
 					System.out.println(displayLine+"="+c);
 			});
-			lo+=1000L;
 			hi+=1000L;
 			displayLine = 0;
 			if(it != null)
 				rkvc.setStream(it);
-			fkey1 = key + String.format(uniqKeyFmt, lo);
 			fkey2 = key + String.format(uniqKeyFmt, hi);
-			System.out.println("11.) findSubStream(*,*,*,<obj>,<obj>,String.class,<obj>,<obj>) using domain="+fkey1+" to "+fkey2+" map=String.class"+" range="+lo+" to "+hi);		
-			it = rkvc.findSubStream('*', '*', '*',fkey1,fkey2,String.class,lo,hi);
+			System.out.println("11.) findTailStream(*,*,*,<obj>,<obj>,String.class,<obj>,<obj>) using domain from "+fkey2+" map=String.class range from "+hi);		
+			it = rkvc.findTailStream('*', '*', '*',fkey2,String.class,hi);
 			it.parallel().forEach(e-> {
 				Result c = (Result)e;
 				displayCtrl();
@@ -277,37 +271,34 @@ public class StreamRetrievalBattery1 {
 					System.out.println(displayLine+"="+c);
 			});
 			it = null;	
-			lo = (max/20L);
 			hi = (max/10L);
 			displayLine =0;
-			System.out.println("12.) findSubStream(*,*,*,String.class,String.class,<obj>,<obj>) using domain=String.class map=String.class "+" range="+lo+" to "+hi);		
-			it = rkvc.findSubStream('*', '*', '*',String.class,String.class,lo,hi);
+			System.out.println("12.) findTailStream(*,*,*,String.class,String.class,<obj>,<obj>) using domain=String.class map=String.class range from "+hi);		
+			it = rkvc.findTailStream('*', '*', '*',String.class,String.class,hi);
 			it.parallel().forEach(e-> {
 				Result c = (Result)e;
 				displayCtrl();
 				if(DISPLAY)
 					System.out.println(displayLine+"="+c);
 			});
-			lo+=10L;
 			hi+=10L;
 			displayLine = 0;
 			if(it != null)
 				rkvc.setStream(it);
-			System.out.println("13.) findSubStream(*,*,*,String.class,String.class,<obj>,<obj>) using domain=String.class map=String.class"+" range="+lo+" to "+hi);		
-			it = rkvc.findSubStream('*', '*', '*',String.class,String.class,lo,hi);
+			System.out.println("13.) findTailStream(*,*,*,String.class,String.class,<obj>,<obj>) using domain=String.class map=String.class range from "+hi);		
+			it = rkvc.findTailStream('*', '*', '*',String.class,String.class,hi);
 			it.parallel().forEach(e-> {
 				Result c = (Result)e;
 				displayCtrl();
 				if(DISPLAY)
 					System.out.println(displayLine+"="+c);
 			});
-			lo+=10L;
 			hi+=10L;
 			displayLine = 0;
 			if(it != null)
 				rkvc.setStream(it);
-			System.out.println("14.) findSubStream(*,*,*,<obj>,<obj>,<obj>,<obj>) using domain=String.class map=String.class"+" range="+lo+" to "+hi);		
-			it = rkvc.findSubStream('*', '*', '*',String.class,String.class,lo,hi);
+			System.out.println("14.) findTailStream(*,*,*,<obj>,<obj>,<obj>,<obj>) using domain=String.class map=String.class"+" range from "+hi);		
+			it = rkvc.findTailStream('*', '*', '*',String.class,String.class,hi);
 			it.parallel().forEach(e-> {
 				Result c = (Result)e;
 				displayCtrl();
