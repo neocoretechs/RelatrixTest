@@ -20,7 +20,7 @@ import com.neocoretechs.relatrix.client.RelatrixClient;
  * This series of tests loads up arrays to create a cascading set of retrievals mostly checking
  * and verifying findSubStream retrieval using the client to a remote {@link com.neocoretechs.relatrix.server.RelatrixServer}.
  * NOTES:
- * program arguments are local_node remote_node remote_port_for_database
+ * program arguments are remote_node remote_port_for_database
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2024
  *
  */
@@ -34,6 +34,7 @@ public class StreamRetrievalBattery1 {
 		public static long displayTimer = 0;
 		public static int min = 0;
 		public static int max = 100;
+		public static int div = 10;
 		static String key = "This is a test"; 
 		static String uniqKeyFmt = "%0100d";
 		private static boolean DISPLAY = false;
@@ -233,8 +234,8 @@ public class StreamRetrievalBattery1 {
 			//
 			// ---------- hi/lo test
 			it = null;	
-			Long lo = (max/20L);
-			Long hi = (max/10L);
+			Long lo = (long)(max/(div*2));
+			Long hi = (long)(max/div);
 			displayLine =0;
 			String fkey1 = key + String.format(uniqKeyFmt, lo);
 			String fkey2 = key + String.format(uniqKeyFmt, hi);
@@ -246,8 +247,8 @@ public class StreamRetrievalBattery1 {
 				if(DISPLAY)
 					System.out.println(displayLine+"="+c);
 			});
-			lo+=10L;
-			hi+=10L;
+			lo+=(long)div;
+			hi+=(long)div;
 			displayLine = 0;
 			if(it != null)
 				rkvc.setStream(it);
@@ -261,8 +262,8 @@ public class StreamRetrievalBattery1 {
 				if(DISPLAY)
 					System.out.println(displayLine+"="+c);
 			});
-			lo+=1000L;
-			hi+=1000L;
+			lo+=(long)div;
+			hi+=(long)div;
 			displayLine = 0;
 			if(it != null)
 				rkvc.setStream(it);
@@ -275,10 +276,9 @@ public class StreamRetrievalBattery1 {
 				displayCtrl();
 				if(DISPLAY)
 					System.out.println(displayLine+"="+c);
-			});
-			it = null;	
-			lo = (max/20L);
-			hi = (max/10L);
+			});	
+			lo = (long)(max/(div*2));
+			hi = (long)(max/div);
 			displayLine =0;
 			System.out.println("12.) findSubStream(*,*,*,String.class,String.class,<obj>,<obj>) using domain=String.class map=String.class "+" range="+lo+" to "+hi);		
 			it = rkvc.findSubStream('*', '*', '*',String.class,String.class,lo,hi);
@@ -288,8 +288,8 @@ public class StreamRetrievalBattery1 {
 				if(DISPLAY)
 					System.out.println(displayLine+"="+c);
 			});
-			lo+=10L;
-			hi+=10L;
+			lo+=(long)div;
+			hi+=(long)div;
 			displayLine = 0;
 			if(it != null)
 				rkvc.setStream(it);
@@ -301,8 +301,8 @@ public class StreamRetrievalBattery1 {
 				if(DISPLAY)
 					System.out.println(displayLine+"="+c);
 			});
-			lo+=10L;
-			hi+=10L;
+			lo+=(long)div;
+			hi+=(long)div;
 			displayLine = 0;
 			if(it != null)
 				rkvc.setStream(it);

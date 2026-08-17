@@ -1,4 +1,4 @@
-package com.neocoretechs.relatrix.test.server;
+package com.neocoretechs.relatrix.test.server.transaction;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -12,18 +12,19 @@ import com.neocoretechs.relatrix.RangeDomainMap;
 import com.neocoretechs.relatrix.RangeMapDomain;
 import com.neocoretechs.relatrix.Result;
 import com.neocoretechs.relatrix.Result1;
-import com.neocoretechs.relatrix.client.RelatrixClient;
+import com.neocoretechs.relatrix.client.RelatrixClientTransaction;
+import com.neocoretechs.rocksack.TransactionId;
 
 /**
  * This series of tests loads up arrays to create a cascading set of retrievals mostly checking
- * and verifying findTailSet retrieval using the client to a remote {@link com.neocoretechs.relatrix.server.RelatrixServer}.
+ * and verifying findHeadSet retrieval using the client to a remote {@link com.neocoretechs.relatrix.server.RelatrixTransactionServer}.
  * NOTES:
  * program arguments are  remote_node remote_port_for_database
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2024
  */
-public class ServerRetrievalBattery3 {
+public class ServerRetrievalBatteryTransaction2 {
 	public static boolean DEBUG = false;
-	private static RelatrixClient rkvc ;
+	private static RelatrixClientTransaction rkvc ;
 		public static int displayLinesOn[]= {0,1000,5000,9990,15000,20000,30000,40000,50000,60000,70000,80000,90000,99000};
 		public static int displayLinesOff[]= {100,1100,5100,9999,15999,20999,30999,40999,50999,60999,70999,80999,90999,100000};
 		public static int displayLine = 0;
@@ -31,22 +32,24 @@ public class ServerRetrievalBattery3 {
 		public static long displayTimer = 0;
 		public static int min = 0;
 		public static int max = 100;
-		public static int div = 10;
+		public static int div = 10; // divisor to make range within max
 		static String key = "This is a test"; 
 		static String uniqKeyFmt = "%0100d";
 		private static boolean DISPLAY = false;
+		private static TransactionId xid;
 		/**
 		*/
 		public static void main(String[] argv) throws Exception {
 			if(argv.length < 2) {
 				System.out.println("Usage: <remoteNode> <remotePort> [init]");
 			}
-			rkvc = new RelatrixClient(argv[0], Integer.parseInt(argv[1]) );
+			rkvc = new RelatrixClientTransaction(argv[0], Integer.parseInt(argv[1]) );
+			xid = rkvc.getTransactionId();
 			AbstractRelation.displayLevel = AbstractRelation.displayLevels.MINIMAL;
 			if(argv.length == 4 && argv[3].equals("init")) {
 				battery1AR17(argv);
 			}
-			if(rkvc.size() == 0) {
+			if(rkvc.size(xid) == 0) {
 				battery0(argv);
 			}
 			battery1(argv);
@@ -83,7 +86,7 @@ public class ServerRetrievalBattery3 {
 			Relation dmr = null;
 			for(int i = min; i < max; i++) {
 				fkey = key + String.format(uniqKeyFmt, i);
-				dmr = rkvc.store(fkey, "Has unit", Long.valueOf(i));
+				dmr = rkvc.store(xid, fkey, "Has unit", Long.valueOf(i));
 				++recs;
 			}
 			System.out.println("BATTERY0 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms. Stored "+recs+" records");
@@ -105,8 +108,8 @@ public class ServerRetrievalBattery3 {
 			Iterator<?> it = null;
 			System.out.println("Wildcard queries:");
 			displayLine = 0;
-			System.out.println("1.) findTailSet(*,*,*,String.class, String.class, Long.class)...");
-			it =  rkvc.findTailSet('*', '*', '*',String.class, String.class, Long.class);
+			System.out.println("1.) findHeadSet(*,*,*,String.class, String.class, Long.class)...");
+			it =  rkvc.findHeadSet(xid, '*', '*', '*',String.class, String.class, Long.class);
 			while(it.hasNext()) {
 				Object o = it.next();
 				Result c = (Result)o;
@@ -117,18 +120,18 @@ public class ServerRetrievalBattery3 {
 			}
 			//-----------------
 			System.out.println("Above are the wildcard permutations. Now retrieve those with object references using the "+ar.size());
-			System.out.println("wildcard results. NOTE: Concrete object references in findTailSet typically produce null sets.");
+			System.out.println("wildcard results. NOTE: Concrete object references in findHeadSet typically produce null sets.");
 			it = null;
 			for(int j = 0; j < ar.size(); j++) {
 				displayLine =0;
 				Comparable[] arel = ((Result)ar.get(j)).toArray();	
-				System.out.println("2.) findTailSet(<obj>,<obj>,<obj>) using ="+
+				System.out.println("2.) findHeadSet(<obj>,<obj>,<obj>) using ="+
 						arel[0]+",("+arel[0].getClass().getName()+"),"+
 						arel[1]+",("+arel[1].getClass().getName()+"),"+
 						arel[2]+",("+arel[2].getClass().getName());
 				if(it != null)
 					rkvc.setIterator(it);
-				it = rkvc.findTailSet(arel[0],arel[1],arel[2]);
+				it = rkvc.findHeadSet(xid, arel[0],arel[1],arel[2]);
 				while(it.hasNext()) {
 					Object o = it.next();
 					Result c = (Result)o;
@@ -138,10 +141,10 @@ public class ServerRetrievalBattery3 {
 				}
 				displayLine=0;
 				//RelatrixHeadsetIterator.DEBUG = true;
-				System.out.println("3.) findTailSet(*,*,<obj>,String.class, String.class) using range="+arel[2]);
+				System.out.println("3.) findHeadSet(*,*,<obj>,String.class, String.class) using range="+arel[2]);
 				if(it != null)
 					rkvc.setIterator(it);
-				it = rkvc.findTailSet('*', '*', arel[2], String.class, String.class);
+				it = rkvc.findHeadSet(xid, '*', '*', arel[2], String.class, String.class);
 				while(it.hasNext()) {
 					Object o = it.next();
 					Result c = (Result)o;
@@ -151,10 +154,10 @@ public class ServerRetrievalBattery3 {
 				}
 				displayLine = 0;
 				//RelatrixHeadsetIterator.DEBUG = true;
-				System.out.println("4.) findTailSet(*,<obj>,*, String.class, Long.class) using map="+arel[1]);
+				System.out.println("4.) findHeadSet(*,<obj>,*, String.class, Long.class) using map="+arel[1]);
 				if(it != null)
 					rkvc.setIterator(it);
-				it = rkvc.findTailSet('*', arel[1], '*',String.class, Long.class);
+				it = rkvc.findHeadSet(xid, '*', arel[1], '*',String.class, Long.class);
 				while(it.hasNext()) {
 					Object o = it.next();
 					Result c = (Result)o;
@@ -163,10 +166,10 @@ public class ServerRetrievalBattery3 {
 						System.out.println(displayLine+"="+c);
 				}
 				displayLine =0;
-				System.out.println("5.) FindTailset(<obj>,*,*,String.class, Long.class) using domain="+arel[0]);
+				System.out.println("5.) FindHeadset(<obj>,*,*,String.class, Long.class) using domain="+arel[0]);
 				if(it != null)
 					rkvc.setIterator(it);
-				it = rkvc.findTailSet(arel[0], '*', '*', String.class, Long.class);
+				it = rkvc.findHeadSet(xid, arel[0], '*', '*', String.class, Long.class);
 				while(it.hasNext()) {
 					Object o = it.next();
 					Result c = (Result)o;
@@ -175,10 +178,10 @@ public class ServerRetrievalBattery3 {
 						System.out.println(displayLine+"="+c);
 				}
 				displayLine = 0;
-				System.out.println("6.) findTailSet(*,<obj>,<obj>,String.class) using map="+arel[1]+" range="+arel[2]);
+				System.out.println("6.) findHeadSet(*,<obj>,<obj>,String.class) using map="+arel[1]+" range="+arel[2]);
 				if(it != null)
 					rkvc.setIterator(it);
-				it = rkvc.findTailSet('*', arel[1], arel[2], String.class);
+				it = rkvc.findHeadSet(xid, '*', arel[1], arel[2], String.class);
 				//ar = new ArrayList<Comparable>();
 				while(it.hasNext()) {
 					Object o = it.next();
@@ -189,10 +192,10 @@ public class ServerRetrievalBattery3 {
 					//if(ar2.size() == 0) ar2.add(c);
 				}
 				displayLine = 0;
-				System.out.println("7.) findTailSet(<obj>,*,<obj>,String.class) using domain="+arel[0]+", range="+arel[2]);	
+				System.out.println("7.) findHeadSet(<obj>,*,<obj>,String.class) using domain="+arel[0]+", range="+arel[2]);	
 				if(it != null)
 					rkvc.setIterator(it);
-				it = rkvc.findTailSet(arel[0], '*', arel[2], String.class);
+				it = rkvc.findHeadSet(xid, arel[0], '*', arel[2], String.class);
 				//ar = new ArrayList<Comparable>();
 				while(it.hasNext()) {
 					Object o = it.next();
@@ -203,10 +206,10 @@ public class ServerRetrievalBattery3 {
 					//if(ar2.size() == 1) ar2.add(c);
 				}
 				displayLine =0;
-				System.out.println("8.) findTailSet(<obj>,<obj>,*, Long.class) using domain="+arel[0]+", map="+arel[1]);
+				System.out.println("8.) findHeadSet(<obj>,<obj>,*, Long.class) using domain="+arel[0]+", map="+arel[1]);
 				if(it != null)
 					rkvc.setIterator(it);
-				it = rkvc.findTailSet(arel[0], arel[1], '*',Long.class);
+				it = rkvc.findHeadSet(xid, arel[0], arel[1], '*',Long.class);
 				//ar = new ArrayList<Comparable>();
 				while(it.hasNext()) {
 					Object o = it.next();
@@ -219,11 +222,11 @@ public class ServerRetrievalBattery3 {
 			}
 			//
 			// ---------- range test
-			Long hi = (long)(max/div);
+			long hi = (max/div);
 			displayLine =0;
 			String fkey2 = key + String.format(uniqKeyFmt, hi);
-			System.out.println("9.) findTailSet(*,*,*,<obj>,String.class,<obj>) using domain from "+fkey2+" map=String.class "+" range from "+hi);		
-			it = rkvc.findTailSet('*', '*', '*',fkey2,String.class,hi);
+			System.out.println("9.) findHeadSet(*,*,*,<obj>,String.class,<obj>) using domain to "+fkey2+" map=String.class "+" range to "+hi);		
+			it = rkvc.findHeadSet(xid, '*', '*', '*',fkey2,String.class,hi);
 			while(it.hasNext()) {
 				Object o = it.next();
 				Result c = (Result)o;
@@ -231,13 +234,13 @@ public class ServerRetrievalBattery3 {
 				if(DISPLAY)
 					System.out.println(displayLine+"="+c);
 			}
-			hi+=(long)div;
 			displayLine = 0;
+			hi+=(long)(div);
 			if(it != null)
 				rkvc.setIterator(it);
 			fkey2 = key + String.format(uniqKeyFmt, hi);
-			System.out.println("10.) findTailSet(*,*,*,<obj>,String.class,<obj>) using domain from "+fkey2+" map=String.class"+" range from "+hi);		
-			it = rkvc.findTailSet('*', '*', '*',fkey2,String.class,hi);
+			System.out.println("10.) findHeadSet(*,*,*,<obj>,String.class,<obj>) using domain to "+fkey2+" map=String.class"+" range to "+hi);		
+			it = rkvc.findHeadSet(xid, '*', '*', '*',fkey2,String.class,hi);
 			while(it.hasNext()) {
 				Object o = it.next();
 				Result c = (Result)o;
@@ -245,24 +248,13 @@ public class ServerRetrievalBattery3 {
 				if(DISPLAY)
 					System.out.println(displayLine+"="+c);
 			}
-			hi+=(long)div;
-			displayLine =0;
+			displayLine = 0;
+			hi+=(long)(div);
 			if(it != null)
 				rkvc.setIterator(it);
 			fkey2 = key + String.format(uniqKeyFmt, hi);
-			System.out.println("11.) findTailSet(*,*,*,<obj>,String.class,<obj>) using domain from "+fkey2+" map=String.class"+" range from "+hi);		
-			it = rkvc.findTailSet('*', '*', '*',fkey2,String.class,hi);
-			while(it.hasNext()) {
-				Object o = it.next();
-				Result c = (Result)o;
-				displayCtrl();
-				if(DISPLAY)
-					System.out.println(displayLine+"="+c);
-			}	
-			hi = (long)(max/div);
-			displayLine =0;
-			System.out.println("12.) findTailSet(*,*,*,String.class,String.class,<obj>) using domain=String.class map=String.class "+" range from "+hi);		
-			it = rkvc.findTailSet('*', '*', '*',String.class,String.class,hi);
+			System.out.println("11.) findHeadSet(*,*,*,<obj>,String.class,<obj>) using domain to "+fkey2+" map=String.class"+" range to "+hi);		
+			it = rkvc.findHeadSet(xid, '*', '*', '*',fkey2,String.class,hi);
 			while(it.hasNext()) {
 				Object o = it.next();
 				Result c = (Result)o;
@@ -270,12 +262,12 @@ public class ServerRetrievalBattery3 {
 				if(DISPLAY)
 					System.out.println(displayLine+"="+c);
 			}
-			hi+=(long)div;
+			hi+=(long)(div);
 			displayLine =0;
+			System.out.println("12.) findHeadSet(*,*,*,String.class,String.class,<obj>) using domain=String.class map=String.class "+" range= to "+hi);
 			if(it != null)
 				rkvc.setIterator(it);
-			System.out.println("13.) findTailSet(*,*,*,String.class,String.class,<obj>) using domain=String.class map=String.class"+" range from "+hi);		
-			it = rkvc.findTailSet('*', '*', '*',String.class,String.class,hi);
+			it = rkvc.findHeadSet(xid, '*', '*', '*',String.class,String.class,hi);
 			while(it.hasNext()) {
 				Object o = it.next();
 				Result c = (Result)o;
@@ -283,12 +275,12 @@ public class ServerRetrievalBattery3 {
 				if(DISPLAY)
 					System.out.println(displayLine+"="+c);
 			}
-			hi+=(long)div;
-			displayLine =0;
+			displayLine = 0;
+			hi+=(long)(div);
 			if(it != null)
 				rkvc.setIterator(it);
-			System.out.println("14.) findTailSet(*,*,*,<obj>,<obj>,<obj>) using domain=String.class map=String.class"+" range from "+hi);		
-			it = rkvc.findTailSet('*', '*', '*',String.class,String.class,hi);
+			System.out.println("13.) findHeadSet(*,*,*,String.class,String.class,<obj>) using domain=String.class map=String.class"+" range to "+hi);		
+			it = rkvc.findHeadSet(xid, '*', '*', '*',String.class,String.class,hi);
 			while(it.hasNext()) {
 				Object o = it.next();
 				Result c = (Result)o;
@@ -296,7 +288,20 @@ public class ServerRetrievalBattery3 {
 				if(DISPLAY)
 					System.out.println(displayLine+"="+c);
 			}
-			System.out.println("BATTERY4A SUCCESS in "+(System.currentTimeMillis()-tims));
+			hi+=(long)(div);
+			if(it != null)
+				rkvc.setIterator(it);
+			displayLine = 0;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   			rkvc.setIterator(it);
+			System.out.println("14.) findHeadSet(*,*,*,<obj>,<obj>,<obj>) using domain=String.class map=String.class"+" range to "+hi);		
+			it = rkvc.findHeadSet(xid, '*', '*', '*',String.class,String.class,hi);
+			while(it.hasNext()) {
+				Object o = it.next();
+				Result c = (Result)o;
+				displayCtrl();
+				if(DISPLAY)
+					System.out.println(displayLine+"="+c);
+			}
+			System.out.println("BATTERY1  SUCCESS in "+(System.currentTimeMillis()-tims));
 		}
 		/**
 		 * remove entries
@@ -306,88 +311,88 @@ public class ServerRetrievalBattery3 {
 		public static void battery1AR17(String[] argv) throws Exception {
 			long tims = System.currentTimeMillis();
 			System.out.println("CleanDB");
-			Iterator it = rkvc.findSet('*','*','*');
+			Iterator it = rkvc.findSet(xid, '*','*','*');
 			long timx = System.currentTimeMillis();
 			int i = 0;
 			while(it.hasNext()) {
 				Object fkey = it.next();
 				Relation dmr = (Relation)((Result)fkey).get(0);
-				rkvc.remove(dmr.getDomain(), dmr.getMap());
+				rkvc.remove(xid, dmr.getDomain(), dmr.getMap());
 				++i;
 				if((System.currentTimeMillis()-timx) > 1000) {
 					System.out.println("deleting "+i+" "+fkey);
 					timx = System.currentTimeMillis();
 				}
 			}
-			Iterator<?> its = rkvc.findSet('*','*','*');
+			Iterator<?> its = rkvc.findSet(xid, '*','*','*');
 			while(its.hasNext()) {
 				Result nex = (Result) its.next();
 				//System.out.println(i+"="+nex);
 				System.out.println("KV RANGE 1AR17 KEY SHOULD BE DELETED:"+nex);
 			}
-			long siz = rkvc.size();
+			long siz = rkvc.size(xid);
 			if(siz > 0) {
 				System.out.println("KV RANGE 1AR17 KEY MISMATCH:"+siz+" > 0 after all deleted and committed");
 				throw new Exception("KV RANGE 1AR17 KEY MISMATCH:"+siz+" > 0 after delete/commit");
 			}
-			it = rkvc.entrySet(Relation.class);
+			it = rkvc.entrySet(xid, Relation.class);
 			while(it.hasNext()) {
 				Comparable nex = (Comparable) it.next();
 				System.out.println("Relation:"+nex);
 			}
-			siz = rkvc.size();
+			siz = rkvc.size(xid);
 			if(siz > 0) {
 				System.out.println("KV RANGE 1AR17 Relation MISMATCH:"+siz+" > 0 after all deleted and committed");
 				throw new Exception("KV RANGE 1AR17 Relation MISMATCH:"+siz+" > 0 after delete/commit");
 			}
-			it = rkvc.entrySet(DomainRangeMap.class);
+			it = rkvc.entrySet(xid, DomainRangeMap.class);
 			while(it.hasNext()) {
 				Comparable nex = (Comparable) it.next();
 				System.out.println("DomainRangeMap:"+nex);
 			}
-			siz = rkvc.size();
+			siz = rkvc.size(xid);
 			if(siz > 0) {
 				System.out.println("KV RANGE 1AR17 DomainRangeMap MISMATCH:"+siz+" > 0 after all deleted and committed");
 				throw new Exception("KV RANGE 1AR17 DomainRangeMap MISMATCH:"+siz+" > 0 after delete/commit");
 			}
 
-			it = rkvc.entrySet(MapDomainRange.class);
+			it = rkvc.entrySet(xid, MapDomainRange.class);
 			while(it.hasNext()) {
 				Comparable nex = (Comparable) it.next();
 				System.out.println("MapDomainRange:"+nex);
 			}
-			siz = rkvc.size(MapDomainRange.class);
+			siz = rkvc.size(xid, MapDomainRange.class);
 			if(siz > 0) {
 				System.out.println("KV RANGE 1AR17 MapDomainRange MISMATCH:"+siz+" > 0 after all deleted and committed");
 				throw new Exception("KV RANGE 1AR17 MapDomainRange MISMATCH:"+siz+" > 0 after delete/commit");
 			}
 
-			it = rkvc.entrySet(MapRangeDomain.class);
+			it = rkvc.entrySet(xid, MapRangeDomain.class);
 			while(it.hasNext()) {
 				Comparable nex = (Comparable) it.next();
 				System.out.println("MapRangeDomain:"+nex);
 			}
-			siz = rkvc.size(MapRangeDomain.class);
+			siz = rkvc.size(xid, MapRangeDomain.class);
 			if(siz > 0) {
 				System.out.println("KV RANGE 1AR17 MapRangeDomain MISMATCH:"+siz+" > 0 after all deleted and committed");
 				throw new Exception("KV RANGE 1AR17 MapRangeDomain MISMATCH:"+siz+" > 0 after delete/commit");
 			}
-			it = rkvc.entrySet(RangeDomainMap.class);
+			it = rkvc.entrySet(xid, RangeDomainMap.class);
 			while(it.hasNext()) {
 				Comparable nex = (Comparable) it.next();
 				System.out.println("RangeDomainMap:"+nex);
 			}
-			siz = rkvc.size(RangeDomainMap.class);
+			siz = rkvc.size(xid, RangeDomainMap.class);
 			if(siz > 0) {
 				System.out.println("KV RANGE 1AR17 RangeDomainMap MISMATCH:"+siz+" > 0 after all deleted and committed");
 				throw new Exception("KV RANGE 1AR17 RangeDomainMap MISMATCH:"+siz+" > 0 after delete/commit");
 			}
-			it = rkvc.entrySet(RangeMapDomain.class);
+			it = rkvc.entrySet(xid, RangeMapDomain.class);
 			while(it.hasNext()) {
 				Comparable nex = (Comparable) it.next();
 				System.out.println("RangeMapDomain:"+nex);
 			}
-			siz = rkvc.size(RangeMapDomain.class);
+			siz = rkvc.size(xid, RangeMapDomain.class);
 			if(siz > 0) {
 				System.out.println("KV RANGE 1AR17 RangeMapDomain MISMATCH:"+siz+" > 0 after all deleted and committed");
 				throw new Exception("KV RANGE 1AR17 RangeMapDomain MISMATCH:"+siz+" > 0 after delete/commit");

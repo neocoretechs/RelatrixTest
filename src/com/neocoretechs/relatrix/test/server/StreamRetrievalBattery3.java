@@ -20,7 +20,7 @@ import com.neocoretechs.relatrix.client.RelatrixClient;
  * This series of tests loads up arrays to create a cascading set of retrievals mostly checking
  * and verifying findTailStream retrieval using the client to a remote {@link com.neocoretechs.relatrix.server.RelatrixServer}.
  * NOTES:
- * program arguments are local_node remote_node remote_port_for_database
+ * program arguments are remote_node remote_port_for_database
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2024
  *
  */
@@ -34,6 +34,7 @@ public class StreamRetrievalBattery3 {
 		public static long displayTimer = 0;
 		public static int min = 0;
 		public static int max = 100;
+		public static int div = 10;
 		static String key = "This is a test"; 
 		static String uniqKeyFmt = "%0100d";
 		private static boolean DISPLAY = false;
@@ -231,9 +232,8 @@ public class StreamRetrievalBattery3 {
 				});
 			}
 			//
-			// ---------- range test
-			it = null;	
-			Long hi = (max/10L);
+			// ---------- range test	
+			Long hi = (long)(max/div);
 			displayLine = 0;
 			String fkey2 = key + String.format(uniqKeyFmt, hi);
 			System.out.println("9.) findTailStream(*,*,*,<obj>,<obj>,String.class,<obj>,<obj>) using domain from "+fkey2+" map=String.class range from "+hi);		
@@ -244,7 +244,7 @@ public class StreamRetrievalBattery3 {
 				if(DISPLAY)
 					System.out.println(displayLine+"="+c);
 			});
-			hi+=10L;
+			hi+=(long)div;
 			displayLine = 0;
 			if(it != null)
 				rkvc.setStream(it);
@@ -257,7 +257,7 @@ public class StreamRetrievalBattery3 {
 				if(DISPLAY)
 					System.out.println(displayLine+"="+c);
 			});
-			hi+=1000L;
+			hi+=(long)div;
 			displayLine = 0;
 			if(it != null)
 				rkvc.setStream(it);
@@ -270,8 +270,7 @@ public class StreamRetrievalBattery3 {
 				if(DISPLAY)
 					System.out.println(displayLine+"="+c);
 			});
-			it = null;	
-			hi = (max/10L);
+			hi = (long)(max/div);
 			displayLine =0;
 			System.out.println("12.) findTailStream(*,*,*,String.class,String.class,<obj>,<obj>) using domain=String.class map=String.class range from "+hi);		
 			it = rkvc.findTailStream('*', '*', '*',String.class,String.class,hi);
@@ -281,7 +280,7 @@ public class StreamRetrievalBattery3 {
 				if(DISPLAY)
 					System.out.println(displayLine+"="+c);
 			});
-			hi+=10L;
+			hi+=(long)div;
 			displayLine = 0;
 			if(it != null)
 				rkvc.setStream(it);
@@ -293,7 +292,7 @@ public class StreamRetrievalBattery3 {
 				if(DISPLAY)
 					System.out.println(displayLine+"="+c);
 			});
-			hi+=10L;
+			hi+=(long)div;
 			displayLine = 0;
 			if(it != null)
 				rkvc.setStream(it);

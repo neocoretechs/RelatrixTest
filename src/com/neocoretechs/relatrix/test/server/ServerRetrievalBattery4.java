@@ -36,6 +36,7 @@ public class ServerRetrievalBattery4 {
 	public static long displayTimer = 0;
 	public static int min = 0;
 	public static int max = 100;
+	public static int div = 10;
 	static long lorange = (max/20L);
 	static long hirange = (max/10L);
 	static Long lo = (long) min;

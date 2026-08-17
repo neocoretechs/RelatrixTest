@@ -16,7 +16,7 @@ import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
  * and verifying findStream retrieval using the client to a remote {@link com.neocoretechs.relatrix.server.RelatrixServer}.
  * To test with the embedded database change the session to Relatrix.getInstance()
  * NOTES:
- * program arguments are remote_node remote_port_for_database <p/>
+ * program arguments are remote_node remote_port_for_database <p>
  * or database_tablespace for embedded test.
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2024
  */

@@ -30,14 +30,14 @@ public class ServerRetrievalBattery2 {
 		public static int displayLineCtr = 0;
 		public static long displayTimer = 0;
 		public static int min = 0;
-		public static int max = 100000;
+		public static int max = 100;
+		public static int div = 10; // divisor to make range in max
 		static String key = "This is a test"; 
 		static String uniqKeyFmt = "%0100d";
-		private static boolean DISPLAY = false;;
+		private static boolean DISPLAY = false;
 		/**
 		*/
 		public static void main(String[] argv) throws Exception {
-			//System.out.println("Analysis of all");
 			if(argv.length < 2) {
 				System.out.println("Usage: <remoteNode> <remotePort> [init]");
 			}
@@ -118,10 +118,8 @@ public class ServerRetrievalBattery2 {
 			//-----------------
 			System.out.println("Above are the wildcard permutations. Now retrieve those with object references using the "+ar.size());
 			System.out.println("wildcard results. NOTE: Concrete object references in findHeadSet typically produce null sets.");
-			long dsiz = ar.size();
-			long inc = dsiz/100;
 			it = null;
-			for(int j = 0; j < dsiz; j+=inc) {
+			for(int j = 0; j < ar.size(); j++) {
 				displayLine =0;
 				Comparable[] arel = ((Result)ar.get(j)).toArray();	
 				System.out.println("2.) findHeadSet(<obj>,<obj>,<obj>) using ="+
@@ -220,9 +218,8 @@ public class ServerRetrievalBattery2 {
 				}
 			}
 			//
-			// ---------- range test
-			it = null;	
-			Long hi = (max/1000L);
+			// ---------- range test	
+			Long hi = (long)(max/(div));
 			displayLine =0;
 			String fkey2 = key + String.format(uniqKeyFmt, hi);
 			System.out.println("9.) findHeadSet(*,*,*,<obj>,String.class,<obj>) using domain to "+fkey2+" map=String.class "+" range to "+hi);		
@@ -234,7 +231,7 @@ public class ServerRetrievalBattery2 {
 				if(DISPLAY)
 					System.out.println(displayLine+"="+c);
 			}
-			hi+=1000L;
+			hi+=(long)div;
 			if(it != null)
 				rkvc.setIterator(it);
 			fkey2 = key + String.format(uniqKeyFmt, hi);
@@ -247,7 +244,7 @@ public class ServerRetrievalBattery2 {
 				if(DISPLAY)
 					System.out.println(displayLine+"="+c);
 			}
-			hi+=1000L;
+			hi+=(long)div;
 			if(it != null)
 				rkvc.setIterator(it);
 			fkey2 = key + String.format(uniqKeyFmt, hi);
@@ -259,9 +256,8 @@ public class ServerRetrievalBattery2 {
 				displayCtrl();
 				if(DISPLAY)
 					System.out.println(displayLine+"="+c);
-			}
-			it = null;	
-			hi = (max/1000L);
+			}	
+			hi = (long)(max/div);
 			displayLine =0;
 			System.out.println("12.) findHeadSet(*,*,*,String.class,String.class,<obj>) using domain=String.class map=String.class "+" range= to "+hi);		
 			it = rkvc.findHeadSet('*', '*', '*',String.class,String.class,hi);
@@ -272,7 +268,8 @@ public class ServerRetrievalBattery2 {
 				if(DISPLAY)
 					System.out.println(displayLine+"="+c);
 			}
-			hi+=1000L;
+			hi+=(long)div;
+			displayLine =0;
 			if(it != null)
 				rkvc.setIterator(it);
 			System.out.println("13.) findHeadSet(*,*,*,String.class,String.class,<obj>) using domain=String.class map=String.class"+" range to "+hi);		
@@ -284,7 +281,8 @@ public class ServerRetrievalBattery2 {
 				if(DISPLAY)
 					System.out.println(displayLine+"="+c);
 			}
-			hi+=1000L;
+			hi+=(long)div;
+			displayLine =0;
 			if(it != null)
 				rkvc.setIterator(it);
 			System.out.println("14.) findHeadSet(*,*,*,<obj>,<obj>,<obj>) using domain=String.class map=String.class"+" range to "+hi);		
