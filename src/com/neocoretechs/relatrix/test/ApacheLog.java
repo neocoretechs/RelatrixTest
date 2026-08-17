@@ -52,7 +52,7 @@ import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
  * it.forEachRemaining(e->{<br/>
  *			Iterator it2 = null;<br/>
  *			try {<br/>
- *				it2 = Relatrix.findSet(((Result)e).get(),'?','?');<br/>
+ *				it2 = Relatrix.findSet(((Result)e).get(),'*','*');<br/>
  *			} catch (Exception e1) {<br/>
  *				e1.printStackTrace();<br/>
  *			} <br/>

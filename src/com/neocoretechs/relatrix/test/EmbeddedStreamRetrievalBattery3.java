@@ -132,8 +132,8 @@ public class EmbeddedStreamRetrievalBattery3 {
 					System.out.println(displayLine+"="+c);
 			});
 			displayLine = 0;
-			System.out.println("2.) findTailStream(*,*,?,String.class, String.class, Long.class)...");		
-			Relatrix.findTailStream('*', '*', '?',String.class, String.class, Long.class).forEach(o->{
+			System.out.println("2.) findTailStream(*,*,*,String.class, String.class, Long.class)...");		
+			Relatrix.findTailStream('*', '*', '*',String.class, String.class, Long.class).forEach(o->{
 				Result c = (Result)o;
 				displayCtrl();
 				if(DISPLAY || DISPLAYALL)
@@ -143,8 +143,8 @@ public class EmbeddedStreamRetrievalBattery3 {
 				}
 			});
 			displayLine = 0;
-			System.out.println("3.) findTailStream(*,?,*,String.class, String.class, Long.class)...");		
-			Relatrix.findTailStream('*', '?', '*',String.class, String.class, Long.class).forEach(o->{
+			System.out.println("3.) findTailStream(*,*,*,String.class, String.class, Long.class)...");		
+			Relatrix.findTailStream('*', '*', '*',String.class, String.class, Long.class).forEach(o->{
 				Result  c = (Result )o;
 				displayCtrl();
 				if(DISPLAY || DISPLAYALL)
@@ -154,8 +154,8 @@ public class EmbeddedStreamRetrievalBattery3 {
 				}
 			});
 			displayLine = 0;
-			System.out.println("4.) findTailStream(?,*,*.String.class, String.class, Long.class)...");		
-			Relatrix.findTailStream('?', '*', '*',String.class, String.class, Long.class).forEach(o->{
+			System.out.println("4.) findTailStream(*,*,*.String.class, String.class, Long.class)...");		
+			Relatrix.findTailStream('*', '*', '*',String.class, String.class, Long.class).forEach(o->{
 				Result  c = (Result )o;
 				displayCtrl();
 				if(DISPLAY || DISPLAYALL)
@@ -165,8 +165,8 @@ public class EmbeddedStreamRetrievalBattery3 {
 				}
 			});
 			displayLine=0;
-			System.out.println("5.) findTailStream(*,?,?,String.class, String.class, Long.class)...");		
-			Relatrix.findTailStream('*', '?', '?',String.class, String.class, Long.class).forEach(o->{
+			System.out.println("5.) findTailStream(*,*,*,String.class, String.class, Long.class)...");		
+			Relatrix.findTailStream('*', '*', '*',String.class, String.class, Long.class).forEach(o->{
 				Result c = (Result)o; // result2
 				displayCtrl();
 				if(DISPLAY || DISPLAYALL)
@@ -176,8 +176,8 @@ public class EmbeddedStreamRetrievalBattery3 {
 				}
 			});
 			displayLine = 0;
-			System.out.println("6.) findTailStream(?,*,?,String.class, String.class, Long.class)...");		
-			Relatrix.findTailStream('?', '*', '?',String.class, String.class, Long.class).forEach(o->{
+			System.out.println("6.) findTailStream(*,*,*,String.class, String.class, Long.class)...");		
+			Relatrix.findTailStream('*', '*', '*',String.class, String.class, Long.class).forEach(o->{
 				Result c = (Result)o;
 				displayCtrl();
 				if(DISPLAY || DISPLAYALL)
@@ -187,8 +187,8 @@ public class EmbeddedStreamRetrievalBattery3 {
 				}
 			});
 			displayLine = 0;
-			System.out.println("7.) findTailStream(?,?,*,String.class, String.class, Long.class)...");		
-			Relatrix.findTailStream('?', '?', '*',String.class, String.class, Long.class).forEach(o->{
+			System.out.println("7.) findTailStream(*,*,*,String.class, String.class, Long.class)...");		
+			Relatrix.findTailStream('*', '*', '*',String.class, String.class, Long.class).forEach(o->{
 				Result c = (Result)o;
 				displayCtrl();
 				if(DISPLAY || DISPLAYALL)
@@ -198,8 +198,8 @@ public class EmbeddedStreamRetrievalBattery3 {
 				}
 			});
 			displayLine = 0;
-			System.out.println("8.) FindTailStream(?,?,?,String.class, String.class, Long.class)...");		
-			Relatrix.findTailStream('?', '?', '?',String.class, String.class, Long.class).forEach(o->{
+			System.out.println("8.) FindTailStream(*,*,*,String.class, String.class, Long.class)...");		
+			Relatrix.findTailStream('*', '*', '*',String.class, String.class, Long.class).forEach(o->{
 				Result c = (Result)o;
 				displayCtrl();
 				if(DISPLAY || DISPLAYALL)
@@ -210,8 +210,8 @@ public class EmbeddedStreamRetrievalBattery3 {
 			});
 			for(int j = 0; j < ar3.size(); j++) {
 				displayLine = 0;
-				System.out.println("8."+j+") findTailStream(?,?,?,<obj>,<obj>,<obj>) using domain="+((Result)ar3.get(j)).get(0)+",map="+((Result)ar3.get(j)).get(1)+",range="+((Result)ar3.get(j)).get(2));
-				Relatrix.findTailStream('?','?','?',((Result)ar3.get(j)).get(0), ((Result)ar3.get(j)).get(1), ((Result)ar3.get(j)).get(2)).forEach(o->{
+				System.out.println("8."+j+") findTailStream(*,*,*,<obj>,<obj>,<obj>) using domain="+((Result)ar3.get(j)).get(0)+",map="+((Result)ar3.get(j)).get(1)+",range="+((Result)ar3.get(j)).get(2));
+				Relatrix.findTailStream('*','*','*',((Result)ar3.get(j)).get(0), ((Result)ar3.get(j)).get(1), ((Result)ar3.get(j)).get(2)).forEach(o->{
 					Result c = (Result)o;
 					displayCtrl();
 					if(DISPLAY || DISPLAYALL)
@@ -220,8 +220,8 @@ public class EmbeddedStreamRetrievalBattery3 {
 				displayLine=0;
 				//RelatrixTailSetIterator.DEBUG = true;
 				System.out.println("Should retrieve none, since range is specified as String and we only stored Long...");
-				System.out.println("8A."+j+") findTailStream(?,*,*,<obj>,String.class, String.class) using domain="+((Result)ar3.get(j)).get(0));		
-				Relatrix.findTailStream('?','*', '*', ((Result)ar3.get(j)).get(0), String.class, String.class).forEach(o->{
+				System.out.println("8A."+j+") findTailStream(*,*,*,<obj>,String.class, String.class) using domain="+((Result)ar3.get(j)).get(0));		
+				Relatrix.findTailStream('*','*', '*', ((Result)ar3.get(j)).get(0), String.class, String.class).forEach(o->{
 					Result c = (Result)o;
 					displayCtrl();
 					if(DISPLAY || DISPLAYALL)
@@ -319,8 +319,8 @@ public class EmbeddedStreamRetrievalBattery3 {
 			System.out.println("2 return with range instance...");
 			for(int j = 0; j < ar.size(); j++) {
 				displayLine=0;
-				System.out.println("16."+j+") findTailStream(?,?,<obj>, String.class, String.class) using range="+((Result)ar.get(j)).get(0));		
-				Relatrix.findTailStream('?', '?', ((Result)ar.get(j)).get(0), String.class, String.class).forEach(o->{
+				System.out.println("16."+j+") findTailStream(*,*,<obj>, String.class, String.class) using range="+((Result)ar.get(j)).get(0));		
+				Relatrix.findTailStream('*', '*', ((Result)ar.get(j)).get(0), String.class, String.class).forEach(o->{
 					Result c = (Result)o;
 					displayCtrl();
 					if(DISPLAY || DISPLAYALL)
@@ -331,8 +331,8 @@ public class EmbeddedStreamRetrievalBattery3 {
 			System.out.println("2 returns with map instance...");
 			for(int j = 0; j < am.size(); j++) {
 				displayLine=0;
-				System.out.println("17."+j+") findTailStream(?,<obj>,?, String.class, Long.class) using map="+((Result)am.get(j)).get(0));		
-				Relatrix.findTailStream('?', ((Result)am.get(j)).get(0), '?', String.class, Long.class).forEach(o->{
+				System.out.println("17."+j+") findTailStream(*,<obj>,*, String.class, Long.class) using map="+((Result)am.get(j)).get(0));		
+				Relatrix.findTailStream('*', ((Result)am.get(j)).get(0), '*', String.class, Long.class).forEach(o->{
 					Result c = (Result)o;
 					displayCtrl();
 					if(DISPLAY || DISPLAYALL)
@@ -343,8 +343,8 @@ public class EmbeddedStreamRetrievalBattery3 {
 			System.out.println("2 returns with domain instance...");
 			for(int j = 0; j < ad.size(); j++) {
 				displayLine=0;
-				System.out.println("18."+j+") findTailStream(<obj>,?,?, String.class, Long.class) using domain="+((Result)ad.get(j)).get(0));		
-				Relatrix.findTailStream(((Result)ad.get(j)).get(0), '?', '?', String.class, Long.class).forEach(o->{
+				System.out.println("18."+j+") findTailStream(<obj>,*,*, String.class, Long.class) using domain="+((Result)ad.get(j)).get(0));		
+				Relatrix.findTailStream(((Result)ad.get(j)).get(0), '*', '*', String.class, Long.class).forEach(o->{
 					Result c = (Result)o;
 					displayCtrl();
 					if(DISPLAY || DISPLAYALL)
@@ -355,8 +355,8 @@ public class EmbeddedStreamRetrievalBattery3 {
 			System.out.println("1 return with map and range instances...");
 			for(int j = 0; j < ar2.size(); j++) {
 				displayLine=0;
-				System.out.println("19."+j+") findTailStream(?,<obj>,<obj>, String.class) using map="+((Result)ar2.get(j)).get(0)+" range="+((Result)ar2.get(j)).get(1));		
-				Relatrix.findTailStream('?', ((Result)ar2.get(j)).get(0), ((Result)ar2.get(j)).get(1), String.class).forEach(o->{
+				System.out.println("19."+j+") findTailStream(*,<obj>,<obj>, String.class) using map="+((Result)ar2.get(j)).get(0)+" range="+((Result)ar2.get(j)).get(1));		
+				Relatrix.findTailStream('*', ((Result)ar2.get(j)).get(0), ((Result)ar2.get(j)).get(1), String.class).forEach(o->{
 					Result c = (Result)o;
 					displayCtrl();
 					if(DISPLAY || DISPLAYALL)
@@ -367,8 +367,8 @@ public class EmbeddedStreamRetrievalBattery3 {
 			System.out.println("1 return with domain and range instances...");
 			for(int j = 0; j < ar2dr.size(); j++) {
 				displayLine=0;
-				System.out.println("20."+j+") findTailStream(<obj>,?,<obj>,String.class) using domain="+((Result)ar2dr.get(j)).get(0)+" range="+ ((Result)ar2dr.get(j)).get(1));		
-				Relatrix.findTailStream(((Result)ar2dr.get(j)).get(0), '?', ((Result)ar2dr.get(j)).get(1), String.class).forEach(o->{
+				System.out.println("20."+j+") findTailStream(<obj>,*,<obj>,String.class) using domain="+((Result)ar2dr.get(j)).get(0)+" range="+ ((Result)ar2dr.get(j)).get(1));		
+				Relatrix.findTailStream(((Result)ar2dr.get(j)).get(0), '*', ((Result)ar2dr.get(j)).get(1), String.class).forEach(o->{
 					Result c = (Result)o;
 					displayCtrl();
 					if(DISPLAY || DISPLAYALL)
@@ -379,8 +379,8 @@ public class EmbeddedStreamRetrievalBattery3 {
 			System.out.println("1 return with domain and map instances...");
 			for(int j = 0; j < ar2dm.size(); j++) {
 				displayLine=0;
-				System.out.println("21."+j+") findTailStream(<obj>,<obj>,?,Long.class) using domain="+((Result)ar2dm.get(j)).get(0)+" map="+((Result)ar2dm.get(j)).get(1));		
-				Relatrix.findTailStream(((Result)ar2dm.get(j)).get(0), ((Result)ar2dm.get(j)).get(1), '?',Long.class).forEach(o->{
+				System.out.println("21."+j+") findTailStream(<obj>,<obj>,*,Long.class) using domain="+((Result)ar2dm.get(j)).get(0)+" map="+((Result)ar2dm.get(j)).get(1));		
+				Relatrix.findTailStream(((Result)ar2dm.get(j)).get(0), ((Result)ar2dm.get(j)).get(1), '*',Long.class).forEach(o->{
 					Result c = (Result)o;
 					displayCtrl();
 					if(DISPLAY || DISPLAYALL)
