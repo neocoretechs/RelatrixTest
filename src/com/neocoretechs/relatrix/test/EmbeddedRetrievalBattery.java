@@ -92,13 +92,8 @@ public class EmbeddedRetrievalBattery {
 		int recs = 0;
 		// this list will store an object used to test subsequent queries where a named object is needed
 		// it will be extracted from the wildcard queries
-		ArrayList<Comparable> ar = new ArrayList<Comparable>();
-		ArrayList<Comparable> am = new ArrayList<Comparable>();
-		ArrayList<Comparable> ad = new ArrayList<Comparable>();
-		ArrayList<Comparable[]> ar2 = new ArrayList<Comparable[]>(); // will store 2 element result sets map range
-		ArrayList<Comparable[]> ar2dr = new ArrayList<Comparable[]>(); // will store 2 element result sets domain range
-		ArrayList<Comparable[]> ar2dm = new ArrayList<Comparable[]>(); // will store 2 element result sets domain map
-		ArrayList<Comparable[]> ar3 = new ArrayList<Comparable[]>(); // will store 3 element result sets
+		ArrayList<Result> ar = new ArrayList<Result>();
+	
 		Iterator<?> it = null;
 		System.out.println("Wildcard queries. Will store samplesize of "+SAMPLESIZE+" for subsequent tests.");
 		recs = 0;
@@ -107,40 +102,31 @@ public class EmbeddedRetrievalBattery {
 		while(it.hasNext()) {
 			Object o = it.next();
 			System.out.println(++recs+"="+o);
+			ar.add((Result) o);
 		}
 		recs = 0;
 	
-		System.out.println("Above are all the wildcard permutations. Now retrieve those with object references using the results");
-		System.out.println("3 object instances:");
-		for(int j = 0; j < ar3.size(); j++) {
-			recs = 0;
-			System.out.println("9."+j+") Findset(<obj>,<obj>,<obj>) using domain="+ar3.get(j)[0]+" map="+ar3.get(j)[1]+" range="+ar3.get(j)[2]);
-			it = Relatrix.findSet(ar3.get(j)[0], ar3.get(j)[1], ar3.get(j)[2]);
-			while(it.hasNext()) {
-				Object o = it.next();
-				System.out.println(++recs+"="+o);
-			}
-		}
 		System.out.println("----------");
 		System.out.println("1 object instance with wildcards:");
 		for(int j = 0; j < ar.size(); j++) {
 			recs = 0;
-			System.out.println("10."+j+") Findset(*,*,<obj>) using range="+ar.get(j));		
-			it = Relatrix.findSet('*', '*', ar.get(j));
+			Comparable[] ares = ar.get(j).toArray();
+			System.out.println("10."+j+") Findset(*,*,<obj>) using range="+ares[2]);		
+			it = Relatrix.findSet('*', '*', ares[2]);
 			while(it.hasNext()) {
 				Object o = it.next();
 				System.out.println(++recs+"="+o);
 			}
 			recs = 0;
-			System.out.println("11."+j+") Findset(*,<obj>,*) using map="+am.get(j));		
-			it = Relatrix.findSet('*', am.get(j), '*');
+			System.out.println("11."+j+") Findset(*,<obj>,*) using map="+ares[1]);		
+			it = Relatrix.findSet('*', ares[1], '*');
 			while(it.hasNext()) {
 				Object o = it.next();
 				System.out.println(++recs+"="+o);
 			}
 			recs = 0;
-			System.out.println("12."+j+") Findset(<obj>,*,*) using domain="+ad.get(j));		
-			it = Relatrix.findSet(ad.get(j), '*', '*');
+			System.out.println("12."+j+") Findset(<obj>,*,*) using domain="+ares[0]);		
+			it = Relatrix.findSet(ares[0], '*', '*');
 			while(it.hasNext()) {
 				Object o = it.next();
 				System.out.println(++recs+"="+o);
@@ -148,24 +134,25 @@ public class EmbeddedRetrievalBattery {
 		}
 		System.out.println("----------");
 		System.out.println("2 object instances with wildcards:");
-		for(int j = 0; j < ar2.size(); j++) {
+		for(int j = 0; j < ar.size(); j++) {
+			Comparable[] ares = ar.get(j).toArray();
 			recs = 0;
-			System.out.println("13."+j+") Findset(*,<obj>,<obj>) using map="+ar2.get(j)[0]+" range="+ar2.get(j)[1]);		
-			it = Relatrix.findSet('*', ar2.get(j)[0], ar2.get(j)[1]);
+			System.out.println("13."+j+") Findset(*,<obj>,<obj>) using map="+ares[1]+" range="+ares[2]);		
+			it = Relatrix.findSet('*', ares[1], ares[2]);
 			while(it.hasNext()) {
 				Object o = it.next();
 				System.out.println(++recs+"="+o);
 			}
 			recs = 0;
-			System.out.println("14."+j+") Findset(<obj>,*,<obj>) using domain="+ar2dr.get(j)[0]+" range="+ar2dr.get(j)[1]);		
-			it = Relatrix.findSet(ar2dr.get(j)[0], '*', ar2dr.get(j)[1]);
+			System.out.println("14."+j+") Findset(<obj>,*,<obj>) using domain="+ares[0]+" range="+ares[2]);		
+			it = Relatrix.findSet(ares[0], '*', ares[2]);
 			while(it.hasNext()) {
 				Object o = it.next();
 				System.out.println(++recs+"="+o);
 			}
 			recs = 0;
-			System.out.println("15."+j+") Findset(<obj>,<obj>,*) using domain="+ar2dm.get(j)[0]+" map="+ar2dm.get(j)[1]);		
-			it = Relatrix.findSet(ar2dm.get(j)[0], ar2dm.get(j)[1], '*');
+			System.out.println("15."+j+") Findset(<obj>,<obj>,*) using domain="+ares[0]+" map="+ares[1]);		
+			it = Relatrix.findSet(ares[0], ares[1], '*');
 			while(it.hasNext()) {
 				Object o = it.next();
 				System.out.println(++recs+"="+o);
@@ -175,24 +162,25 @@ public class EmbeddedRetrievalBattery {
 		
 		System.out.println("----------");
 		System.out.println("2 object instances:");
-		for(int j = 0; j < ar2.size(); j++) {
+		for(int j = 0; j < ar.size(); j++) {
+			Comparable[] ares = ar.get(j).toArray();
 			recs = 0;
-			System.out.println("19."+j+") Findset(*,<obj>,<obj>) using map="+ar2.get(j)[0]+" range="+ar2.get(j)[1]);		
-			it = Relatrix.findSet('*', ar2.get(j)[0], ar2.get(j)[1]);
+			System.out.println("19."+j+") Findset(*,<obj>,<obj>) using map="+ares[1]+" range="+ares[2]);		
+			it = Relatrix.findSet('*', ares[1], ares[2]);
 			while(it.hasNext()) {
 				Object o = it.next();
 				System.out.println(++recs+"="+o);
 			}
 			recs = 0;
-			System.out.println("20."+j+") Findset(<obj>,*,<obj>) using domain="+ar2dr.get(j)[0]+" range="+ ar2dr.get(j)[1]);		
-			it = Relatrix.findSet(ar2dr.get(j)[0], '*', ar2dr.get(j)[1]);
+			System.out.println("20."+j+") Findset(<obj>,*,<obj>) using domain="+ares[0]+" range="+ ares[2]);		
+			it = Relatrix.findSet(ares[0], '*', ares[2]);
 			while(it.hasNext()) {
 				Object o = it.next();
 				System.out.println(++recs+"="+o);
 			}
 			recs = 0;
-			System.out.println("21."+j+") Findset(<obj>,<obj>,*) using domain="+ar2dm.get(j)[0]+" map="+ar2dm.get(j)[1]);		
-			it = Relatrix.findSet(ar2dm.get(j)[0], ar2dm.get(j)[1], '*');
+			System.out.println("21."+j+") Findset(<obj>,<obj>,*) using domain="+ares[0]+" map="+ares[1]);		
+			it = Relatrix.findSet(ares[0], ares[1], '*');
 			while(it.hasNext()) {
 				Object o = it.next();
 				System.out.println(++recs+"="+o);

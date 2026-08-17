@@ -87,11 +87,10 @@ public class EmbeddedRetrievalBattery2A {
 		int dupes = 0;
 		int recs = 0;
 		String fkey = null;
-		Relation dmr = null;
 		for(int i = min; i < max; i++) {
 			fkey = key + String.format(uniqKeyFmt, i);
 			try {
-				dmr = Relatrix.store(fkey, "Has unit", Long.valueOf(i));
+				Relatrix.store(fkey, "Has unit", Long.valueOf(i));
 				++recs;
 			} catch(DuplicateKeyException dke) { ++dupes; }
 		}
@@ -103,12 +102,8 @@ public class EmbeddedRetrievalBattery2A {
 	 */
 	public static void battery1() throws Exception {
 		System.out.println("Iterator Battery1 ");
-		String fmap;
 		long tims = System.currentTimeMillis();
-		int recs = 0;
-		// this list will store an object used to test subsequent queries where a named object is needed
-		// it will be extracted from the wildcard queries
-		ArrayList<Result> ar3 = new ArrayList<Result>(); // will store 3 element result sets
+		ArrayList<Result> ar = new ArrayList<Result>();
 		Iterator<?> it = null;
 		System.out.println("Mixed Headset queries:");
 		displayLine = 0;
@@ -120,14 +115,13 @@ public class EmbeddedRetrievalBattery2A {
 			displayCtrl();
 			if(DISPLAY || DISPLAYALL)
 				System.out.println(displayLine+"="+c);
-			ar3.add(c);
-			if(ar3.size() >= SAMPLESIZE)
-				break;
+			ar.add(c);
 		}
-		for(int j = 0; j < ar3.size(); j++) {
+		for(int j = 0; j < ar.size(); j++) {
 			displayLine = 0;
-			System.out.println("2."+j+") FindHeadSet(*,*,*,<obj>,<obj>,<obj>) using ="+((Relation)ar3.get(j).get()).getDomain()+" Has unit12345 "+((Relation)ar3.get(j).get()).getRange());
-			it = Relatrix.findHeadSet('*','*','*',((Relation)ar3.get(j).get()).getDomain(),"Has unit12345",((Relation)ar3.get(j).get()).getRange());
+			Comparable[] ares = ar.get(j).toArray();
+			System.out.println("2."+j+") FindHeadSet(*,*,*,<obj>,<obj>,<obj>) using ="+ares[0]+" Has unit12345 "+ares[2]);
+			it = Relatrix.findHeadSet('*','*','*',ares[0],"Has unit12345",ares[2]);
 			while(it.hasNext()) {
 				Object o = it.next();
 				Result c = (Result)o;
@@ -136,8 +130,8 @@ public class EmbeddedRetrievalBattery2A {
 					System.out.println(displayLine+"="+c);
 			}
 			displayLine = 0;
-			System.out.println("3."+j+") FindHeadSet(*,*,*,<obj>,<obj>,<obj>) using =String.class,"+((Relation)ar3.get(j).get()).getMap()+","+((Relation)ar3.get(j).get()).getRange());
-			it = Relatrix.findHeadSet('*','*','*',String.class,((Relation)ar3.get(j).get()).getMap(),((Relation)ar3.get(j).get()).getRange());
+			System.out.println("3."+j+") FindHeadSet(*,*,*,<obj>,<obj>,<obj>) using =String.class,"+ares[1]+","+ares[2]);
+			it = Relatrix.findHeadSet('*','*','*',String.class,ares[1],ares[2]);
 			while(it.hasNext()) {
 				Object o = it.next();
 				Result c = (Result)o;
@@ -162,12 +156,12 @@ public class EmbeddedRetrievalBattery2A {
 			displayCtrl();
 			if(DISPLAY || DISPLAYALL)
 				System.out.println(displayLine+"="+c);
-			ar3.add(c);
 		}
-		for(int j = 0; j < ar3.size(); j++) {
+		for(int j = 0; j < ar.size(); j++) {
 			displayLine = 0;
-			System.out.println("5."+j+") FindHeadSet(*,*,*,<obj>,<obj>,<obj>) using ="+((Relation)ar3.get(j).get()).getDomain()+","+((Relation)ar3.get(j).get()).getMap()+","+ Long.valueOf(max/2));
-			it = Relatrix.findHeadSet('*','*','*',((Relation)ar3.get(j).get()).getDomain(),((Relation)ar3.get(j).get()).getMap(), Long.valueOf(max/2));
+			Comparable[] ares = ar.get(j).toArray();
+			System.out.println("5."+j+") FindHeadSet(*,*,*,<obj>,<obj>,<obj>) using ="+ares[0]+","+ares[1]+","+ Long.valueOf(max/2));
+			it = Relatrix.findHeadSet('*','*','*',ares[0],ares[1], Long.valueOf(max/2));
 			while(it.hasNext()) {
 				Object o = it.next();
 				Result c = (Result)o;
