@@ -169,14 +169,15 @@ public class BatteryRelatrix {
 	public static void battery1AR5(String[] argv) throws Exception {
 		int i = min;
 		long tims = System.currentTimeMillis();
-		Iterator<?> its = RelatrixJson.findSet('?','?','?');
+		Iterator<?> its = RelatrixJson.findSet('*','*','*');
 		System.out.println("Battery1AR5");
 		while(its.hasNext()) {
 			Result nex = (Result) its.next();
+			Comparable[] res = nex.toArray();
 			// 3 question marks = dimension 3 in return array
-			JSONObject ng = RelatrixKVJson.getJsonData(nex.get(0));
-			JSONObject nh = RelatrixKVJson.getJsonData(nex.get(1));
-			JSONObject ni = RelatrixKVJson.getJsonData(nex.get(2));
+			JSONObject ng = RelatrixKVJson.getJsonData(res[0]);
+			JSONObject nh = RelatrixKVJson.getJsonData(res[1]);
+			JSONObject ni = RelatrixKVJson.getJsonData(res[2]);
 			++i;
 			if(DEBUG)
 				System.out.println(i+".) "+ng+"->"+nh+"->"+ni);
@@ -224,19 +225,18 @@ public class BatteryRelatrix {
 		System.out.println("BATTERY1AR6 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 	/**
-	 * Testing of Iterator<?> its = Relatrix.findSet('?', '*', '*');
+	 * Testing of Iterator<?> its = Relatrix.findSet('*', '*', '*');
 	 * @param argv
 	 * @throws Exception
 	 */
 	public static void battery1AR7(String[] argv) throws Exception {
 		int i = min;
 		long tims = System.currentTimeMillis();
-		Iterator<?> its = RelatrixJson.findSet('?', '*', '*');
+		Iterator<?> its = RelatrixJson.findSet('*', '*', '*');
 		System.out.println("Battery1AR7");
 		while(its.hasNext()) {
 			Result nex = (Result) its.next();
-			JSONObject ng = RelatrixKVJson.getJsonData(nex.get(0));
-			// one '?' in findset gives us one element returned
+			JSONObject ng = RelatrixKVJson.getJsonData(nex.get());
 			if(DEBUG) 
 				System.out.println("1AR7: "+i+".) "+nex);
 			if(nex.length() != 1) {
@@ -260,16 +260,15 @@ public class BatteryRelatrix {
 		int i = min;
 		long tims = System.currentTimeMillis();
 		System.out.println("Battery1AR8");
-		Iterator<?> its = RelatrixJson.findSet('?', '?', '*');
+		Iterator<?> its = RelatrixJson.findSet('*', '*', '*');
 		while(its.hasNext()) {
 			Result nex = (Result) its.next();
-			JSONObject ng = RelatrixKVJson.getJsonData(nex.get(0));
-			// 2 '?' in findset gives us 2 elements returned
+			JSONObject ng = RelatrixKVJson.getJsonData(nex.get());
 			if(DEBUG) 
-				System.out.println("1AR8: "+i+".) "+nex);
+				System.out.println("1AR8: "+i+".) "+ng);
 			if(nex.length() != 2) {
-				System.out.println("MAP KEY MISMATCH:"+(i)+" .)"+nex);
-				throw new Exception("MAP KEY MISMATCH:"+(i)+" .)"+nex);
+				System.out.println("MAP KEY MISMATCH:"+(i)+" .)"+ng);
+				throw new Exception("MAP KEY MISMATCH:"+(i)+" .)"+ng);
 			}
 			++i;
 		}
@@ -323,7 +322,7 @@ public class BatteryRelatrix {
 			long tim = jo.getLong("timestamp");
 			++tim;
 			jo.put("timestamp",tim);
-			Iterator<?> its = RelatrixJson.findSet(RelatrixKVJson.getObject(jo), '?', '*');
+			Iterator<?> its = RelatrixJson.findSet(RelatrixKVJson.getObject(jo), '*', '*');
 			while(its.hasNext()) {
 				Result nex = (Result) its.next();
 				Comparable re = nex.get();
@@ -358,7 +357,7 @@ public class BatteryRelatrix {
 			long tim = jo.getLong("timestamp");
 			++tim;
 			jo.put("timestamp",tim);
-			Iterator<?> its = RelatrixJson.findSet(RelatrixKVJson.getObject(jo), '*', '?');
+			Iterator<?> its = RelatrixJson.findSet(RelatrixKVJson.getObject(jo), '*', '*');
 			while(its.hasNext()) {
 				Result nex = (Result) its.next();
 				// 3 question marks = dimension 3 in return array

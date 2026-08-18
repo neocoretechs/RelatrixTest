@@ -159,8 +159,8 @@ public class EmbeddedRetrievalBatteryAlias2 {
 				System.out.println(displayLine+"="+c);
 		}
 		displayLine = 0;
-		System.out.println("2.) FindHeadset("+alias12+",*,*,?,String.class, String.class, Long.class)...");		
-		it = Relatrix.findHeadSet(alias12, '*', '*', '?',String.class, String.class, Long.class);
+		System.out.println("2.) FindHeadset("+alias12+",*,*,*,String.class, String.class, Long.class)...");		
+		it = Relatrix.findHeadSet(alias12, '*', '*', '*',String.class, String.class, Long.class);
 		while(it.hasNext()) {
 			Object o = it.next();
 			Result c = (Result)o;
@@ -172,8 +172,8 @@ public class EmbeddedRetrievalBatteryAlias2 {
 			}
 		}
 		displayLine = 0;
-		System.out.println("3.) FindHeadSet("+alias12+",*,?,*,String.class, String.class, Long.class)...");		
-		it = Relatrix.findHeadSet(alias12, '*', '?', '*',String.class, String.class, Long.class);
+		System.out.println("3.) FindHeadSet("+alias12+",*,*,*,String.class, String.class, Long.class)...");		
+		it = Relatrix.findHeadSet(alias12, '*', '*', '*',String.class, String.class, Long.class);
 		while(it.hasNext()) {
 			Object o = it.next();
 			Result  c = (Result )o;
@@ -185,8 +185,8 @@ public class EmbeddedRetrievalBatteryAlias2 {
 			}
 		}
 		displayLine = 0;
-		System.out.println("4.) FindHeadSet("+alias12+",?,*,*.String.class, String.class, Long.class)...");		
-		it = Relatrix.findHeadSet(alias12, '?', '*', '*',String.class, String.class, Long.class);
+		System.out.println("4.) FindHeadSet("+alias12+",*,*,*.String.class, String.class, Long.class)...");		
+		it = Relatrix.findHeadSet(alias12, '*', '*', '*',String.class, String.class, Long.class);
 		while(it.hasNext()) {
 			Object o = it.next();
 			Result  c = (Result )o;
@@ -198,8 +198,8 @@ public class EmbeddedRetrievalBatteryAlias2 {
 			}
 		}
 		displayLine=0;
-		System.out.println("5.) FindHeadSet("+alias12+",*,?,?,String.class, String.class, Long.class)...");		
-		it = Relatrix.findHeadSet(alias12, '*', '?', '?',String.class, String.class, Long.class);
+		System.out.println("5.) FindHeadSet("+alias12+",*,*,*,String.class, String.class, Long.class)...");		
+		it = Relatrix.findHeadSet(alias12, '*', '*', '*',String.class, String.class, Long.class);
 		while(it.hasNext()) {
 			Object o = it.next();
 			Result c = (Result)o; // result2
@@ -211,8 +211,8 @@ public class EmbeddedRetrievalBatteryAlias2 {
 			}
 		}
 		displayLine = 0;
-		System.out.println("6.) FindHeadSet("+alias12+",?,*,?,String.class, String.class, Long.class)...");		
-		it = Relatrix.findHeadSet(alias12, '?', '*', '?',String.class, String.class, Long.class);
+		System.out.println("6.) FindHeadSet("+alias12+",*,*,*,String.class, String.class, Long.class)...");		
+		it = Relatrix.findHeadSet(alias12, '*', '*', '*',String.class, String.class, Long.class);
 		while(it.hasNext()) {
 			Object o = it.next();
 			Result c = (Result)o;
@@ -224,8 +224,8 @@ public class EmbeddedRetrievalBatteryAlias2 {
 			}
 		}
 		displayLine = 0;
-		System.out.println("7.) FindHeadSet("+alias12+",?,?,*,String.class, String.class, Long.class)...");		
-		it = Relatrix.findHeadSet(alias12, '?', '?', '*',String.class, String.class, Long.class);
+		System.out.println("7.) FindHeadSet("+alias12+",*,*,*,String.class, String.class, Long.class)...");		
+		it = Relatrix.findHeadSet(alias12, '*', '*', '*',String.class, String.class, Long.class);
 		while(it.hasNext()) {
 			Object o = it.next();
 			Result c = (Result)o;
@@ -238,8 +238,8 @@ public class EmbeddedRetrievalBatteryAlias2 {
 
 		}
 		displayLine = 0;
-		System.out.println("8.) FindHeadSet("+alias12+",?,?,?,String.class, String.class, Long.class)...");		
-		it = Relatrix.findHeadSet(alias12, '?', '?', '?',String.class, String.class, Long.class);
+		System.out.println("8.) FindHeadSet("+alias12+",*,*,*,String.class, String.class, Long.class)...");		
+		it = Relatrix.findHeadSet(alias12, '*', '*', '*',String.class, String.class, Long.class);
 		while(it.hasNext()) {
 			Object o = it.next();
 			Result c = (Result)o;
@@ -252,8 +252,8 @@ public class EmbeddedRetrievalBatteryAlias2 {
 		}
 		for(int j = 0; j < ar3.size(); j++) {
 			displayLine = 0;
-			System.out.println("8."+j+") FindHeadSet("+alias12+",?,?,?,<obj>,<obj>,<obj>) using domain="+((Result)ar3.get(j)).get(0)+",map="+((Result)ar3.get(j)).get(1)+",range="+((Result)ar3.get(j)).get(2));
-			it = Relatrix.findHeadSet(alias12, '?','?','?',((Result)ar3.get(j)).get(0), ((Result)ar3.get(j)).get(1), ((Result)ar3.get(j)).get(2));
+			System.out.println("8."+j+") FindHeadSet("+alias12+",*,*,*,<obj>,<obj>,<obj>) using domain="+((Result)ar3.get(j)).get(0)+",map="+((Result)ar3.get(j)).get(1)+",range="+((Result)ar3.get(j)).get(2));
+			it = Relatrix.findHeadSet(alias12, '*','*','*',((Result)ar3.get(j)).get(0), ((Result)ar3.get(j)).get(1), ((Result)ar3.get(j)).get(2));
 			while(it.hasNext()) {
 				Object o = it.next();
 				Result c = (Result)o;
@@ -264,8 +264,8 @@ public class EmbeddedRetrievalBatteryAlias2 {
 			displayLine=0;
 			//RelatrixHeadsetIterator.DEBUG = true;
 			System.out.println("Should retrieve none, since range is specified as String and we only stored Long...");
-			System.out.println("8A."+j+") FindHeadSet("+alias12+",?,*,*,<obj>,String.class, String.class) using domain="+((Result)ar3.get(j)).get(0));		
-			it = Relatrix.findHeadSet(alias12, '?','*', '*', ((Result)ar3.get(j)).get(0), String.class, String.class);
+			System.out.println("8A."+j+") FindHeadSet("+alias12+",*,*,*,<obj>,String.class, String.class) using domain="+((Result)ar3.get(j)).get(0));		
+			it = Relatrix.findHeadSet(alias12, '*','*', '*', ((Result)ar3.get(j)).get(0), String.class, String.class);
 			while(it.hasNext()) {
 				Object o = it.next();
 				Result c = (Result)o;
@@ -359,8 +359,8 @@ public class EmbeddedRetrievalBatteryAlias2 {
 		}
 		for(int j = 0; j < ar.size(); j++) {
 			displayLine=0;
-			System.out.println("16."+j+") FindHeadSet("+alias12+",?,?,<obj>, String.class, String.class) using range="+((Result)ar.get(j)).get(0));		
-			it = Relatrix.findHeadSet(alias12, '?', '?', ((Result)ar.get(j)).get(0), String.class, String.class);
+			System.out.println("16."+j+") FindHeadSet("+alias12+",*,*,<obj>, String.class, String.class) using range="+((Result)ar.get(j)).get(0));		
+			it = Relatrix.findHeadSet(alias12, '*', '*', ((Result)ar.get(j)).get(0), String.class, String.class);
 			while(it.hasNext()) {
 				Object o = it.next();
 				Result c = (Result)o;
@@ -369,8 +369,8 @@ public class EmbeddedRetrievalBatteryAlias2 {
 					System.out.println(displayLine+"="+c);
 			}
 			displayLine=0;
-			System.out.println("17."+j+") FindHeadSet("+alias12+",?,<obj>,?, String.class, Long.class) using map="+((Result)am.get(j)).get(0));		
-			it = Relatrix.findHeadSet(alias12, '?', ((Result)am.get(j)).get(0), '?', String.class, Long.class);
+			System.out.println("17."+j+") FindHeadSet("+alias12+",*,<obj>,*, String.class, Long.class) using map="+((Result)am.get(j)).get(0));		
+			it = Relatrix.findHeadSet(alias12, '*', ((Result)am.get(j)).get(0), '*', String.class, Long.class);
 			while(it.hasNext()) {
 				Object o = it.next();
 				Result c = (Result)o;
@@ -379,8 +379,8 @@ public class EmbeddedRetrievalBatteryAlias2 {
 					System.out.println(displayLine+"="+c);
 			}
 			displayLine=0;
-			System.out.println("18."+j+") FindHeadSet("+alias12+",<obj>,?,?, String.class, Long.class) using domain="+((Result)ad.get(j)).get(0));		
-			it = Relatrix.findHeadSet(alias12, ((Result)ad.get(j)).get(0), '?', '?', String.class, Long.class);
+			System.out.println("18."+j+") FindHeadSet("+alias12+",<obj>,*,*, String.class, Long.class) using domain="+((Result)ad.get(j)).get(0));		
+			it = Relatrix.findHeadSet(alias12, ((Result)ad.get(j)).get(0), '*', '*', String.class, Long.class);
 			while(it.hasNext()) {
 				Object o = it.next();
 				Result c = (Result)o;
@@ -391,8 +391,8 @@ public class EmbeddedRetrievalBatteryAlias2 {
 		}
 		for(int j = 0; j < ar2.size(); j++) {
 			displayLine=0;
-			System.out.println("19."+j+") FindHeadSet("+alias12+",?,<obj>,<obj>, String.class) using map="+((Result)ar2.get(j)).get(0)+" range="+((Result)ar2.get(j)).get(1));		
-			it = Relatrix.findHeadSet(alias12, '?', ((Result)ar2.get(j)).get(0), ((Result)ar2.get(j)).get(1), String.class);
+			System.out.println("19."+j+") FindHeadSet("+alias12+",*,<obj>,<obj>, String.class) using map="+((Result)ar2.get(j)).get(0)+" range="+((Result)ar2.get(j)).get(1));		
+			it = Relatrix.findHeadSet(alias12, '*', ((Result)ar2.get(j)).get(0), ((Result)ar2.get(j)).get(1), String.class);
 			while(it.hasNext()) {
 				Object o = it.next();
 				Result c = (Result)o;
@@ -401,8 +401,8 @@ public class EmbeddedRetrievalBatteryAlias2 {
 					System.out.println(displayLine+"="+c);
 			}
 			displayLine =0;
-			System.out.println("20."+j+") FindHeadSet("+alias12+",<obj>,?,<obj>,String.class) using domain="+((Result)ar2dr.get(j)).get(0)+" range="+ ((Result)ar2dr.get(j)).get(1));		
-			it = Relatrix.findHeadSet(alias12, ((Result)ar2dr.get(j)).get(0), '?', ((Result)ar2dr.get(j)).get(1), String.class);
+			System.out.println("20."+j+") FindHeadSet("+alias12+",<obj>,*,<obj>,String.class) using domain="+((Result)ar2dr.get(j)).get(0)+" range="+ ((Result)ar2dr.get(j)).get(1));		
+			it = Relatrix.findHeadSet(alias12, ((Result)ar2dr.get(j)).get(0), '*', ((Result)ar2dr.get(j)).get(1), String.class);
 			while(it.hasNext()) {
 				Object o = it.next();
 				Result c = (Result)o;
@@ -411,8 +411,8 @@ public class EmbeddedRetrievalBatteryAlias2 {
 					System.out.println(displayLine+"="+c);
 			}
 			displayLine =0;
-			System.out.println("21."+j+") FindHeadSet("+alias12+",<obj>,<obj>,?,Long.class) using domain="+((Result)ar2dm.get(j)).get(0)+" map="+((Result)ar2dm.get(j)).get(1));		
-			it = Relatrix.findHeadSet(alias12, ((Result)ar2dm.get(j)).get(0), ((Result)ar2dm.get(j)).get(1), '?',Long.class);
+			System.out.println("21."+j+") FindHeadSet("+alias12+",<obj>,<obj>,*,Long.class) using domain="+((Result)ar2dm.get(j)).get(0)+" map="+((Result)ar2dm.get(j)).get(1));		
+			it = Relatrix.findHeadSet(alias12, ((Result)ar2dm.get(j)).get(0), ((Result)ar2dm.get(j)).get(1), '*',Long.class);
 			//ar = new ArrayList<Comparable>();
 			while(it.hasNext()) {
 				Object o = it.next();
