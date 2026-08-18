@@ -13,7 +13,7 @@ import com.neocoretechs.relatrix.client.RelatrixClientTransaction;
  * This series of tests loads up arrays to create a cascading set of retrievals mostly checking
  * and verifying findStream retrieval using the client to a remote {@link com.neocoretechs.relatrix.server.RelatrixTransactionServer}.
  * NOTES:
- * program arguments are local_node remote_node remote_port_for_database
+ * program arguments are remote_node remote_port_for_database
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2024
  */
 public class TransactionBatteryRelatrix {

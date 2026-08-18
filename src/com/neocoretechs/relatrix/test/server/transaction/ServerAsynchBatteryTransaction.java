@@ -1,26 +1,31 @@
 package com.neocoretechs.relatrix.test.server.transaction;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 import com.neocoretechs.relatrix.Relation;
 import com.neocoretechs.relatrix.AbstractRelation;
 import com.neocoretechs.relatrix.Result;
 
-import com.neocoretechs.relatrix.client.RelatrixClientTransaction;
+import com.neocoretechs.relatrix.client.asynch.AsynchRelatrixClientTransaction;
 import com.neocoretechs.rocksack.TransactionId;
 
 /**
  * This series of tests loads up arrays to create a cascading set of retrievals mostly checking
  * and verifying findSet retrieval using the client to a remote {@link com.neocoretechs.relatrix.server.RelatrixTransactionServer}.
+ * We also test the asynchronous client and parallel query function therein.
  * NOTES:
  * program arguments are remote_node remote_port_for_database
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2024
  *
  */
-public class ServerRetrievalBatteryTransaction0 {
+public class ServerAsynchBatteryTransaction {
 	public static boolean DEBUG = false;
-	private static RelatrixClientTransaction rkvc ;
+	private static AsynchRelatrixClientTransaction rkvc ;
 		public static int displayLinesOn[]= {0,1000,5000,9990,15000,20000,30000,40000,50000,60000,70000,80000,90000,99000};
 		public static int displayLinesOff[]= {100,1100,5100,9999,15999,20999,30999,40999,50999,60999,70999,80999,90999,100000};
 		public static int displayLine = 0;
@@ -41,13 +46,14 @@ public class ServerRetrievalBatteryTransaction0 {
 			if(argv.length < 3) {
 				System.out.println("Usage: <remoteNode> <remotePort> [init]");
 			}
-			rkvc = new RelatrixClientTransaction(argv[0], Integer.parseInt(argv[1]) );
+			rkvc = new AsynchRelatrixClientTransaction(argv[0], Integer.parseInt(argv[1]) );
 			AbstractRelation.displayLevel = AbstractRelation.displayLevels.MINIMAL;
 			xid = rkvc.getTransactionId();
 			if(argv.length == 3 && argv[3].equals("init")) {
 					battery1AR17(argv);
 			}
-			if(rkvc.size(xid) == 0) {
+			CompletableFuture<Long> siz = rkvc.size(xid);
+			if(siz.get() == 0) {
 				battery0(argv);
 			}
 			battery1(argv);
@@ -82,10 +88,11 @@ public class ServerRetrievalBatteryTransaction0 {
 
 			int recs = 0;
 			String fkey = null;
-			Relation dmr = null;
+			CompletableFuture<Relation> dmr = null;
 			for(int i = min; i < max; i++) {
 				fkey = key + String.format(uniqKeyFmt, i);
 				dmr = rkvc.store(xid, fkey, "Has unit", Long.valueOf(i));
+				dmr.get();
 				++recs;
 			}
 			rkvc.commit(xid);
@@ -107,7 +114,8 @@ public class ServerRetrievalBatteryTransaction0 {
 			System.out.println("Wildcard queries:");
 			displayLine = 0;
 			System.out.println("1.) findSet(*,*,*)...");
-			it =  rkvc.findSet(xid, '*', '*', '*');
+			CompletableFuture<Iterator> itc = rkvc.findSet(xid, '*', '*', '*');
+			it =  itc.get();
 			while(it.hasNext()) {
 				Object o = it.next();
 				Result c = (Result)o;
@@ -130,7 +138,8 @@ public class ServerRetrievalBatteryTransaction0 {
 						arel[2]+",("+arel[2].getClass().getName());
 				if(it != null)
 					rkvc.setIterator(it);
-				it = rkvc.findSet(xid, arel[0], arel[1], arel[2]);
+				itc = rkvc.findSet(xid, arel[0], arel[1], arel[2]);
+				it = itc.get();
 				while(it.hasNext()) {
 					Object o = it.next();
 					Result c = (Result)o;
@@ -147,7 +156,8 @@ public class ServerRetrievalBatteryTransaction0 {
 				System.out.println("3."+j+") findSet(*,*,<obj>) using range="+arel[2]);
 				if(it != null)
 					rkvc.setIterator(it);
-				it = rkvc.findSet(xid, '*', '*', arel[2]);
+				itc = rkvc.findSet(xid, '*', '*', arel[2]);
+				it = itc.get();
 				while(it.hasNext()) {
 					Object o = it.next();
 					Result c = (Result)o;
@@ -156,22 +166,19 @@ public class ServerRetrievalBatteryTransaction0 {
 						System.out.println("(3."+j+" of "+ar.size()+") "+displayLine+"="+c);
 				}
 			}
-			it = null;
+			ArrayList<Object> clist = new ArrayList<Object>();
 			for(int j = 0; j < ar.size(); j++) {
-				displayLine = 0;
 				//RelatrixHeadsetIterator.DEBUG = true;
 				Comparable[] arel = ((Result)ar.get(j)).toArray();
-				System.out.println("4."+j+") findSet(*,<obj>,*) using map="+arel[1]);
-				if(it != null)
-					rkvc.setIterator(it);
-				it = rkvc.findSet(xid, '*', arel[1], '*');
-				while(it.hasNext()) {
-					Object o = it.next();
-					Result c = (Result)o;
-					displayCtrl();
-					if(DISPLAY || DISPLAYALL)
-						System.out.println("(4."+j+" of "+ar.size()+") "+displayLine+"="+c);
-				}
+				clist.add(arel[1]);
+			}
+			List<Result> res = queryParallelMap(rkvc,clist);
+			System.out.println("4.) findSetParallel(*,<obj>,*) using map list size:"+clist.size()+" returning size:"+res.size());
+			displayLine = 0;
+			for(int j = 0; j < res.size(); j++) {
+				displayCtrl();
+				if(DISPLAY || DISPLAYALL)
+					System.out.println("(4."+j+" of "+res.size()+") "+displayLine+"="+res.get(j));
 			}
 			it = null;
 			for(int j = 0; j < ar.size(); j++) {
@@ -180,7 +187,8 @@ public class ServerRetrievalBatteryTransaction0 {
 				System.out.println("5."+j+") FindSet(<obj>,*,*) using domain="+arel[0]);
 				if(it != null)
 					rkvc.setIterator(it);
-				it = rkvc.findSet(xid, arel[0], '*', '*');
+				itc = rkvc.findSet(xid, arel[0], '*', '*');
+				it = itc.get();
 				while(it.hasNext()) {
 					Object o = it.next();
 					Result c = (Result)o;
@@ -197,7 +205,8 @@ public class ServerRetrievalBatteryTransaction0 {
 				System.out.println("6."+j+") findSet(*,<obj>,<obj>) using map="+arel[1]+" range="+arel[2]);
 				if(it != null)
 					rkvc.setIterator(it);
-				it = rkvc.findSet(xid, '*', arel[1], arel[2]);
+				itc = rkvc.findSet(xid, '*', arel[1], arel[2]);
+				it = itc.get();
 				while(it.hasNext()) {
 					Object o = it.next();
 					Result c = (Result)o;
@@ -213,7 +222,8 @@ public class ServerRetrievalBatteryTransaction0 {
 				System.out.println("7."+j+") findSet(<obj>,*,<obj>) using ="+arel[0]+", "+arel[2]);
 				if(it != null)
 					rkvc.setIterator(it);
-				it = rkvc.findSet(xid, arel[0], '*', arel[2]);
+				itc = rkvc.findSet(xid, arel[0], '*', arel[2]);
+				it = itc.get();
 				while(it.hasNext()) {
 					Object o = it.next();
 					Result c = (Result)o;
@@ -229,7 +239,8 @@ public class ServerRetrievalBatteryTransaction0 {
 				System.out.println("8."+j+") findSet(<obj>,<obj>,*) using domain="+arel[0]+", map="+arel[1]);
 				if(it != null)
 					rkvc.setIterator(it);
-				it = rkvc.findSet(xid, arel[0], arel[1], '*');
+				itc = rkvc.findSet(xid, arel[0], arel[1], '*');
+				it = itc.get();
 				while(it.hasNext()) {
 					Object o = it.next();
 					Result c = (Result)o;
@@ -241,6 +252,19 @@ public class ServerRetrievalBatteryTransaction0 {
 
 			System.out.println("ServerRetrievalBattery0 SUCCESS in "+(System.currentTimeMillis()-tims));
 		}
+		
+		public static List<Result> queryParallelMap(AsynchRelatrixClientTransaction client, List<Object> query) throws IllegalArgumentException, ClassNotFoundException, IllegalAccessException, IOException, InterruptedException, ExecutionException {
+			List<Result> res = null;
+			//try (var _ = Timer.log("Querying combined hash for List of "+query.size())) {
+				CompletableFuture<List> cres = client.findSetParallel(xid, '*', query, '*');
+				res = cres.get();
+				//if(DEBUG)
+				//	for(Result r: res)
+				//		System.out.println(((TimestampRole)(r.get(0))).getTimestamp()+" "+r);
+			//}
+			return res;
+		}
+		
 		/**
 		 * remove entries
 		 * @param argv
@@ -249,7 +273,8 @@ public class ServerRetrievalBatteryTransaction0 {
 		public static void battery1AR17(String[] argv) throws Exception {
 			long tims = System.currentTimeMillis();
 			System.out.println("CleanDB");
-			Iterator it = rkvc.findSet(xid, '*','*','*');
+			CompletableFuture<Iterator> itc = rkvc.findSet(xid, '*','*','*');
+			Iterator it = itc.get();
 			long timx = System.currentTimeMillis();
 			int i = 0;
 			while(it.hasNext()) {
