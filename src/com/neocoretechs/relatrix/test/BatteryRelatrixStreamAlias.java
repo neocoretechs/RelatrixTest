@@ -60,7 +60,6 @@ public class BatteryRelatrixStreamAlias {
 	*/
 	public static void main(String[] argv) throws Exception {
 		IndexResolver indexResolver = new IndexResolver();
-		indexResolver.setLocal();
 		ParallelExecutionContext pec = new ParallelExecutionContext(indexResolver, new ConcurrentHashMap<String,Object>());
 		ScopedValue.where(ExecutionContextHolder.CONTEXT, pec).run(() -> {
 			try {
