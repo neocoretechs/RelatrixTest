@@ -24,7 +24,7 @@ import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.relatrix.Relatrix;
 import com.neocoretechs.relatrix.Result;
-
+import com.neocoretechs.relatrix.type.RelationList;
 /**
  * Stream version of BatteryRelatrixAlias.<p>
  * The set of tests verifies the higher level 'findSet' functions in the {@link Relatrix}, which can be used
@@ -54,7 +54,7 @@ public class BatteryRelatrixStreamAlias {
 	static Alias alias1 = new Alias("ALIAS1");
 	static Alias alias2 = new Alias("ALIAS2");
 	static Alias alias3 = new Alias("ALIAS3");
-	static List<Result> res = new ArrayList<Result>();
+	static RelationList res;
 	/**
 	* Main test fixture driver
 	*/
@@ -299,14 +299,14 @@ public class BatteryRelatrixStreamAlias {
 			String fkey = key + String.format(uniqKeyFmt, j);
 			iq.add(fkey);
 		}
-		res = Relatrix.findSetParallel(alias12, iq, '*', '*');
+		res = (RelationList) Relatrix.findSetParallel(alias12, iq, '*', '*');
 		});
 		System.out.println((System.currentTimeMillis()-tims)+" ms. findSetParallel for "+iq.size());
 		if(res.size() != iq.size())
 			throw new Exception("Result set does not match query set for findSetParallel:"+res.size()+" vs query size:"+iq.size());
-		for(Result r: res) {
-			if(!iq.contains( ((Relation)r.get()).getDomain()))
-				throw new Exception("Cannot find query item in result set:"+r.get());
+		for(Comparable r: res) {
+			if(!iq.contains(((AbstractRelation)r).getDomain()))
+				throw new Exception("Cannot find query item in result set:"+r);
 		}
 		System.out.println("BATTERY1AR6B SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
