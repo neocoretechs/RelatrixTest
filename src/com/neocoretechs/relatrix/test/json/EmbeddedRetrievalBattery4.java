@@ -277,7 +277,7 @@ public class EmbeddedRetrievalBattery4 {
 					"("+((Result)ar3.get(j)).get(0).getClass().getName()+"),"+
 					",("+((Result)ar3.get(j)).get(1).getClass().getName()+"),"+
 					",("+((Result)ar3.get(j)).get(2).getClass().getName());
-			it = RelatrixJson.findSubSet(((Result)ar3.get(j)).get(0), ((Result)ar3.get(j)).get(1), ((Result)ar3.get(j)).get(2));
+			it = RelatrixJson.findSubSet('*',((Result)ar3.get(j)).get(0), ((Result)ar3.get(j)).get(1), ((Result)ar3.get(j)).get(2));
 			while(it.hasNext()) {
 				Object o = it.next();
 				Result c = (Result)o;
