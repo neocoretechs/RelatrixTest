@@ -10,6 +10,7 @@ import java.util.concurrent.ExecutionException;
 import com.neocoretechs.relatrix.Relation;
 import com.neocoretechs.relatrix.AbstractRelation;
 import com.neocoretechs.relatrix.Result;
+import com.neocoretechs.relatrix.type.RelationList;
 
 import com.neocoretechs.relatrix.client.asynch.AsynchRelatrixClientTransaction;
 import com.neocoretechs.rocksack.TransactionId;
@@ -149,30 +150,28 @@ public class ServerAsynchBatteryTransaction {
 				}
 			}
 			it = null;
+			ArrayList<Object> clist = new ArrayList<Object>();
 			for(int j = 0; j < ar.size(); j++) {
-				displayLine=0;
 				//RelatrixHeadsetIterator.DEBUG = true;
 				Comparable[] arel = ((Result)ar.get(j)).toArray();
-				System.out.println("3."+j+") findSet(*,*,<obj>) using range="+arel[2]);
-				if(it != null)
-					rkvc.setIterator(it);
-				itc = rkvc.findSet(xid, '*', '*', arel[2]);
-				it = itc.get();
-				while(it.hasNext()) {
-					Object o = it.next();
-					Result c = (Result)o;
-					displayCtrl();
-					if(DISPLAY || DISPLAYALL)
-						System.out.println("(3."+j+" of "+ar.size()+") "+displayLine+"="+c);
-				}
+				clist.add(arel[0]);
 			}
-			ArrayList<Object> clist = new ArrayList<Object>();
+			RelationList res = queryParallelDomain(rkvc,clist);
+			System.out.println("3.) findSetParallel(<obj>,*,*) using domain list size:"+clist.size()+" returning size:"+res.size());
+			displayLine = 0;
+			for(int j = 0; j < res.size(); j++) {
+				displayCtrl();
+				if(DISPLAY || DISPLAYALL)
+					System.out.println("(3."+j+" of "+res.size()+") "+displayLine+"="+res.get(j));
+			}
+			//
+			clist = new ArrayList<Object>();
 			for(int j = 0; j < ar.size(); j++) {
 				//RelatrixHeadsetIterator.DEBUG = true;
 				Comparable[] arel = ((Result)ar.get(j)).toArray();
 				clist.add(arel[1]);
 			}
-			List<Result> res = queryParallelMap(rkvc,clist);
+			res = queryParallelMap(rkvc,clist);
 			System.out.println("4.) findSetParallel(*,<obj>,*) using map list size:"+clist.size()+" returning size:"+res.size());
 			displayLine = 0;
 			for(int j = 0; j < res.size(); j++) {
@@ -180,11 +179,25 @@ public class ServerAsynchBatteryTransaction {
 				if(DISPLAY || DISPLAYALL)
 					System.out.println("(4."+j+" of "+res.size()+") "+displayLine+"="+res.get(j));
 			}
-			it = null;
+			clist = new ArrayList<Object>();
+			for(int j = 0; j < ar.size(); j++) {
+				//RelatrixHeadsetIterator.DEBUG = true;
+				Comparable[] arel = ((Result)ar.get(j)).toArray();
+				clist.add(arel[2]);
+			}
+			res = queryParallelRange(rkvc,clist);
+			System.out.println("5.) findSetParallel(*,*,<obj>) using range list size:"+clist.size()+" returning size:"+res.size());
+			displayLine = 0;
+			for(int j = 0; j < res.size(); j++) {
+				displayCtrl();
+				if(DISPLAY || DISPLAYALL)
+					System.out.println("(5."+j+" of "+res.size()+") "+displayLine+"="+res.get(j));
+			}
+			//-------------------------
 			for(int j = 0; j < ar.size(); j++) {
 				displayLine = 0;
 				Comparable[] arel = ((Result)ar.get(j)).toArray();
-				System.out.println("5."+j+") FindSet(<obj>,*,*) using domain="+arel[0]);
+				System.out.println("6."+j+") FindSet(<obj>,*,*) using domain="+arel[0]);
 				if(it != null)
 					rkvc.setIterator(it);
 				itc = rkvc.findSet(xid, arel[0], '*', '*');
@@ -202,7 +215,7 @@ public class ServerAsynchBatteryTransaction {
 			for(int j = 0; j < ar.size(); j++) {
 				displayLine = 0;
 				Comparable[] arel = ((Result)ar.get(j)).toArray();
-				System.out.println("6."+j+") findSet(*,<obj>,<obj>) using map="+arel[1]+" range="+arel[2]);
+				System.out.println("7."+j+") findSet(*,<obj>,<obj>) using map="+arel[1]+" range="+arel[2]);
 				if(it != null)
 					rkvc.setIterator(it);
 				itc = rkvc.findSet(xid, '*', arel[1], arel[2]);
@@ -219,7 +232,7 @@ public class ServerAsynchBatteryTransaction {
 			for(int j = 0; j < ar.size(); j++) {
 				displayLine = 0;
 				Comparable[] arel = ((Result)ar.get(j)).toArray();
-				System.out.println("7."+j+") findSet(<obj>,*,<obj>) using ="+arel[0]+", "+arel[2]);
+				System.out.println("8."+j+") findSet(<obj>,*,<obj>) using ="+arel[0]+", "+arel[2]);
 				if(it != null)
 					rkvc.setIterator(it);
 				itc = rkvc.findSet(xid, arel[0], '*', arel[2]);
@@ -236,7 +249,7 @@ public class ServerAsynchBatteryTransaction {
 			for(int j = 0; j < ar.size(); j++) {
 				displayLine=0;
 				Comparable[] arel = ((Result)ar.get(j)).toArray();
-				System.out.println("8."+j+") findSet(<obj>,<obj>,*) using domain="+arel[0]+", map="+arel[1]);
+				System.out.println("9."+j+") findSet(<obj>,<obj>,*) using domain="+arel[0]+", map="+arel[1]);
 				if(it != null)
 					rkvc.setIterator(it);
 				itc = rkvc.findSet(xid, arel[0], arel[1], '*');
@@ -252,15 +265,27 @@ public class ServerAsynchBatteryTransaction {
 
 			System.out.println("ServerRetrievalBattery0 SUCCESS in "+(System.currentTimeMillis()-tims));
 		}
-		
-		public static List<Result> queryParallelMap(AsynchRelatrixClientTransaction client, List<Object> query) throws IllegalArgumentException, ClassNotFoundException, IllegalAccessException, IOException, InterruptedException, ExecutionException {
-			List<Result> res = null;
+		public static RelationList queryParallelDomain(AsynchRelatrixClientTransaction client, List<Object> query) throws IllegalArgumentException, ClassNotFoundException, IllegalAccessException, IOException, InterruptedException, ExecutionException {
+			RelationList res = null;
+			//try (var _ = Timer.log("Querying combined hash for List of "+query.size())) {
+				CompletableFuture<List> cres = client.findSetParallel(xid, query, '*', '*');
+				res = (RelationList) cres.get();
+			//}
+			return res;
+		}	
+		public static RelationList queryParallelMap(AsynchRelatrixClientTransaction client, List<Object> query) throws IllegalArgumentException, ClassNotFoundException, IllegalAccessException, IOException, InterruptedException, ExecutionException {
+			RelationList res = null;
 			//try (var _ = Timer.log("Querying combined hash for List of "+query.size())) {
 				CompletableFuture<List> cres = client.findSetParallel(xid, '*', query, '*');
-				res = cres.get();
-				//if(DEBUG)
-				//	for(Result r: res)
-				//		System.out.println(((TimestampRole)(r.get(0))).getTimestamp()+" "+r);
+				res = (RelationList) cres.get();
+			//}
+			return res;
+		}
+		public static RelationList queryParallelRange(AsynchRelatrixClientTransaction client, List<Object> query) throws IllegalArgumentException, ClassNotFoundException, IllegalAccessException, IOException, InterruptedException, ExecutionException {
+			RelationList res = null;
+			//try (var _ = Timer.log("Querying combined hash for List of "+query.size())) {
+				CompletableFuture<List> cres = client.findSetParallel(xid, '*', '*', query);
+				res = (RelationList) cres.get();
 			//}
 			return res;
 		}
