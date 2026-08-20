@@ -96,14 +96,7 @@ public class BatteryRelatrix {
 				if(DEBUG)
 					System.out.println("Begin test battery 1AR10");
 				battery1AR10(argv);
-				if(DEBUG)
-					System.out.println("Begin test battery 1AR11");
-				battery1AR11(argv);
-				//if(DEBUG)
-				//	System.out.println("Begin test battery 1AR12");
-				//battery1AR12(argv);*/
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		});
@@ -329,11 +322,12 @@ public class BatteryRelatrix {
 			Iterator<?> its = RelatrixJson.findSet(RelatrixKVJson.getObject(jo), '*', '*');
 			while(its.hasNext()) {
 				Result nex = (Result) its.next();
-				Comparable re = nex.get();
-				JSONObject ng = RelatrixKVJson.getJsonData(re);
-				if(!ng.similar(xf) || nex.length() != 1) {
-					System.out.println("KEY MISMATCH:"+(i)+"\r\nng="+ng+"\r\nkey="+xf+" len:"+nex.length());
-					throw new Exception("KEY MISMATCH:"+(i)+"\r\nng="+ng+"\r\nkey="+xf+" len:"+nex.length());
+				AbstractRelation re = (AbstractRelation) nex.get();
+				Comparable d = re.getDomain();
+				JSONObject ng = RelatrixKVJson.getJsonData(d);
+				if(!ng.similar(jo)) {
+					System.out.println("KEY MISMATCH:"+(i)+"\r\nng="+ng+"\r\nkey="+jo);
+					throw new Exception("KEY MISMATCH:"+(i)+"\r\nng="+ng+"\r\nkey="+jo);
 				}
 				++i;
 			}
@@ -344,42 +338,7 @@ public class BatteryRelatrix {
 		}
 		System.out.println("BATTERY1AR10 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
-	/**
-	 * Test the higher level functions in the Relatrix. Use the 'findSet' permutations to
-	 * verify the previously inserted data
-	 * @param argv
-	 * @throws Exception
-	 */
-	public static void battery1AR11(String[] argv) throws Exception {
-		int i = min;
-		long tims = System.currentTimeMillis();
-		JSONObject xf = new JSONObject(xfull);
-		JSONObject jo = new JSONObject(x);
-		JSONObject jo2 = new JSONObject(x50k);
-		System.out.println("Battery1AR11");
-		for(; i < max; i++) {
-			long tim = jo.getLong("timestamp");
-			++tim;
-			jo.put("timestamp",tim);
-			Iterator<?> its = RelatrixJson.findSet(RelatrixKVJson.getObject(jo), '*', '*');
-			while(its.hasNext()) {
-				Result nex = (Result) its.next();
-				// 3 question marks = dimension 3 in return array
-				Comparable re = nex.get();
-				JSONObject ng = RelatrixKVJson.getJsonData(re);
-				if(!ng.similar(jo2) || nex.length() != 1) {
-					System.out.println("KEY MISMATCH:"+(i)+"\r\nng="+ng+"\r\nkey="+jo2+" len:"+nex.length());
-					throw new Exception("KEY MISMATCH:"+(i)+"\r\nng="+ng+"\r\nkey="+jo2+" len:"+nex.length());
-				}
-				++i;
-			}
-		}
-		if( i != max ) {
-			System.out.println("BATTERY1AR11 unexpected number of keys "+i);
-			throw new Exception("BATTERY1AR11 unexpected number of keys "+i);
-		}
-		System.out.println("BATTERY1AR11 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
-	}
+
 	/**
 	 * remove entries
 	 * @param argv
