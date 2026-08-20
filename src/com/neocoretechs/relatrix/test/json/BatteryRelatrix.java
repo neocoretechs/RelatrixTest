@@ -2,6 +2,7 @@ package com.neocoretechs.relatrix.test.json;
 
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.json.JSONObject;
 
@@ -11,6 +12,9 @@ import com.neocoretechs.relatrix.MapRangeDomain;
 import com.neocoretechs.relatrix.AbstractRelation;
 
 import com.neocoretechs.relatrix.AbstractRelation.displayLevels;
+import com.neocoretechs.relatrix.key.IndexResolver;
+import com.neocoretechs.relatrix.parallel.ExecutionContextHolder;
+import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 import com.neocoretechs.relatrix.RangeDomainMap;
 import com.neocoretechs.relatrix.RangeMapDomain;
 import com.neocoretechs.relatrix.Relation;
@@ -46,55 +50,63 @@ public class BatteryRelatrix {
 	/**
 	 * Main test fixture driver
 	 */
-	public static void main(String[] argv) throws Exception {
+	public static void main(String[] argv) {
 		RelatrixJson.getInstance();
 		AbstractRelation.displayLevel = displayLevels.VERBOSE;
-		if(argv.length > 2 && argv[1].equals("max")) {
-			System.out.println("Setting max items to "+argv[2]);
-			max = Integer.parseInt(argv[2]);
-		} else {
-			if(argv.length > 1 && argv[1].equals("init")) {
-				System.out.println("Initialize database to zero items, then terminate...");
-				battery1AR17(argv);
-				System.exit(0);
-			}
-		}
-		long siz = RelatrixJson.size();
-		if(siz == 0) {
-			if(DEBUG)
-				System.out.println("Zero items, Begin insertion from "+min+" to "+max);
-			battery1(argv);
-		} else
-			System.out.println("size="+siz);
-	
-		if(DEBUG)
-			System.out.println("Begin duplicate key rejection test from "+min+" to "+max);
-		battery11(argv);
-		if(DEBUG)
-			System.out.println("Begin test battery 1AR5");	
-		battery1AR5(argv);
-		if(DEBUG)
-			System.out.println("Begin test battery 1AR6");
-		battery1AR6(argv);
-		if(DEBUG)
-			System.out.println("Begin test battery 1AR7");
-		battery1AR7(argv);
-		if(DEBUG)
-			System.out.println("Begin test battery 1AR8");
-		battery1AR8(argv);
-		if(DEBUG)
-			System.out.println("Begin test battery 1AR9");
-		battery1AR9(argv);
-		if(DEBUG)
-			System.out.println("Begin test battery 1AR10");
-		battery1AR10(argv);
-		if(DEBUG)
-			System.out.println("Begin test battery 1AR11");
-		battery1AR11(argv);
-		//if(DEBUG)
-		//	System.out.println("Begin test battery 1AR12");
-		//battery1AR12(argv);*/
+		IndexResolver indexResolver = new IndexResolver();
+		ParallelExecutionContext pec = new ParallelExecutionContext(indexResolver, new ConcurrentHashMap<String,Object>());
+		ScopedValue.where(ExecutionContextHolder.CONTEXT, pec).run(() -> {
+			try {
+				if(argv.length > 2 && argv[1].equals("max")) {
+					System.out.println("Setting max items to "+argv[2]);
+					max = Integer.parseInt(argv[2]);
+				} else {
+					if(argv.length > 1 && argv[1].equals("init")) {
+						System.out.println("Initialize database to zero items, then terminate...");
+						battery1AR17(argv);
+						System.exit(0);
+					}
+				}
+				long siz = RelatrixJson.size();
+				if(siz == 0) {
+					if(DEBUG)
+						System.out.println("Zero items, Begin insertion from "+min+" to "+max);
+					battery1(argv);
+				} else
+					System.out.println("size="+siz);
 
+				if(DEBUG)
+					System.out.println("Begin duplicate key rejection test from "+min+" to "+max);
+				battery11(argv);
+				if(DEBUG)
+					System.out.println("Begin test battery 1AR5");	
+				battery1AR5(argv);
+				if(DEBUG)
+					System.out.println("Begin test battery 1AR6");
+				battery1AR6(argv);
+				if(DEBUG)
+					System.out.println("Begin test battery 1AR7");
+				battery1AR7(argv);
+				if(DEBUG)
+					System.out.println("Begin test battery 1AR8");
+				battery1AR8(argv);
+				if(DEBUG)
+					System.out.println("Begin test battery 1AR9");
+				battery1AR9(argv);
+				if(DEBUG)
+					System.out.println("Begin test battery 1AR10");
+				battery1AR10(argv);
+				if(DEBUG)
+					System.out.println("Begin test battery 1AR11");
+				battery1AR11(argv);
+				//if(DEBUG)
+				//	System.out.println("Begin test battery 1AR12");
+				//battery1AR12(argv);*/
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		});
 		System.out.println("TEST BATTERY COMPLETE.");
 		System.exit(0);
 	}

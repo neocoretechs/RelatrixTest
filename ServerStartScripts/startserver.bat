@@ -1,0 +1,1 @@
+java --enable-native-access=ALL-UNNAMED -server -XX:+UseParallelGC -XX:+UseLargePages -Xmn10g  -Xms26g -Xmx26g -Dtablespace=C:/etc/db2/test -cp C:\Users\share\jars\Relatrix.jar;C:\Users\share\jars\RockSack.jar;C:\Users\share\jars\rocksdbjni-9.10.0-win64.jar;C:\Users\share\jars\json.jar;C:\Users\share\jars\RelatrixTest.jar com.neocoretechs.relatrix.server.RelatrixServer %1 %2 %3

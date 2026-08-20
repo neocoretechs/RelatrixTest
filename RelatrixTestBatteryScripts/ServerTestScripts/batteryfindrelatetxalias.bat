@@ -1,0 +1,1 @@
+java -ea --enable-preview --enable-native-access=ALL-UNNAMED -server -XX:+UseParallelGC -Xmn10g  -Xms26g -Xmx26g -cp C:\Users\share\jars\RockSack.jar;C:\Users\share\jars\Relatrix.jar;C:\Users\share\jars\rocksdbjni-9.10.0-win64.jar;C:\Users\share\jars\RelatrixTest.jar;C:\Users\share\jars\json.jar com.neocoretechs.relatrix.test.server.ServerFindRelatedAliasTransaction  %1 %2 %3 %4

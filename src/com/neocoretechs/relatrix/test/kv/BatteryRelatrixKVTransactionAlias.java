@@ -42,12 +42,9 @@ public class BatteryRelatrixKVTransactionAlias {
 			System.out.println("Usage: java com.neocoretechs.relatrix.test.kv.BatteryRelatrixKVTransactionAlias <directory_tablespace_path>");
 			System.exit(1);
 		}
-		String tablespace = argv[0];
-		if(!tablespace.endsWith("/"))
-			tablespace += "/";
-		RelatrixKV.setAlias(alias1,tablespace+alias1);
-		RelatrixKV.setAlias(alias2,tablespace+alias2);
-		RelatrixKV.setAlias(alias3,tablespace+alias3);
+		RelatrixKV.setAlias(alias1,RelatrixKV.getTableSpace()+alias1);
+		RelatrixKV.setAlias(alias2,RelatrixKV.getTableSpace()+alias2);
+		RelatrixKV.setAlias(alias3,RelatrixKV.getTableSpace()+alias3);
 		TransactionId xid = RelatrixKVTransaction.getTransactionId();
 		battery1(xid);
 		battery11(xid);

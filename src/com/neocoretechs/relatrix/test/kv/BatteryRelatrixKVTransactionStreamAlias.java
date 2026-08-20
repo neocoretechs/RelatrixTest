@@ -51,10 +51,7 @@ public class BatteryRelatrixKVTransactionStreamAlias {
 			System.out.println("Usage: java com.neocoretechs.relatrix.test.kv.BatteryRelatrixKVTransactionStreamAlias <directory_tablespace_path>");
 			System.exit(1);
 		}
-		String tablespace = argv[0];
-		if(!tablespace.endsWith("/"))
-			tablespace += "/";
-		RelatrixKV.setAlias(alias1,tablespace+alias1);
+		RelatrixKV.setAlias(alias1,RelatrixKVTransaction.getTableSpace()+alias1);
 		TransactionId xid = RelatrixKVTransaction.getTransactionId();
 		battery1(xid);	// build and store
 		battery11(xid);  // build and store

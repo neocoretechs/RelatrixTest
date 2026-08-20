@@ -61,7 +61,6 @@ public class EmbeddedStreamRetrievalBatteryTransactionAlias4 {
 	public static void main(String[] argv) throws Exception {
 		System.out.println("Subset Provides a persistent collection iterator of keys 'from' element inclusive, 'to' element exclusive of the keys specified");
 		IndexResolver indexResolver = new IndexResolver();
-		indexResolver.setLocal();
 		ParallelExecutionContext pec = new ParallelExecutionContext(indexResolver, new ConcurrentHashMap<String,Object>());
 		ScopedValue.where(ExecutionContextHolder.CONTEXT, pec).run(() -> {
 			try {

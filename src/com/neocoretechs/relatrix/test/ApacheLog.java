@@ -490,7 +490,6 @@ public class ApacheLog {
 		
 		// get either the test line or a directory of log files, assume simple log format unless we have extra cmdl arg
 		IndexResolver indexResolver = new IndexResolver();
-		indexResolver.setLocal();
 		ParallelExecutionContext pec = new ParallelExecutionContext(indexResolver, new ConcurrentHashMap<String,Object>());
 		ScopedValue.where(ExecutionContextHolder.CONTEXT, pec).run(() -> {
 			Relatrix.getInstance();

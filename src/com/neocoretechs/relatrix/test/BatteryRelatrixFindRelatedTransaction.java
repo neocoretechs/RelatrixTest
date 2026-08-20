@@ -49,7 +49,6 @@ public class BatteryRelatrixFindRelatedTransaction {
 		AbstractRelation.displayLevel = displayLevels.MINIMAL;
 		AbstractRelation.displayLevel = displayLevels.MINIMAL;
 		IndexResolver indexResolver = new IndexResolver();
-		indexResolver.setLocal();
 		ParallelExecutionContext pec = new ParallelExecutionContext(indexResolver, new ConcurrentHashMap<String,Object>());
 		ScopedValue.where(ExecutionContextHolder.CONTEXT, pec).run(() -> {
 			try {

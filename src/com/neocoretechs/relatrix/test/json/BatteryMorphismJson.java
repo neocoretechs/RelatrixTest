@@ -54,33 +54,42 @@ public class BatteryMorphismJson {
 		/**
 		* Main test fixture driver
 		*/
-		public static void main(String[] argv) throws Exception {
+		public static void main(String[] argv) {
 			if(argv.length < 1) {
 				System.out.println("Usage: java com.neocoretechs.relatrix.test.BatteryMorphism <directory_tablespace_path>");
 				System.exit(1);
 			}
 			RelatrixJson.getInstance();
-			battery1AR17(argv);
-			battery0(argv);
-		
-			// load keys table from Relation class instance, which is the concrete subclass of PrimaryKeySet
-			battery1AR4(argv);
-			battery1AR44(argv);
-			battery1AR5(argv);
-			battery1AR55(argv);
-			battery1AR101(argv);
-			// now do alternate keys table loadout retrieving from DBKey class and repeat tests comparing tables with stored data
-			keys.clear();
-			battery1AR4A(argv);
-			battery1AR44(argv);
-			// 5 and 55 dont involve keys table, only dbtable
-			battery1AR101(argv);
-			// and perform balance of testing
-			battery1AR12(argv);
-			battery1AR14(argv);
+			IndexResolver indexResolver = new IndexResolver();
+			ParallelExecutionContext pec = new ParallelExecutionContext(indexResolver, new ConcurrentHashMap<String,Object>());
+			ScopedValue.where(ExecutionContextHolder.CONTEXT, pec).run(() -> {
+				try {
+					battery1AR17(argv);
+					battery0(argv);
+
+					// load keys table from Relation class instance, which is the concrete subclass of PrimaryKeySet
+					battery1AR4(argv);
+					battery1AR44(argv);
+					battery1AR5(argv);
+					battery1AR55(argv);
+					battery1AR101(argv);
+					// now do alternate keys table loadout retrieving from DBKey class and repeat tests comparing tables with stored data
+					keys.clear();
+					battery1AR4A(argv);
+					battery1AR44(argv);
+					// 5 and 55 dont involve keys table, only dbtable
+					battery1AR101(argv);
+					// and perform balance of testing
+					battery1AR12(argv);
+					battery1AR14(argv);
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			});
 			//battery1AR17(argv);
-			 System.out.println("BatteryMorphismJson TEST BATTERY COMPLETE.");
-			 System.exit(0);	
+			System.out.println("BatteryMorphismJson TEST BATTERY COMPLETE.");
+			System.exit(0);	
 		}
 		/**
 		 * Loads up on keys

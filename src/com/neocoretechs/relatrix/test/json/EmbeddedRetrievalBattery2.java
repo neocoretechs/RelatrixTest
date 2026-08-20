@@ -4,6 +4,7 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.json.JSONObject;
 
@@ -20,6 +21,9 @@ import com.neocoretechs.relatrix.RelatrixKVJson;
 import com.neocoretechs.relatrix.Result;
 
 import com.neocoretechs.relatrix.AbstractRelation.displayLevels;
+import com.neocoretechs.relatrix.key.IndexResolver;
+import com.neocoretechs.relatrix.parallel.ExecutionContextHolder;
+import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 
 
 /**
@@ -63,31 +67,39 @@ public class EmbeddedRetrievalBattery2 {
 	/**
 	*/
 	public static void main(String[] argv) throws Exception {
-		 //System.out.println("Analysis of all");
+		//System.out.println("Analysis of all");
 		RelatrixJson.getInstance();
 		AbstractRelation.displayLevel = AbstractRelation.displayLevels.VERBOSE;
-		xfClass = RelatrixKVJson.getClassType(xf);
-		xo50Class = RelatrixKVJson.getClassType(xo50);
-		xoClass = RelatrixKVJson.getClassType(xo);
-		if(argv.length > 2 && argv[1].equals("max")) {
-			System.out.println("Setting max items to "+argv[2]);
-			max = Integer.parseInt(argv[2]);
-		} else {
-			if(argv.length > 1 && argv[1].equals("init")) {
-				System.out.println("Initialize database to zero items, then terminate...");
-				battery1AR17(argv);
-				System.exit(0);
+		IndexResolver indexResolver = new IndexResolver();
+		ParallelExecutionContext pec = new ParallelExecutionContext(indexResolver, new ConcurrentHashMap<String,Object>());
+		ScopedValue.where(ExecutionContextHolder.CONTEXT, pec).run(() -> {
+			try {
+				xfClass = RelatrixKVJson.getClassType(xf);
+				xo50Class = RelatrixKVJson.getClassType(xo50);
+				xoClass = RelatrixKVJson.getClassType(xo);
+				if(argv.length > 2 && argv[1].equals("max")) {
+					System.out.println("Setting max items to "+argv[2]);
+					max = Integer.parseInt(argv[2]);
+				} else {
+					if(argv.length > 1 && argv[1].equals("init")) {
+						System.out.println("Initialize database to zero items, then terminate...");
+						battery1AR17(argv);
+						System.exit(0);
+					}
+				}
+				long siz = RelatrixJson.size();
+				if(siz == 0) {
+					if(DEBUG)
+						System.out.println("Zero items, Begin insertion from "+min+" to "+max);
+					battery0(argv);
+				} else
+					System.out.println("size="+siz);
+				battery1(argv);
+				battery2(argv);
+			}catch(Exception e) {
+				e.printStackTrace();
 			}
-		}
-		long siz = RelatrixJson.size();
-		if(siz == 0) {
-			if(DEBUG)
-				System.out.println("Zero items, Begin insertion from "+min+" to "+max);
-			battery0(argv);
-		} else
-			System.out.println("size="+siz);
-		battery1(argv);
-		battery2(argv);
+		});
 		System.out.println("TEST BATTERY COMPLETE.");	
 		System.exit(0);
 	}

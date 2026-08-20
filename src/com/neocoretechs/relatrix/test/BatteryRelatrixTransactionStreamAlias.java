@@ -58,7 +58,6 @@ public class BatteryRelatrixTransactionStreamAlias {
 	public static void main(String[] argv) throws Exception {
 		RelatrixTransaction.getInstance();
 		IndexResolver indexResolver = new IndexResolver();
-		indexResolver.setLocal();
 		ParallelExecutionContext pec = new ParallelExecutionContext(indexResolver, new ConcurrentHashMap<String,Object>());
 		xid = RelatrixTransaction.getTransactionId();
 		RelatrixTransaction.setAlias(alias1,RelatrixTransaction.getTableSpace()+alias1);
