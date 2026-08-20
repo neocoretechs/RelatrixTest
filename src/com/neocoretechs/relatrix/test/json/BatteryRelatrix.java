@@ -31,7 +31,7 @@ import com.neocoretechs.relatrix.Result;
  * To impart order, the higher level permutations of findSet are used.
  * NOTES:
  * A database unique to this test module should be used.
- * program argument is database i.e. C:/users/you/Relatrix/TestDB2 [ [init] [max nnn] ]
+ * program argument  [ [init] [max nnn] ]
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2016,2017,2026
  *
  */
@@ -57,11 +57,11 @@ public class BatteryRelatrix {
 		ParallelExecutionContext pec = new ParallelExecutionContext(indexResolver, new ConcurrentHashMap<String,Object>());
 		ScopedValue.where(ExecutionContextHolder.CONTEXT, pec).run(() -> {
 			try {
-				if(argv.length > 2 && argv[1].equals("max")) {
-					System.out.println("Setting max items to "+argv[2]);
-					max = Integer.parseInt(argv[2]);
+				if(argv.length > 1 && argv[0].equals("max")) {
+					System.out.println("Setting max items to "+argv[1]);
+					max = Integer.parseInt(argv[1]);
 				} else {
-					if(argv.length > 1 && argv[1].equals("init")) {
+					if(argv.length == 1 && argv[0].equals("init")) {
 						System.out.println("Initialize database to zero items, then terminate...");
 						battery1AR17(argv);
 						System.exit(0);
@@ -186,7 +186,7 @@ public class BatteryRelatrix {
 		while(its.hasNext()) {
 			Result nex = (Result) its.next();
 			Comparable[] res = nex.toArray();
-			// 3 question marks = dimension 3 in return array
+			
 			JSONObject ng = RelatrixKVJson.getJsonData(res[0]);
 			JSONObject nh = RelatrixKVJson.getJsonData(res[1]);
 			JSONObject ni = RelatrixKVJson.getJsonData(res[2]);
@@ -251,10 +251,6 @@ public class BatteryRelatrix {
 			JSONObject ng = RelatrixKVJson.getJsonData(nex.get());
 			if(DEBUG) 
 				System.out.println("1AR7: "+i+".) "+nex);
-			if(nex.length() != 1) {
-				System.out.println("MAP KEY MISMATCH:"+(i)+" .)"+nex);
-				throw new Exception("MAP KEY MISMATCH:"+(i)+" .)"+nex);
-			}
 			++i;
 		}
 		if( i != max ) {
@@ -278,10 +274,6 @@ public class BatteryRelatrix {
 			JSONObject ng = RelatrixKVJson.getJsonData(nex.get());
 			if(DEBUG) 
 				System.out.println("1AR8: "+i+".) "+ng);
-			if(nex.length() != 2) {
-				System.out.println("MAP KEY MISMATCH:"+(i)+" .)"+ng);
-				throw new Exception("MAP KEY MISMATCH:"+(i)+" .)"+ng);
-			}
 			++i;
 		}
 		if( i != max ) {
