@@ -30,7 +30,6 @@ import com.neocoretechs.rocksack.iterator.Entry;
  * throughout the balance of testing.
  * NOTES:
  * A database unique to this test module should be used.
- * program argument is database i.e. C:/users/you/Relatrix/TestDB2
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2016,2017
  */
 public class BatteryMorphismJson {
@@ -55,18 +54,27 @@ public class BatteryMorphismJson {
 		* Main test fixture driver
 		*/
 		public static void main(String[] argv) {
-			if(argv.length < 1) {
-				System.out.println("Usage: java com.neocoretechs.relatrix.test.BatteryMorphism <directory_tablespace_path>");
-				System.exit(1);
-			}
 			RelatrixJson.getInstance();
+			if(argv.length > 1 && argv[0].equals("max")) {
+				System.out.println("Setting max items to "+argv[1]);
+				max = Integer.parseInt(argv[1]);
+			}
 			IndexResolver indexResolver = new IndexResolver();
 			ParallelExecutionContext pec = new ParallelExecutionContext(indexResolver, new ConcurrentHashMap<String,Object>());
 			ScopedValue.where(ExecutionContextHolder.CONTEXT, pec).run(() -> {
 				try {
-					battery1AR17(argv);
-					battery0(argv);
-
+					if(argv.length == 1 && argv[0].equals("init")) {
+						System.out.println("Initialize database to zero items, then terminate...");
+						battery1AR17(argv);
+						System.exit(0);
+					}
+					long siz = RelatrixJson.size();
+					if(siz == 0) {
+						if(DEBUG)
+							System.out.println("Zero items, Begin insertion from "+min+" to "+max);
+						battery0(argv);
+					} else
+						System.out.println("size="+siz);
 					// load keys table from Relation class instance, which is the concrete subclass of PrimaryKeySet
 					battery1AR4(argv);
 					battery1AR44(argv);
@@ -83,7 +91,6 @@ public class BatteryMorphismJson {
 					battery1AR12(argv);
 					battery1AR14(argv);
 				} catch (Exception e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			});
@@ -127,10 +134,7 @@ public class BatteryMorphismJson {
 					++dupes; 
 				}
 			}
-			if(DEBUG) {
-				System.out.println("---DBtable---");
-				dbtable.forEach((k,v)->{System.out.println(k+" "+v);});
-			}
+		
 			 System.out.println("BATTERY0 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms. Stored "+recs+" records, rejected "+dupes+" dupes.");
 		}
 
@@ -160,6 +164,7 @@ public class BatteryMorphismJson {
 					throw new Exception("Keys table element from tailMap iterator "+nexe.getValue()+" not valid due to:"+DBKey.whyInvalid(nexe.getValue()));
 				}
 				keys.add(prev);
+				dbtable.put(nexe.getValue(), nexe.getKey());
 				if(DEBUG)
 					System.out.println("1AR4 "+(cnt)+"="+nexe);
 				++cnt;
@@ -171,6 +176,10 @@ public class BatteryMorphismJson {
 			if(DEBUG) {
 				System.out.println("---Instance keys---");
 				keys.forEach(j->{System.out.println(j);});
+			}
+			if(DEBUG) {
+				System.out.println("---DBtable---");
+				dbtable.forEach((k,v)->{System.out.println(k+" "+v);});
 			}
 			 System.out.println("BATTERY1AR4 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms. obtained "+keys.size());
 		}
