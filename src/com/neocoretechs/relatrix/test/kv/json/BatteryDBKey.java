@@ -3,15 +3,18 @@ package com.neocoretechs.relatrix.test.kv.json;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 
 import org.json.JSONObject;
 
 import com.neocoretechs.relatrix.DuplicateKeyException;
-
+import com.neocoretechs.relatrix.RelatrixJson;
 import com.neocoretechs.relatrix.RelatrixKVJson;
 
 import com.neocoretechs.relatrix.key.IndexResolver;
+import com.neocoretechs.relatrix.parallel.ExecutionContextHolder;
+import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 
 
 /**
@@ -39,15 +42,35 @@ public class BatteryDBKey {
 	*/
 	public static void main(String[] argv) throws Exception {
 		RelatrixKVJson.getInstance();
-		battery1AR17();
-		battery1();
-		battery1AR4();
-		battery1AR7();
-		battery1AR8();
-		battery1AR9();
-		//battery1AR17();
-		 System.out.println("BatteryDBKey TEST BATTERY COMPLETE.");
-		
+		if(argv.length > 1 && argv[0].equals("max")) {
+			System.out.println("Setting max items to "+argv[1]);
+			max = Integer.parseInt(argv[1]);
+		}
+		IndexResolver indexResolver = new IndexResolver();
+		ParallelExecutionContext pec = new ParallelExecutionContext(indexResolver, new ConcurrentHashMap<String,Object>());
+		ScopedValue.where(ExecutionContextHolder.CONTEXT, pec).run(() -> {
+			try {
+				if(argv.length == 1 && argv[0].equals("init")) {
+					System.out.println("Initialize database to zero items, then terminate...");
+					battery1AR17();
+					System.exit(0);
+				}
+				long siz = RelatrixJson.size();
+				if(siz == 0) {
+					if(DEBUG)
+						System.out.println("Zero items, Begin insertion from "+min+" to "+max);
+					battery1();
+				}
+				battery1AR4();
+				battery1AR7();
+				battery1AR8();
+				battery1AR9();
+			} catch(Exception e) {
+				e.printStackTrace();
+			}
+		});
+		System.out.println("BatteryDBKey TEST BATTERY COMPLETE.");
+
 	}
 	/**
 	 * Loads up on keys, should be 0 to max-1, or min, to max -1
