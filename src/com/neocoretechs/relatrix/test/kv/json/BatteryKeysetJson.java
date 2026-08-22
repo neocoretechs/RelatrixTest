@@ -5,11 +5,12 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.json.JSONObject;
 
 import com.neocoretechs.rocksack.iterator.Entry;
-
+import com.neocoretechs.relatrix.RelatrixJson;
 import com.neocoretechs.relatrix.RelatrixKVJson;
 import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.key.IndexInstanceTableJson;
@@ -19,6 +20,7 @@ import com.neocoretechs.relatrix.key.KeySet;
 import com.neocoretechs.relatrix.key.PrimaryKeySet;
 import com.neocoretechs.relatrix.parallel.ExecutionContextHolder;
 import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
+import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 
 /**
  * The set of tests verifies the lower level {@link KeySet} functions in the {@link  RelatrixJson}
@@ -51,20 +53,41 @@ public class BatteryKeysetJson {
 	*/
 	public static void main(String[] argv) throws Exception {
 		RelatrixKVJson.getInstance();
-		//battery1AR17(argv);
-		battery1(argv);
-		battery2(argv);
-		battery1AR4(argv);
-		battery1AR44(argv);
-		battery1AR5(argv);
-		battery1AR9(argv);
-		battery1AR10(argv);
-		battery1AR101(argv);
-		battery1AR12(argv);
-		battery1AR14(argv);
-		//battery1AR17(argv);
-		 System.out.println("BatteryKeysetJson TEST BATTERY COMPLETE.");
-		
+		IndexResolver indexResolver = new IndexResolver(true); // true for JSON
+		ParallelExecutionContext pec = new ParallelExecutionContext(indexResolver, new ConcurrentHashMap<String,Object>());
+		//ScopedValue.where(ExecutionContextHolder.CONTEXT, pec).run(() -> {
+		SynchronizedThreadManager.getInstance().spinWithContext(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					if(argv.length == 1 && argv[0].equals("init")) {
+						System.out.println("Initialize database to zero items, then terminate...");
+						battery1AR17(argv);
+						System.exit(0);
+					}
+					long siz = RelatrixJson.size();
+					if(siz == 0) {
+						if(DEBUG)
+							System.out.println("Zero items, Begin insertion from "+min+" to "+max);
+						battery1(argv);
+					}
+					battery2(argv);
+					battery1AR4(argv);
+					battery1AR44(argv);
+					battery1AR5(argv);
+					battery1AR9(argv);
+					battery1AR10(argv);
+					battery1AR101(argv);
+					battery1AR12(argv);
+					battery1AR14(argv);
+					//battery1AR17(argv);
+				} catch(Exception e) {
+					e.printStackTrace();
+				}
+				System.out.println("BatteryKeysetJson TEST BATTERY COMPLETE.");
+			}}, pec);
+		SynchronizedThreadManager.startSupervisorThread();
+
 	}
 	/**
 	 * Loads up on keys, should be 0 to max-1, or min, to max -1
