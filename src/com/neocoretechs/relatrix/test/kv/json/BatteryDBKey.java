@@ -46,7 +46,7 @@ public class BatteryDBKey {
 			System.out.println("Setting max items to "+argv[1]);
 			max = Integer.parseInt(argv[1]);
 		}
-		IndexResolver indexResolver = new IndexResolver();
+		IndexResolver indexResolver = new IndexResolver(true);
 		ParallelExecutionContext pec = new ParallelExecutionContext(indexResolver, new ConcurrentHashMap<String,Object>());
 		ScopedValue.where(ExecutionContextHolder.CONTEXT, pec).run(() -> {
 			try {

@@ -3,6 +3,7 @@ package com.neocoretechs.relatrix.test.kv.json;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 
 import org.json.JSONObject;
@@ -10,6 +11,8 @@ import org.json.JSONObject;
 import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.RelatrixKVJsonTransaction;
 import com.neocoretechs.relatrix.key.IndexResolver;
+import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
+import com.neocoretechs.relatrix.parallel.SynchronizedThreadManager;
 import com.neocoretechs.rocksack.TransactionId;
 
 
@@ -39,17 +42,28 @@ public class BatteryDBKeyTx {
 	*/
 	public static void main(String[] argv) throws Exception {
 		RelatrixKVJsonTransaction.getInstance();
-		xid = RelatrixKVJsonTransaction.getTransactionId();
-		battery1AR17(argv);
-		battery1(argv);
-		battery1AR4(argv);
-		battery1AR7(argv);
-		battery1AR8(argv);
-		battery1AR9(argv);
-		RelatrixKVJsonTransaction.commit(xid);
-		//battery1AR17(argv);
-		 System.out.println("BatteryDBKeyTx TEST BATTERY COMPLETE.");
-		
+		IndexResolver indexResolver = new IndexResolver(true);
+		ParallelExecutionContext pec = new ParallelExecutionContext(indexResolver, new ConcurrentHashMap<String,Object>());
+		SynchronizedThreadManager.getInstance().spinWithContext(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					xid = RelatrixKVJsonTransaction.getTransactionId();
+					battery1AR17(argv);
+					battery1(argv);
+					battery1AR4(argv);
+					battery1AR7(argv);
+					battery1AR8(argv);
+					battery1AR9(argv);
+					RelatrixKVJsonTransaction.commit(xid);
+					//battery1AR17(argv);
+				} catch(Exception e) {
+					e.printStackTrace();
+				}
+				System.out.println("BatteryDBKeyTxJson TEST BATTERY COMPLETE.");
+				System.exit(0);
+			}}, pec);
+		SynchronizedThreadManager.startSupervisorThread();	
 	}
 	/**
 	 * Loads up on keys, should be 0 to max-1, or min, to max -1
