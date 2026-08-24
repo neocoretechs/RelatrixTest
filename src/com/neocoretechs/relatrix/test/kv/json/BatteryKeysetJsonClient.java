@@ -5,20 +5,16 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
+import java.util.UUID;
 
 import org.json.JSONObject;
 
 import com.neocoretechs.rocksack.iterator.Entry;
-
+import com.neocoretechs.relatrix.Relation;
 import com.neocoretechs.relatrix.client.json.RelatrixKVClientJson;
 
 import com.neocoretechs.relatrix.key.DBKey;
-
-import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.key.KeySet;
-import com.neocoretechs.relatrix.key.PrimaryKeySet;
-import com.neocoretechs.relatrix.parallel.ExecutionContextHolder;
-import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 
 /**
  * The set of tests verifies the lower level {@link KeySet} functions in the {@link  RelatrixKVClientJson}
@@ -78,15 +74,8 @@ public class BatteryKeysetJsonClient {
 		int recs = 0;
 		JSONObject jox = new JSONObject(x);
 		JSONObject jo2 = new JSONObject(x50k);
-		/*String className = RelatrixTypeSynthesizer.generateMorphicClassName(jox,RelatrixTypeSynthesizer.morphicClassPrefix);
-       	byte[] b = JsonRecordClassGenerator.buildJsonRecordClassBytes(className);   	
-		HandlerClassLoader.setBytesInRepository(className, b);*/
-		IndexResolver resolver = null;
-		if(ExecutionContextHolder.CONTEXT.isBound()) {
-		        ParallelExecutionContext ctx = ExecutionContextHolder.CONTEXT.get();
-		        resolver = ctx.resolver();
-		} else
-			throw new RuntimeException("IndexResolver not bound to context.");
+		rc.createClass(jox);
+		rc.createClass(jo2);
 		for(i = min; i < max; i++) {
 			long tim = jox.getLong("timestamp");
 			++tim;
@@ -94,29 +83,19 @@ public class BatteryKeysetJsonClient {
 			tim = jo2.getLong("timestamp");
 			++tim;
 			jo2.put("timestamp",tim);
-			PrimaryKeySet pks = new PrimaryKeySet();
-			pks.setDomainKey(resolver.getIndexInstanceTable().getKey(jox.toString()));
-			pks.setMapKey(resolver.getIndexInstanceTable().getKey(jo2.toString()));
-			// check for domain/map match
-			// Enforce categorical structure; domain->map function uniquely determines range.
-			// If the search winds up at the key or the key is empty or the domain->map exists, the key
-			// cannot be inserted
-			//if(Relatrix.isPrimaryKey(RelatrixKV.nearest(identity), identity)) {
-			if(DBKey.isValid(pks.getDomainKey()) && DBKey.isValid(pks.getMapKey()) && rc.get(pks) != null) {
-				//throw new DuplicateKeyException("Duplicate key for relationship:"+identity);
-				System.out.println("Duplicate key for relationship:"+pks);
-				++dupes;
-				continue;
-			}
-			KeySet identity = new KeySet();
-			identity.setDomainKey(DBKey.newKey(resolver.getIndexInstanceTable(), jox.toString()));
-			identity.setMapKey(DBKey.newKey(resolver.getIndexInstanceTable(), jo2.toString()));
-			//identity.setRangeKey(DBKey.nullDBKey);
-			identity.setRangeKey(DBKey.newKey(resolver.getIndexInstanceTable(),xf.toString())); // form it as template for duplicate key search
-			// re-create it, now that we know its valid, in a form that stores the components with DBKeys
-			// and maintains the classes stores in IndexInstanceTable for future commit.
-			resolver.getIndexInstanceTable().put(identity);
-			if( DEBUG  )
+			Relation r = new Relation();
+			DBKey dbx = new DBKey(UUID.randomUUID());
+			rc.store(dbx, jox);
+			DBKey db = new DBKey(UUID.randomUUID());
+			rc.store(db, jo2);
+			r.setDomainKey(dbx);
+			r.setMapKey(db);
+			DBKey xfd = new DBKey(UUID.randomUUID());
+			rc.store(xfd, xf);
+			r.setRangeKey(xfd);
+			DBKey identity = new DBKey(UUID.randomUUID());
+			rc.store(identity, r);
+			if(DEBUG )
 				System.out.println("Relatrix.store stored :"+identity);
 			++recs;
 		}	
@@ -126,12 +105,6 @@ public class BatteryKeysetJsonClient {
 	private static void battery2() throws IllegalAccessException, ClassNotFoundException, IOException {
 		JSONObject jox = new JSONObject(x);
 		JSONObject jo2 = new JSONObject(x50k);
-		IndexResolver resolver = null;
-		if(ExecutionContextHolder.CONTEXT.isBound()) {
-		        ParallelExecutionContext ctx = ExecutionContextHolder.CONTEXT.get();
-		        resolver = ctx.resolver();
-		} else
-			throw new RuntimeException("IndexResolver not bound to context.");
 		for(int i = min; i < max; i++) {
 			long tim = jox.getLong("timestamp");
 			++tim;
@@ -139,9 +112,9 @@ public class BatteryKeysetJsonClient {
 			tim = jo2.getLong("timestamp");
 			++tim;
 			jo2.put("timestamp",tim);
-			KeySet identity = new KeySet();
-			identity.setDomainKey(resolver.getIndexInstanceTable().getKey(jox.toString()));
-			identity.setMapKey(resolver.getIndexInstanceTable().getKey(jo2.toString()));
+			Relation identity = new Relation();
+			identity.setDomainKey((DBKey) rc.get(jox));
+			identity.setMapKey((DBKey) rc.get(jo2));
 			identity.setRangeKey(DBKey.nullDBKey);
 			//PrimaryKeySet pks = new PrimaryKeySet(identity);
 			// check for domain/map match
@@ -232,15 +205,10 @@ public class BatteryKeysetJsonClient {
 		long tims = System.currentTimeMillis();
 		Iterator<?> its = rc.entrySet(KeySet.class);
 		System.out.println("Battery1AR5");
-		IndexResolver resolver = null;
-		if(ExecutionContextHolder.CONTEXT.isBound()) {
-		        ParallelExecutionContext ctx = ExecutionContextHolder.CONTEXT.get();
-		        resolver = ctx.resolver();
-		} else
-			throw new RuntimeException("IndexResolver not bound to context.");
+	
 		while(its.hasNext()) {
 			Entry nex = (Entry) its.next();
-			i =  resolver.getIndexInstanceTable().get((DBKey) nex.getValue()); 
+			i = rc.get((DBKey) nex.getValue()); 
 			if(((Comparable)i).compareTo(nex.getKey()) != 0) {
 				System.out.println("RANGE KEY MISMATCH: "+nex);
 				throw new Exception("RANGE KEY MISMATCH: "+nex);
@@ -323,17 +291,11 @@ public class BatteryKeysetJsonClient {
 			Iterator<?> its = rc.findTailMapKV(c);
 			System.out.println("Battery1AR12");
 			i = 0;
-			IndexResolver resolver = null;
-			if(ExecutionContextHolder.CONTEXT.isBound()) {
-			        ParallelExecutionContext ctx = ExecutionContextHolder.CONTEXT.get();
-			        resolver = ctx.resolver();
-			} else
-				throw new RuntimeException("IndexResolver not bound to context.");
 			while(its.hasNext()) {
 				Comparable nex = (Comparable) its.next();
 				Map.Entry<KeySet, DBKey> nexe = (Map.Entry<KeySet,DBKey>)nex;
-				DBKey db = resolver.getIndexInstanceTable().getKey(nexe.getKey()); // get the DBKey for this instance integer
-				KeySet keyset = (KeySet) resolver.getIndexInstanceTable().get(nexe.getValue());
+				DBKey db = (DBKey) rc.get(nexe.getKey()); // get the DBKey for this instance integer
+				KeySet keyset = (KeySet) rc.get(nexe.getValue());
 				if(nexe.getKey().compareTo(keyset) != 0 || nexe.getValue().compareTo(db) != 0) {
 					// Map.Entry
 					System.out.println("RANGE KEY MISMATCH:"+nex);
@@ -345,7 +307,6 @@ public class BatteryKeysetJsonClient {
 		}
 		System.out.println("BATTERY1AR12 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
-
 	
 	/**
 	 * findHeadMapKV
@@ -359,16 +320,11 @@ public class BatteryKeysetJsonClient {
 		if(c != null) {
 			Iterator<?> its = rc.findHeadMapKV(c);
 			System.out.println("Battery1AR14");
-			IndexResolver resolver = null;
-			if(ExecutionContextHolder.CONTEXT.isBound()) {
-			        ParallelExecutionContext ctx = ExecutionContextHolder.CONTEXT.get();
-			        resolver = ctx.resolver();
-			} else
-				throw new RuntimeException("IndexResolver not bound to context.");
+
 			while(its.hasNext()) {
 				Comparable nex = (Comparable) its.next();
 				Map.Entry<KeySet,DBKey> nexe = (Map.Entry<KeySet,DBKey>)nex;
-				DBKey db = resolver.getIndexInstanceTable().getKey(nexe.getKey()); // get the DBKey for this instance 
+				DBKey db = (DBKey) rc.get(nexe.getKey()); // get the DBKey for this instance 
 				if(nexe.getValue().compareTo(db) != 0) {
 					// Map.Entry
 					System.out.println("RANGE KEY MISMATCH:"+nex);
