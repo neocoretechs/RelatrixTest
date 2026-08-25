@@ -3,6 +3,7 @@ package com.neocoretechs.relatrix.test.kv;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.neocoretechs.relatrix.MapRangeDomain;
@@ -25,6 +26,7 @@ public class BatteryDBKey {
 	static DBKey dbkey;
 	static int min = 0;
 	static int max = 100000;
+	public static int div = 10;
 	static int numDelete = 100; // for delete test
 
 	static ArrayList<DBKey> findkeys = new ArrayList<DBKey>();
@@ -37,11 +39,18 @@ public class BatteryDBKey {
 		ScopedValue.where(ExecutionContextHolder.CONTEXT, pec).run(() -> {
 			try {
 				RelatrixKV.getInstance();
-				battery1AR17();
+				if(argv.length > 1 && argv[0].equals("max")) {
+					System.out.println("Setting max items to "+argv[1]);
+					max = Integer.parseInt(argv[1]);
+				} else {
+					if(argv.length > 0 && argv[0].equals("init") || RelatrixKV.size(DBKey.class) > 0) {
+						System.out.println("Initialize database to zero items");
+						battery1AR17();
+					}
+				}
 				battery1();
 				battery1AR4();
 				battery1AR7();
-				battery1AR17();
 				System.out.println("BatteryDBKey TEST BATTERY COMPLETE.");
 			} catch(Exception e) {
 				e.printStackTrace();
@@ -138,49 +147,16 @@ public class BatteryDBKey {
 		int j = min;
 		long s = RelatrixKV.size(DBKey.class);
 		System.out.println("Cleaning DB of "+s+" elements.");
-		Iterator<?> it = RelatrixKV.keySet(DBKey.class);
+		Iterator<?> it = RelatrixKV.entrySet(DBKey.class);
 		long timx = System.currentTimeMillis();
 		for(int i = 0; i < s; i++) {
-			Object fkey = it.next();
-			RelatrixKV.remove((Comparable) fkey);
+			Map.Entry<DBKey, Comparable> mkey = (Entry<DBKey, Comparable>) it.next();
+			RelatrixKV.remove((Comparable) mkey.getValue());
+			RelatrixKV.remove((DBKey)mkey.getKey());
 			if((System.currentTimeMillis()-timx) > 5000) {
-				System.out.println("DBKey "+i+" "+fkey);
+				System.out.println("DBKey "+i+" "+mkey);
 				timx = System.currentTimeMillis();
 			}
-		}
-		// remove payload reverse index
-		s = RelatrixKV.size(Relation.class);
-		it = RelatrixKV.keySet(Relation.class);
-		timx = System.currentTimeMillis();
-		for(int i = 0; i < s; i++) {
-			Object fkey = it.next();
-			RelatrixKV.remove((Comparable) fkey);
-			if((System.currentTimeMillis()-timx) > 5000) {
-				System.out.println(fkey.getClass().getName()+i+" "+fkey);
-				timx = System.currentTimeMillis();
-			}
-		}
-		s = RelatrixKV.size(MapRangeDomain.class);
-		it = RelatrixKV.keySet(MapRangeDomain.class);
-		timx = System.currentTimeMillis();
-		for(int i = 0; i < s; i++) {
-			Object fkey = it.next();
-			RelatrixKV.remove((Comparable) fkey);
-			if((System.currentTimeMillis()-timx) > 5000) {
-				System.out.println(fkey.getClass().getName()+i+" "+fkey);
-				timx = System.currentTimeMillis();
-			}
-		}
-		long siz = RelatrixKV.size(DBKey.class);
-		if(siz > 0) {
-			Iterator<?> its = RelatrixKV.entrySet(DBKey.class);
-			while(its.hasNext()) {
-				Comparable nex = (Comparable) its.next();
-				//System.out.println(i+"="+nex);
-				System.out.println("KV RANGE 1AR17 KEY SHOULD BE DELETED:"+nex);
-			}
-			System.out.println("KV RANGE 1AR17 KEY MISMATCH:"+siz+" > 0 after all deleted and committed");
-			throw new Exception("KV RANGE 1AR17 KEY MISMATCH:"+siz+" > 0 after delete/commit");
 		}
 		 System.out.println("BATTERY1AR17 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}

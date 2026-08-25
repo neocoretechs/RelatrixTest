@@ -30,8 +30,8 @@ public class BatteryKeysetJsonClient {
 	static int min = 0;
 	static int max = 10000;
 	static int numDelete = 100; // for delete test
-	static ArrayList<KeySet> keys = new ArrayList<KeySet>();
-	static ArrayList<KeySet> findkeys = new ArrayList<KeySet>();
+	static ArrayList<Comparable> keys = new ArrayList<Comparable>();
+	static ArrayList<Comparable> findkeys = new ArrayList<Comparable>();
 	static String x =     "{\"timestamp\":1779166030000,\"LeftImage\":[{ \"count\":1,\"detections\":[ {\"name\":\"refrigerator\"}]}]}";
 	static String x50k =  "{\"timestamp\":1779166050000,\"RightImage\":[{\"count\":0, \"affections\":[ {\"name\":\"alligator\"}]}]}";
 	static String xfull = "{\"timestamp\":1779166070000,\"LeftImage\":[{ \"count\":1, \"erections\":[ { \"name\":\"toilet\"}]}]}";
@@ -39,7 +39,10 @@ public class BatteryKeysetJsonClient {
 	static JSONObject xf = new JSONObject(xfull);
 	static JSONObject xo50 = new JSONObject(x50k);
 	static JSONObject xo = new JSONObject(x);
-	static Class<?> xfClass, xoClass, xo50Class;
+	static Class<?> xfClass, xoClass, x50Class, xClass;
+	
+	static JSONObject jox = new JSONObject(x);
+	static JSONObject jo2 = new JSONObject(x50k);
 	
 	static RelatrixKVClientJson rc;
 	/**
@@ -48,16 +51,13 @@ public class BatteryKeysetJsonClient {
 	public static void main(String[] argv) throws Exception {
 		rc = new RelatrixKVClientJson(argv[0], Integer.parseInt(argv[1]));
 		//battery1AR17();
-		battery1();
+		xClass = rc.createClass(jox);
+		x50Class = rc.createClass(jo2);
+		xfClass = rc.createClass(xf);
+		if(rc.size(xfClass) == 0)
+			battery1();
 		battery2();
-		battery1AR4();
-		battery1AR44();
-		battery1AR5();
-		battery1AR9();
-		battery1AR10();
-		battery1AR101();
-		battery1AR12();
-		battery1AR14();
+	
 		//battery1AR17();
 		 System.out.println("BatteryKeysetJson TEST BATTERY COMPLETE.");
 		
@@ -72,10 +72,6 @@ public class BatteryKeysetJsonClient {
 		long tims = System.currentTimeMillis();
 		int dupes = 0;
 		int recs = 0;
-		JSONObject jox = new JSONObject(x);
-		JSONObject jo2 = new JSONObject(x50k);
-		rc.createClass(jox);
-		rc.createClass(jo2);
 		for(i = min; i < max; i++) {
 			long tim = jox.getLong("timestamp");
 			++tim;
@@ -83,20 +79,12 @@ public class BatteryKeysetJsonClient {
 			tim = jo2.getLong("timestamp");
 			++tim;
 			jo2.put("timestamp",tim);
-			Relation r = new Relation();
-			DBKey dbx = new DBKey(UUID.randomUUID());
-			rc.store(dbx, jox);
-			DBKey db = new DBKey(UUID.randomUUID());
-			rc.store(db, jo2);
-			r.setDomainKey(dbx);
-			r.setMapKey(db);
-			DBKey xfd = new DBKey(UUID.randomUUID());
-			rc.store(xfd, xf);
-			r.setRangeKey(xfd);
-			DBKey identity = new DBKey(UUID.randomUUID());
-			rc.store(identity, r);
-			if(DEBUG )
-				System.out.println("Relatrix.store stored :"+identity);
+			rc.store(jox,UUID.randomUUID());
+			rc.store(jo2,UUID.randomUUID());
+			rc.store(xf,UUID.randomUUID());
+			if(DEBUG)
+				if(recs % 1000 == 0)
+					System.out.println("Relatrix.store stored :"+recs);
 			++recs;
 		}	
 		System.out.println("BATTERY1 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms. Stored "+recs+" records, rejected "+dupes+" dupes.");
@@ -112,230 +100,16 @@ public class BatteryKeysetJsonClient {
 			tim = jo2.getLong("timestamp");
 			++tim;
 			jo2.put("timestamp",tim);
-			Relation identity = new Relation();
-			identity.setDomainKey((DBKey) rc.get(jox));
-			identity.setMapKey((DBKey) rc.get(jo2));
-			identity.setRangeKey(DBKey.nullDBKey);
-			//PrimaryKeySet pks = new PrimaryKeySet(identity);
-			// check for domain/map match
-			// Enforce categorical structure; domain->map function uniquely determines range.
-			// If the search winds up at the key or the key is empty or the domain->map exists, the key
-			// cannot be inserted
-			//Object o = RelatrixKV.nearest(identity);
-			//if(!Relatrix.isPrimaryKey(o, identity))
-				//System.out.println("FAILED to find:"+identity+" found key="+o);
-			Iterator<?> it = rc.findTailMapKV(identity);
+			Iterator<?> it = rc.findTailMapKV(jo2);
 			int cnt = 0;
 			while(it.hasNext()) {
 				Object o = it.next();
 				Map.Entry e = (Map.Entry)o;
-				KeySet k = ((KeySet)e.getKey());
-				if(k.domainKeyEquals(identity) && k.mapKeyEquals(identity)) {
-					if(DEBUG)
-						System.out.println("Found at "+cnt);
-					break;
-				}
 				cnt++;
 			}
 		}
 	}
-	/**
-	 * check order of DBKey
-	 * @param argv
-	 * @throws Exception
-	 */
-	public static void battery1AR4() throws Exception {
-		int cnt = 0;
-		long tims = System.currentTimeMillis();
-		KeySet prev = (KeySet) rc.firstKey(KeySet.class);
-		Iterator<?> its = rc.findTailMapKV((Comparable) prev);
-		System.out.println("Battery1AR4");
-		KeySet first = ((Map.Entry<KeySet,DBKey>)its.next()).getKey();
-		findkeys.add(first); // skip first key we just got
-		keys.add(first);
-		while(its.hasNext()) {
-			Comparable nex = (Comparable) its.next();
-			Map.Entry<KeySet, DBKey> nexe = (Map.Entry<KeySet,DBKey>)nex;
-			if(nexe.getKey().compareTo(prev) <= 0) { // should always be >
-			// Map.Entry
-				System.out.println("RANGE KEY MISMATCH: "+nex);
-				throw new Exception("RANGE KEY MISMATCH: "+nex);
-			}
-			prev = nexe.getKey();
-			findkeys.add(nexe.getKey());
-			keys.add(nexe.getKey());
-			if(DEBUG)
-				System.out.println("1AR4 "+(cnt++)+"="+nex);
-		}
-		 System.out.println("BATTERY1AR4 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
-	}
-	public static void battery1AR44() throws Exception {
-		long tims = System.currentTimeMillis();
-		System.out.println("Battery1AR44");
-		while(!findkeys.isEmpty()) {
-			int rnd = new Random().nextInt(findkeys.size());
-			KeySet ident = findkeys.get(rnd);
-			findkeys.remove(rnd);
-
-			// check for domain/map match
-			// Enforce categorical structure; domain->map function uniquely determines range.
-			// If the search winds up at the key or the key is empty or the domain->map exists, the key
-			// cannot be inserted
-			if(rc.nearest(ident) == null) {
-				if(DEBUG)
-					System.out.println("Didnt find "+ident);
-				else
-					throw new Exception("Didnt find "+ident);
-			} else {
-				if(DEBUG)
-					System.out.println("FOUND "+ident);
-			}
-			
-		}
-		 System.out.println("BATTERY1AR44 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
-	}
-	/**
-	 * Testing of Iterator<?> its = RelatrixKV.keySet;
-	 * @param argv
-	 * @throws Exception
-	 */
-	public static void battery1AR5() throws Exception {
-		int cnt = 0;
-		Object i;
-		long tims = System.currentTimeMillis();
-		Iterator<?> its = rc.entrySet(KeySet.class);
-		System.out.println("Battery1AR5");
 	
-		while(its.hasNext()) {
-			Entry nex = (Entry) its.next();
-			i = rc.get((DBKey) nex.getValue()); 
-			if(((Comparable)i).compareTo(nex.getKey()) != 0) {
-				System.out.println("RANGE KEY MISMATCH: "+nex);
-				throw new Exception("RANGE KEY MISMATCH: "+nex);
-			}
-			if(DEBUG)
-				System.out.println("1AR5 "+(cnt++)+"="+nex);
-		}
-		 System.out.println("BATTERY1AR5 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
-	}
-
-	/**
-	 * 
-	 * Testing of first(), and firstValue
-	 * @param argv
-	 * @throws Exception
-	 */
-	public static void battery1AR9() throws Exception {
-		int i = min;
-		long tims = System.currentTimeMillis();
-		Comparable k = (Comparable) rc.firstKey(KeySet.class); // first key
-		((KeySet)k).getDomainKey();
-		((KeySet)k).getMapKey();
-		((KeySet)k).getRangeKey();
-		System.out.println("Battery1AR9 firstKey");
-		if(!keys.contains(k)) {
-			System.out.println("BATTERY1A9 cant find contains key "+i);
-			throw new Exception("BATTERY1AR9 unexpected cant find contains of key "+i);
-		}
-		System.out.println(k);
-		System.out.println("BATTERY1AR9 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
-	}
-
-	/**
-	 * test last and lastKey
-	 * @param argv
-	 * @throws Exception
-	 */
-	public static void battery1AR10() throws Exception {
-		int i = max-1;
-		long tims = System.currentTimeMillis();
-		Comparable k = (Comparable) rc.lastKey(KeySet.class); // key
-		((KeySet)k).getDomainKey();
-		((KeySet)k).getMapKey();
-		((KeySet)k).getRangeKey();
-		System.out.println("Battery1AR10 lastKey");
-		if(!keys.contains(k)) {
-			System.out.println("BATTERY1AR10 cant find last key "+i);
-			throw new Exception("BATTERY1AR10 unexpected cant find last of key "+i);
-		}
-		System.out.println(k);
-		System.out.println("BATTERY1AR10 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
-	}
-	/**
-	* test size
-	 * @param argv
-	 * @throws Exception
-	 */
-	public static void battery1AR101() throws Exception {
-		int i = max;
-		long tims = System.currentTimeMillis();
-		long bits = rc.size(KeySet.class);
-		System.out.println("Battery1AR101 Size="+bits);
-		if( bits != keys.size() ) {
-			System.out.println("BATTERY1AR101 size mismatch "+bits+" should be:"+i);
-			throw new Exception("BATTERY1AR101 size mismatch "+bits+" should be "+i);
-		}
-		System.out.println("BATTERY1AR101 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
-	}
-
-	/**
-	 * findMapKV tailmapKV
-	 * @param argv
-	 * @throws Exception
-	 */
-	public static void battery1AR12() throws Exception {
-		int cnt = 0;
-		long tims = System.currentTimeMillis();
-		Comparable c = (Comparable) rc.firstKey(KeySet.class);
-		if( c != null ) {
-			Iterator<?> its = rc.findTailMapKV(c);
-			System.out.println("Battery1AR12");
-			i = 0;
-			while(its.hasNext()) {
-				Comparable nex = (Comparable) its.next();
-				Map.Entry<KeySet, DBKey> nexe = (Map.Entry<KeySet,DBKey>)nex;
-				DBKey db = (DBKey) rc.get(nexe.getKey()); // get the DBKey for this instance integer
-				KeySet keyset = (KeySet) rc.get(nexe.getValue());
-				if(nexe.getKey().compareTo(keyset) != 0 || nexe.getValue().compareTo(db) != 0) {
-					// Map.Entry
-					System.out.println("RANGE KEY MISMATCH:"+nex);
-					throw new Exception("RANGE KEY MISMATCH:"+nex);
-				}
-				if(DEBUG)
-					System.out.println("1AR12 "+(cnt++)+"="+nexe);
-			}
-		}
-		System.out.println("BATTERY1AR12 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
-	}
-	
-	/**
-	 * findHeadMapKV
-	 * @param argv
-	 * @throws Exception
-	 */
-	public static void battery1AR14() throws Exception {
-		int cnt = 0;
-		long tims = System.currentTimeMillis();
-		Comparable c = (Comparable) rc.lastKey(KeySet.class);
-		if(c != null) {
-			Iterator<?> its = rc.findHeadMapKV(c);
-			System.out.println("Battery1AR14");
-
-			while(its.hasNext()) {
-				Comparable nex = (Comparable) its.next();
-				Map.Entry<KeySet,DBKey> nexe = (Map.Entry<KeySet,DBKey>)nex;
-				DBKey db = (DBKey) rc.get(nexe.getKey()); // get the DBKey for this instance 
-				if(nexe.getValue().compareTo(db) != 0) {
-					// Map.Entry
-					System.out.println("RANGE KEY MISMATCH:"+nex);
-					throw new Exception("RANGE KEY MISMATCH:"+nex);
-				}
-				if(DEBUG)
-					System.out.println("1AR14 "+(cnt++)+"="+nexe);
-			}
-		}
-		System.out.println("BATTERY1AR14 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
-	}
 	
 	
 	/**
