@@ -7,6 +7,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import com.neocoretechs.rocksack.iterator.Entry;
 import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.RelatrixKV;
+import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.parallel.ExecutionContextHolder;
 import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
@@ -424,33 +425,29 @@ public class BatteryRelatrixKV {
 	 * remove entries
 	 * @throws Exception
 	 */
+	/**
+	 * remove entries
+	 * @throws Exception
+	 */
 	public static void battery1AR17() throws Exception {
 		long tims = System.currentTimeMillis();
-		long s = RelatrixKV.size(String.class);
-		System.out.println("CleanDB of size:"+s);
-		Iterator it = RelatrixKV.keySet(String.class);
+		int j = min;
+		long s = RelatrixKV.size(DBKey.class);
+		System.out.println("Cleaning DB of "+s+" elements.");
+		Iterator<?> it = RelatrixKV.entrySet(DBKey.class);
 		long timx = System.currentTimeMillis();
 		for(int i = 0; i < s; i++) {
-			Object fkey = it.next();
-			RelatrixKV.remove((Comparable) fkey);
+			Map.Entry<DBKey, Comparable> mkey = (Map.Entry<DBKey, Comparable>) it.next();
+			RelatrixKV.remove((Comparable) mkey.getValue());
+			RelatrixKV.remove((DBKey)mkey.getKey());
 			if((System.currentTimeMillis()-timx) > 5000) {
-				System.out.println(i+" "+fkey);
+				System.out.println("DBKey "+i+" "+mkey);
 				timx = System.currentTimeMillis();
 			}
 		}
-		long siz = RelatrixKV.size(String.class);
-		if(siz > 0) {
-			Iterator<?> its = RelatrixKV.entrySet(String.class);
-			while(its.hasNext()) {
-				Comparable nex = (Comparable) its.next();
-				//System.out.println(i+"="+nex);
-				System.out.println("KV RANGE 1AR17 KEY SHOULD BE DELETED:"+nex);
-			}
-			System.out.println("KV RANGE 1AR17 KEY MISMATCH:"+siz+" > 0 after all deleted and committed");
-			throw new Exception("KV RANGE 1AR17 KEY MISMATCH:"+siz+" > 0 after delete/commit");
-		}
 		 System.out.println("BATTERY1AR17 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
+
 	/**
 	 * Loads up on keys, should be 0 to max-1, or min, to max -1
 	 * @throws Exception

@@ -86,7 +86,6 @@ public class BatteryDBKeyAlias {
 		battery1AR17(alias1);
 		battery1AR17(alias2);
 		battery1AR17(alias3);
-		System.out.println("BatteryDBKey TEST BATTERY COMPLETE.");
 			} catch(Exception e) {
 				e.printStackTrace();
 			}

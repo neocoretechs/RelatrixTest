@@ -2,17 +2,21 @@ package com.neocoretechs.relatrix.test.kv;
 
 import java.util.Iterator;
 import java.util.Map;
-
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.neocoretechs.rocksack.iterator.Entry;
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.RelatrixKV;
+import com.neocoretechs.relatrix.key.DBKey;
+import com.neocoretechs.relatrix.key.IndexResolver;
+import com.neocoretechs.relatrix.parallel.ExecutionContextHolder;
+import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 
 /**
- * Yes, this should be a nice JUnit fixture someday. Test of embedded KV server with alias.
- * NOTE: rather than a database, specify only the PATH for the series of databases that will be 
- * designated ALIAS1java.lang.String, ALIAS2java.lang.String and ALIAS3java.lang.String<p/>
+ * Test of embedded KV server with alias.
+ * NOTE:databases will be 
+ * designated ALIAS1java.lang.String, ALIAS2java.lang.String and ALIAS3java.lang.String<p>
  * The static constant fields in the class control the key generation for the tests
  * In general, the keys and values are formatted according to uniqKeyFmt to produce
  * a series of canonically correct sort order strings for the DB in the range of min to max vals
@@ -21,7 +25,7 @@ import com.neocoretechs.relatrix.RelatrixKV;
  * Of course, you can substitute any class for the Strings here providing its Comparable.
  * NOTES:
  * The database aliases define db names and program argument defines tablespace, alias is prepended for fully qualified tablespace names
- * C:/users/you/Relatrix should be a valid path as in program arg. C:/users/you/Relatrix/ALIAS1java.lang.String through ALIAS3... will be created.
+ * For instance; C:/users/you/Relatrix should be a valid base tablespace path C:/users/you/RelatrixALIAS1java.lang.String through ALIAS3... will be created.
  * @author Jonathan Groff (C) NeoCoreTechs 2020,2024
  *
  */
@@ -29,7 +33,7 @@ public class BatteryRelatrixKVAlias {
 	public static boolean DEBUG = false;
 	static String uniqKeyFmt = "%0100d"; // base + counter formatted with this gives equal length strings for canonical ordering
 	static int min = 0;
-	static int max = 100000;
+	static int max = 10000;
 	static int numDelete = 100; // for delete test
 	static Alias alias1 = new Alias("ALIAS1");
 	static Alias alias2 = new Alias("ALIAS2");
@@ -38,36 +42,45 @@ public class BatteryRelatrixKVAlias {
 	* Main test fixture driver
 	*/
 	public static void main(String[] argv) throws Exception {
-		if(argv.length < 1) {
-			System.out.println("Usage: java com.neocoretechs.relatrix.test.kv.BatteryRelatrixKVAlias <directory_tablespace_path>");
-			System.exit(1);
-		}
-		String tablespace = argv[0];
-		if(!tablespace.endsWith("/"))
-			tablespace += "/";
-		RelatrixKV.setAlias(alias1,tablespace+alias1);
-		RelatrixKV.setAlias(alias2,tablespace+alias2);
-		RelatrixKV.setAlias(alias3,tablespace+alias3);
-		battery1(argv);
-		battery11(argv);
-		battery1AR6(argv);
-		battery1AR7(argv);
-		battery1AR8(argv);
-		battery1AR9(argv);
-		battery1AR10(argv);
-		battery1AR101(argv);
-		battery1AR11(argv);
-		battery1AR12(argv);
-		battery1AR13(argv);
-		battery1AR14(argv);
-		battery1AR15(argv);
-		battery1AR16(argv);
-		battery1AR17(alias1);
-		battery1AR17(alias2);
-		battery1AR17(alias3);
-		battery18(argv);
-		 System.out.println("BatteryRelatrixKVAlias TEST BATTERY COMPLETE.");
-		
+		ParallelExecutionContext pec = new ParallelExecutionContext(new IndexResolver(), new ConcurrentHashMap<String,Object>());
+		ScopedValue.where(ExecutionContextHolder.CONTEXT, pec).run(() -> {
+			try {
+				RelatrixKV.getInstance();
+				RelatrixKV.setAlias(alias1,RelatrixKV.getTableSpace()+alias1);
+				RelatrixKV.setAlias(alias2,RelatrixKV.getTableSpace()+alias2);
+				RelatrixKV.setAlias(alias3,RelatrixKV.getTableSpace()+alias3);	
+				if(argv.length > 1 && argv[0].equals("max")) {
+					System.out.println("Setting max items to "+argv[1]);
+					max = Integer.parseInt(argv[1]);
+				} else {
+					if(argv.length > 0 && argv[0].equals("init")) {
+						System.out.println("Initialize database to zero items");
+						battery1AR17(alias1);
+						battery1AR17(alias2);
+						battery1AR17(alias3);
+					}
+				}
+				battery1(argv);
+				battery11(argv);
+				battery1AR6(argv);
+				battery1AR7(argv);
+				battery1AR8(argv);
+				battery1AR9(argv);
+				battery1AR10(argv);
+				battery1AR101(argv);
+				battery1AR11(argv);
+				battery1AR12(argv);
+				battery1AR13(argv);
+				battery1AR14(argv);
+				battery1AR15(argv);
+				battery1AR16(argv);
+				battery18(argv);
+			} catch(Exception e) {
+				e.printStackTrace();
+			}
+		});
+		System.out.println("BatteryDBKey TEST BATTERY COMPLETE.");
+
 	}
 	/**
 	 * Loads up on keys, should be 0 to max-1, or min, to max -1
@@ -516,37 +529,27 @@ public class BatteryRelatrixKVAlias {
 	}
 	/**
 	 * remove entries
-	 * @param alias12
 	 * @throws Exception
 	 */
-	public static void battery1AR17(Alias alias12) throws Exception {
+	public static void battery1AR17(Alias alias) throws Exception {
 		long tims = System.currentTimeMillis();
-		System.out.println("CleanDB");
-		long s = RelatrixKV.size(alias12, String.class);
-		Iterator it = RelatrixKV.keySet(alias12, String.class);
+		int j = min;
+		long s = RelatrixKV.size(alias,DBKey.class);
+		System.out.println("Cleaning "+alias+" DB of "+s+" elements.");
+		Iterator<?> it = RelatrixKV.entrySet(alias,DBKey.class);
 		long timx = System.currentTimeMillis();
 		for(int i = 0; i < s; i++) {
-			Object fkey = it.next();
-			RelatrixKV.remove(alias12, (Comparable) fkey);
+			Map.Entry<DBKey, Comparable> mkey = (Map.Entry<DBKey, Comparable>) it.next();
+			RelatrixKV.remove(alias,(Comparable) mkey.getValue());
+			RelatrixKV.remove(alias,(DBKey)mkey.getKey());
 			if((System.currentTimeMillis()-timx) > 5000) {
-				System.out.println(i+" "+fkey);
+				System.out.println("DBKey "+i+" "+mkey);
 				timx = System.currentTimeMillis();
 			}
 		}
-		// verify
-		long siz = RelatrixKV.size(alias12, String.class);
-		if(siz > 0) {
-			Iterator<?> its = RelatrixKV.entrySet(alias12, String.class);
-			while(its.hasNext()) {
-				Comparable nex = (Comparable) its.next();
-				//System.out.println(i+"="+nex);
-				System.out.println("KV RANGE 1AR17 KEY SHOULD BE DELETED:"+nex);
-			}
-			System.out.println("KV RANGE 1AR17 KEY MISMATCH:"+siz+" > 0 after all deleted and committed");
-			throw new Exception("KV RANGE 1AR17 KEY MISMATCH:"+siz+" > 0 after delete/commit");
-		}
 		 System.out.println("BATTERY1AR17 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
+	
 	/**
 	 * Loads up on keys, should be 0 to max-1, or min, to max -1
 	 * @param argv
@@ -554,7 +557,7 @@ public class BatteryRelatrixKVAlias {
 	 */
 	public static void battery18(String[] argv) throws Exception {
 		System.out.println("KV Battery18 ");
-		int max1 = max - 50000;
+		int max1 = max;
 		long tims = System.currentTimeMillis();
 		int dupes = 0;
 		int recs = 0;

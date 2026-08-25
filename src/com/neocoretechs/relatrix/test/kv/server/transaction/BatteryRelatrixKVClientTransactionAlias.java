@@ -1,4 +1,4 @@
-package com.neocoretechs.relatrix.test.kv;
+package com.neocoretechs.relatrix.test.kv.server.transaction;
 
 import java.util.Iterator;
 import java.util.Map;

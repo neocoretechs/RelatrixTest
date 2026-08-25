@@ -377,5 +377,4 @@ public class BatteryKeyset {
 		 System.out.println("BATTERY1AR17 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 
-
 }
