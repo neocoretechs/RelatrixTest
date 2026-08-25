@@ -3,11 +3,15 @@ package com.neocoretechs.relatrix.test.kv;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.neocoretechs.relatrix.RelatrixKV;
+import com.neocoretechs.relatrix.key.IndexResolver;
+import com.neocoretechs.relatrix.parallel.ExecutionContextHolder;
+import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 
 /**
- * program argument is database i.e. C:/users/you/Relatrix/TestDB2, class i.e. com.your.class.class
+ * program argument is database  class i.e. com.your.class.class
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2021
  *
  */
@@ -19,7 +23,15 @@ public class DumpKVStore {
 	*/
 	public static void main(String[] argv) throws Exception {
 		RelatrixKV.getInstance();
-		dump1(argv);
+		IndexResolver indexResolver = new IndexResolver();
+		ParallelExecutionContext pec = new ParallelExecutionContext(indexResolver, new ConcurrentHashMap<String,Object>());
+		ScopedValue.where(ExecutionContextHolder.CONTEXT, pec).run(() -> {
+			try {
+				dump1(argv);
+			} catch(Exception e) {
+				e.printStackTrace();
+			}
+		});
 		System.out.println("Dump COMPLETE.");
 		System.exit(0);
 	}
@@ -30,9 +42,9 @@ public class DumpKVStore {
 	 */
 	public static void dump1(String[] argv) throws Exception {
 		long tims = System.currentTimeMillis();
-		Class clazz = Class.forName(argv[1]);
-		System.out.printf("First Key = %s, %s%n", argv[1], RelatrixKV.firstKey(clazz));
-		System.out.printf("Last Key = %s, %s%n", argv[1], RelatrixKV.lastKey(clazz));
+		Class clazz = Class.forName(argv[0]);
+		System.out.printf("First Key = %s, %s%n", argv[0], RelatrixKV.firstKey(clazz));
+		System.out.printf("Last Key = %s, %s%n", argv[0], RelatrixKV.lastKey(clazz));
 		System.out.printf("Count = %d%n", RelatrixKV.size(clazz));
 		/*
 		RelatrixKV.entrySetStream(clazz).forEach(e-> {
