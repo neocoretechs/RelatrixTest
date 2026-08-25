@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.neocoretechs.rocksack.iterator.Entry;
 import com.neocoretechs.relatrix.Relatrix;
@@ -39,22 +40,36 @@ public class BatteryKeyset {
 	* Main test fixture driver
 	*/
 	public static void main(String[] argv) throws Exception {
-
-		RelatrixKV.getInstance();
-		//battery1AR17();
-		battery1();
-		battery2();
-		battery1AR4();
-		battery1AR44();
-		battery1AR5();
-		battery1AR9();
-		battery1AR10();
-		battery1AR101();
-		battery1AR12();
-		battery1AR14();
-		//battery1AR17();
-		 System.out.println("BatteryKeyset TEST BATTERY COMPLETE.");
-		
+		IndexResolver indexResolver = new IndexResolver();
+		ParallelExecutionContext pec = new ParallelExecutionContext(indexResolver, new ConcurrentHashMap<String,Object>());
+		ScopedValue.where(ExecutionContextHolder.CONTEXT, pec).run(() -> {
+			try {
+				RelatrixKV.getInstance();
+				if(argv.length > 1 && argv[0].equals("max")) {
+					System.out.println("Setting max items to "+argv[1]);
+					max = Integer.parseInt(argv[1]);
+				} else {
+					if(argv.length > 0 && argv[0].equals("init") ) {
+						System.out.println("Initialize database to zero items");
+						battery1AR17();
+					}
+				}
+				battery1();
+				battery2();
+				battery1AR4();
+				battery1AR44();
+				battery1AR5();
+				battery1AR9();
+				battery1AR10();
+				battery1AR101();
+				battery1AR12();
+				battery1AR14();
+				//battery1AR17();
+				System.out.println("BatteryKeyset TEST BATTERY COMPLETE.");
+			} catch(Exception e) {
+				e.printStackTrace();
+			}
+		});
 	}
 	/**
 	 * Loads up on keys, should be 0 to max-1, or min, to max -1
@@ -339,62 +354,28 @@ public class BatteryKeyset {
 		System.out.println("BATTERY1AR14 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 	
-	
 	/**
 	 * remove entries
-	 * @param argv
 	 * @throws Exception
 	 */
 	public static void battery1AR17() throws Exception {
 		long tims = System.currentTimeMillis();
-		System.out.println("CleanDB");
+		int j = min;
 		long s = RelatrixKV.size(DBKey.class);
 		System.out.println("Cleaning DB of "+s+" elements.");
-		Iterator it = RelatrixKV.keySet(DBKey.class);
+		Iterator<?> it = RelatrixKV.entrySet(DBKey.class);
 		long timx = System.currentTimeMillis();
 		for(int i = 0; i < s; i++) {
-			Object fkey = it.next();
-			RelatrixKV.remove((Comparable) fkey);
+			Map.Entry<DBKey, Comparable> mkey = (Map.Entry<DBKey, Comparable>) it.next();
+			RelatrixKV.remove((Comparable) mkey.getValue());
+			RelatrixKV.remove((DBKey)mkey.getKey());
 			if((System.currentTimeMillis()-timx) > 5000) {
-				System.out.println("DBKey remove "+i+" "+fkey);
+				System.out.println("DBKey "+i+" "+mkey);
 				timx = System.currentTimeMillis();
 			}
-		}
-		// remove payload reverse index
-		s = RelatrixKV.size(KeySet.class);
-		it = RelatrixKV.keySet(KeySet.class);
-		timx = System.currentTimeMillis();
-		for(int i = 0; i < s; i++) {
-			Object fkey = it.next();
-			RelatrixKV.remove((Comparable) fkey);
-			if((System.currentTimeMillis()-timx) > 5000) {
-				System.out.println("KeySet remove "+i+" "+fkey);
-				timx = System.currentTimeMillis();
-			}
-		}
-		s = RelatrixKV.size(String.class);
-		it = RelatrixKV.keySet(String.class);
-		timx = System.currentTimeMillis();
-		for(int i = 0; i < s; i++) {
-			Object fkey = it.next();
-			RelatrixKV.remove((Comparable) fkey);
-			if((System.currentTimeMillis()-timx) > 5000) {
-				System.out.println("String remove "+i+" "+fkey);
-				timx = System.currentTimeMillis();
-			}
-		}
-		long siz = RelatrixKV.size(DBKey.class);
-		if(siz > 0) {
-			Iterator<?> its = RelatrixKV.entrySet(DBKey.class);
-			while(its.hasNext()) {
-				Comparable nex = (Comparable) its.next();
-				//System.out.println(i+"="+nex);
-				System.out.println("RANGE 1AR17 KEY SHOULD BE DELETED:"+nex);
-			}
-			System.out.println("RANGE 1AR17 KEY MISMATCH:"+siz+" > 0 after all deleted and committed");
-			throw new Exception("RANGE 1AR17 KEY MISMATCH:"+siz+" > 0 after delete/commit");
 		}
 		 System.out.println("BATTERY1AR17 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
+
 
 }

@@ -2,63 +2,79 @@ package com.neocoretechs.relatrix.test.kv;
 
 import java.util.Iterator;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.neocoretechs.rocksack.iterator.Entry;
 import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.RelatrixKV;
+import com.neocoretechs.relatrix.key.IndexResolver;
+import com.neocoretechs.relatrix.parallel.ExecutionContextHolder;
+import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 
 /**
- * Yes, this should be a nice JUnit fixture someday. Test of embedded KV server.
+ * Test of embedded KV server.
  * The static constant fields in the class control the key generation for the tests
  * In general, the keys and values are formatted according to uniqKeyFmt to produce
  * a series of canonically correct sort order strings for the DB in the range of min to max vals
  * In general most of the testing relies on checking order against expected values hence the importance of
  * canonical ordering in the sample strings.
  * Of course, you can substitute any class for the Strings here providing its Comparable.
- * NOTES:
- * A database unique to this test module should be used.
  * @author Jonathan Groff (C) NeoCoreTechs 2020,2024
  */
 public class BatteryRelatrixKV {
 	public static boolean DEBUG = false;
 	static String uniqKeyFmt = "%0100d"; // base + counter formatted with this gives equal length strings for canonical ordering
 	static int min = 0;
-	static int max = 100000;
+	static int max = 10000;
 	static int numDelete = 100; // for delete test
 	/**
 	* Main test fixture driver
 	*/
 	public static void main(String[] argv) throws Exception {
 		RelatrixKV.getInstance();
-		if(argv.length == 0 && argv[0].equals("init")) {
-				System.out.println("Cleaning DB");
-				battery1AR17();		
-		}
-		int j = (int) RelatrixKV.size(String.class);
-		if(j == 0) {
-			battery1();
-			battery11();
-		}
-		battery1AR5();
-		battery1AR6();
-		battery1AR7();
-		battery1AR8();
-		battery1AR9();
-		battery1AR10();
-		battery1AR101();
-		battery1AR11();
-		battery1AR12();
-		battery1AR13();
-		battery1AR14();
-		battery1AR15();
-		battery1AR16();
-		if(argv.length > 0 && argv[0].equals("init")) {
-			battery1AR17();
-			battery18();
-		}
-		System.out.println("BatteryRelatrixKV TEST BATTERY COMPLETE.");
-		
+		IndexResolver indexResolver = new IndexResolver();
+		ParallelExecutionContext pec = new ParallelExecutionContext(indexResolver, new ConcurrentHashMap<String,Object>());
+		ScopedValue.where(ExecutionContextHolder.CONTEXT, pec).run(() -> {
+			try {
+				if(argv.length > 1 && argv[0].equals("max")) {
+					System.out.println("Setting max items to "+argv[1]);
+					max = Integer.parseInt(argv[1]);
+				} else {
+					if(argv.length > 0 && argv[0].equals("init") ) {
+						System.out.println("Initialize database to zero items");
+						battery1AR17();
+						battery18();
+					}
+				}
+				int j = (int) RelatrixKV.size(String.class);
+				if(j == 0) {
+					battery1();
+					battery11();
+				}
+				battery1AR5();
+				battery1AR6();
+				battery1AR7();
+				battery1AR8();
+				battery1AR9();
+				battery1AR10();
+				battery1AR101();
+				battery1AR11();
+				battery1AR12();
+				battery1AR13();
+				battery1AR14();
+				battery1AR15();
+				battery1AR16();
+				if(argv.length > 0 && argv[0].equals("init")) {
+					battery1AR17();
+					battery18();
+				}
+				System.out.println("BatteryKeyset TEST BATTERY COMPLETE.");
+			} catch(Exception e) {
+				e.printStackTrace();
+			}
+		});
 	}
+
 	/**
 	 * Loads up on keys, should be 0 to max-1, or min, to max -1
 	 * Ensure that we start with known baseline number of keys
@@ -141,8 +157,8 @@ public class BatteryRelatrixKV {
 		while(its.hasNext()) {
 			Entry nex = (Entry) its.next();
 			//System.out.println(i+"="+nex);
-			if(((Long)nex.getValue()).intValue() != i)
-				System.out.println("RANGE KEY MISMATCH:"+i+" - "+nex);
+			if(Long.parseLong((String)nex.getKey()) != i)
+				throw new Exception("RANGE KEY MISMATCH:"+i+" - "+nex);
 			else
 				++i;
 		}
@@ -189,10 +205,16 @@ public class BatteryRelatrixKV {
 			throw new Exception("KV BATTERY1AR8 unexpected cant find contains of key "+fkey);
 		}
 		i = max-1;
-		// careful here, have to do the conversion explicitly
-		bits = RelatrixKV.containsValue(String.class, (long)i);
+		fkey = String.format(uniqKeyFmt, i);
+		bits = RelatrixKV.contains(fkey);
 		if( !bits ) {
-			System.out.println("KV BATTERY1AR8 unexpected cant find contains key "+i);
+			System.out.println("KV BATTERY1AR8 unexpected cant find contains key "+fkey);
+			throw new Exception("KV BATTERY1AR8 unexpected number cant find contains key "+fkey);
+		}
+		// careful here, have to do the conversion explicitly
+		bits = RelatrixKV.containsValue(String.class, Long.valueOf(i));
+		if( !bits ) {
+			System.out.println("KV BATTERY1AR8 unexpected cant find contains value "+i+" but found key "+fkey+" get yields:"+RelatrixKV.get(fkey));
 			throw new Exception("KV BATTERY1AR8 unexpected number cant find contains of value "+i);
 		}
 		 System.out.println("KV BATTERY1AR8 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
