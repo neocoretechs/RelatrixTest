@@ -42,7 +42,6 @@ public class BatteryRelatrixKVStream {
 	*/
 	public static void main(String[] argv) throws Exception {
 		RelatrixKV.getInstance();
-		RelatrixKV.getInstance();
 		IndexResolver indexResolver = new IndexResolver();
 		ParallelExecutionContext pec = new ParallelExecutionContext(indexResolver, new ConcurrentHashMap<String,Object>());
 		ScopedValue.where(ExecutionContextHolder.CONTEXT, pec).run(() -> {
@@ -380,10 +379,7 @@ public class BatteryRelatrixKVStream {
 		});
 		System.out.println("BATTERY1AR16 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
-	/**
-	 * remove entries
-	 * @throws Exception
-	 */
+	
 	/**
 	 * remove entries
 	 * @throws Exception
