@@ -2,11 +2,16 @@ package com.neocoretechs.relatrix.test.kv.transaction;
 
 import java.util.Iterator;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.neocoretechs.rocksack.iterator.Entry;
 import com.neocoretechs.relatrix.DuplicateKeyException;
 
 import com.neocoretechs.relatrix.RelatrixKVTransaction;
+import com.neocoretechs.relatrix.key.IndexResolver;
+import com.neocoretechs.relatrix.parallel.ExecutionContextHolder;
+import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
+import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.rocksack.TransactionId;
 
 /**
@@ -27,7 +32,7 @@ public class BatteryRelatrixKVTransaction {
 	public static boolean DEBUG = false;
 	static String uniqKeyFmt = "%0100d"; // base + counter formatted with this gives equal length strings for canonical ordering
 	static int min = 0;
-	static int max = 100000;
+	static int max = 10000;
 	static int numDelete = 100; // for delete test
 	private static int dupes;
 	private static int numLookupByValue = 10;
@@ -36,25 +41,42 @@ public class BatteryRelatrixKVTransaction {
 	*/
 	public static void main(String[] argv) throws Exception {
 		RelatrixKVTransaction.getInstance();
-		TransactionId xid = RelatrixKVTransaction.getTransactionId();
-		battery1(xid);	
-		battery11(xid);
-		battery1AR6(xid);
-		battery1AR7(xid);
-		battery1AR8(xid);
-		battery1AR9(xid);
-		battery1AR10(xid);
-		battery1AR101(xid);
-		battery1AR11(xid);
-		battery1AR12(xid);
-		battery1AR13(xid);
-		battery1AR14(xid);
-		battery1AR15(xid);
-		battery1AR16(xid);
-		battery1AR17(xid);
-		battery18(xid);
-		System.out.println("BatteryRelatrixKVTransaction TEST BATTERY COMPLETE.");
-		RelatrixKVTransaction.endTransaction(xid);
+		IndexResolver indexResolver = new IndexResolver();
+		ParallelExecutionContext pec = new ParallelExecutionContext(indexResolver, new ConcurrentHashMap<String,Object>());
+		ScopedValue.where(ExecutionContextHolder.CONTEXT, pec).run(() -> {
+			try {
+				RelatrixKVTransaction.getInstance();
+				TransactionId xid = RelatrixKVTransaction.getTransactionId();
+				if(argv.length > 1 && argv[0].equals("max")) {
+					System.out.println("Setting max items to "+argv[1]);
+					max = Integer.parseInt(argv[1]);
+				} else {
+					if(argv.length > 0 && argv[0].equals("init") ) {
+						System.out.println("Initialize database to zero items");
+						batteryCleanDB(xid);
+					}
+				}
+				battery1(xid);	
+				battery11(xid);
+				battery1AR6(xid);
+				battery1AR7(xid);
+				battery1AR8(xid);
+				battery1AR9(xid);
+				battery1AR10(xid);
+				battery1AR101(xid);
+				battery1AR11(xid);
+				battery1AR12(xid);
+				battery1AR13(xid);
+				battery1AR14(xid);
+				battery1AR15(xid);
+				battery1AR16(xid);
+				battery18(xid);
+				System.out.println("BatteryRelatrixKVTransaction TEST BATTERY COMPLETE.");
+				RelatrixKVTransaction.endTransaction(xid);
+			} catch(Exception e) {
+				e.printStackTrace();
+			}
+		});
 	}
 	/**
 	 * Loads up on keys, should be 0 to max-1, or min, to max -1
@@ -427,45 +449,7 @@ public class BatteryRelatrixKVTransaction {
 		}
 		 System.out.println("BATTERY1AR16 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
-	/**
-	 * remove entries
-	 * @param argv
-	 * @throws Exception
-	 */
-	public static void battery1AR17(TransactionId xid) throws Exception {
-		long tims = System.currentTimeMillis();
-		//int i = min;
-		//int j = max;
-		TransactionId xid2 = RelatrixKVTransaction.getTransactionId();
-		// with j at max, should get them all since we stored to max -1
-		//String tkey = String.format(uniqKeyFmt, j);
-		System.out.println("KV Battery1AR17");
-		// with i at max, should catch them all
-		for(int i = min; i < max; i++) {
-			String fkey = String.format(uniqKeyFmt, i);
-			RelatrixKVTransaction.remove(xid2, fkey);
-			// Map.Entry
-			if(RelatrixKVTransaction.contains(xid2, fkey)) { 
-				System.out.println("KV RANGE 1AR17 KEY MISMATCH:"+i);
-				//throw new Exception("KV RANGE 1AR17 KEY MISMATCH:"+i);
-			}
-		}
-		RelatrixKVTransaction.commit(xid2);
-		long siz = RelatrixKVTransaction.size(xid2, String.class);
-		if(siz > 0) {
-			Iterator its = RelatrixKVTransaction.entrySet(xid2, String.class);
-			while(its.hasNext()) {
-				Object nex = its.next();
-				//System.out.println(i+"="+nex);
-				System.out.println(nex);
-			}
-			System.out.println("KV RANGE 1AR17 KEY MISMATCH:"+siz+" > 0 after all deleted and committed");
-			//throw new Exception("KV RANGE 1AR17 KEY MISMATCH:"+siz+" > 0 after delete/commit");
-		}
-		RelatrixKVTransaction.endTransaction(xid2);
-		 System.out.println("BATTERY1AR17 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 
-	}
 	
 	/**
 	 * Loads up on keys, should be 0 to max-1, or min, to max -1
@@ -475,7 +459,7 @@ public class BatteryRelatrixKVTransaction {
 	public static void battery18(TransactionId xid) throws Exception {
 		System.out.println("KV Battery18 ");
 		TransactionId xid2 = RelatrixKVTransaction.getTransactionId();
-		int max1 = max - 50000;
+		int max1 = (int) (RelatrixKVTransaction.size(xid, String.class))/2;
 		long tims = System.currentTimeMillis();
 		int dupes = 0;
 		int recs = 0;

@@ -711,6 +711,6 @@ public class BatteryRelatrixKVTransactionAliasIso {
 			}
 		}
 		RelatrixKVTransaction.commit(alias,xid);
-		System.out.println("BATTERY1AR17 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
+		System.out.println("BATTERY1AR19 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 }
