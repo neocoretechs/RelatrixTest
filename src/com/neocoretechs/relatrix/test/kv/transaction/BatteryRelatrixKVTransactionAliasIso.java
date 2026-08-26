@@ -60,7 +60,7 @@ public class BatteryRelatrixKVTransactionAliasIso {
 					System.out.println("Setting max items to "+argv[1]);
 					max = Integer.parseInt(argv[1]);
 				} else {
-					if(argv.length > 0 && argv[0].equals("init") || RelatrixKV.size(DBKey.class) > 0) {
+					if(argv.length > 0 && argv[0].equals("init") ) {
 						System.out.println("Initialize database to zero items");
 						battery1AR19(alias1, xid1);
 						battery1AR19(alias2, xid2);
@@ -698,14 +698,13 @@ public class BatteryRelatrixKVTransactionAliasIso {
 	public static void battery1AR19(Alias alias, TransactionId xid) throws Exception {
 		long tims = System.currentTimeMillis();
 		int j = min;
-		long s = RelatrixKVTransaction.size(alias,xid,DBKey.class);
+		long s = RelatrixKVTransaction.size(alias,xid,String.class);
 		System.out.println("Cleaning "+alias+" DB of "+s+" elements for"+xid);
-		Iterator<?> it = RelatrixKVTransaction.entrySet(alias,xid,DBKey.class);
+		Iterator<?> it = RelatrixKVTransaction.entrySet(alias,xid,String.class);
 		long timx = System.currentTimeMillis();
 		for(int i = 0; i < s; i++) {
-			Map.Entry<DBKey, Comparable> mkey = (Map.Entry<DBKey, Comparable>) it.next();
-			RelatrixKVTransaction.remove(alias,xid,(Comparable) mkey.getValue());
-			RelatrixKVTransaction.remove(alias,xid,(DBKey)mkey.getKey());
+			Map.Entry<String, Object> mkey = (Map.Entry<String, Object>) it.next();
+			RelatrixKVTransaction.remove(alias,xid,(Comparable) mkey.getKey());
 			if((System.currentTimeMillis()-timx) > 5000) {
 				System.out.println("DBKey "+i+" "+mkey);
 				timx = System.currentTimeMillis();

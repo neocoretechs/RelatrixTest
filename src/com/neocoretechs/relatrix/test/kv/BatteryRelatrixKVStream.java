@@ -387,20 +387,19 @@ public class BatteryRelatrixKVStream {
 	public static void battery1AR17() throws Exception {
 		long tims = System.currentTimeMillis();
 		int j = min;
-		long s = RelatrixKV.size(DBKey.class);
+		long s = RelatrixKV.size(String.class);
 		System.out.println("Cleaning DB of "+s+" elements.");
-		Iterator<?> it = RelatrixKV.entrySet(DBKey.class);
+		Iterator<?> it = RelatrixKV.entrySet(String.class);
 		long timx = System.currentTimeMillis();
 		for(int i = 0; i < s; i++) {
-			Map.Entry<DBKey, Comparable> mkey = (Map.Entry<DBKey, Comparable>) it.next();
-			RelatrixKV.remove((Comparable) mkey.getValue());
-			RelatrixKV.remove((DBKey)mkey.getKey());
+			Map.Entry<String, Object> mkey = (Map.Entry<String, Object>) it.next();
+			RelatrixKV.remove(mkey.getKey());
 			if((System.currentTimeMillis()-timx) > 5000) {
 				System.out.println("DBKey "+i+" "+mkey);
 				timx = System.currentTimeMillis();
 			}
 		}
-		System.out.println("BATTERY1AR17 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
+		 System.out.println("BATTERY1AR17 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 
 	/**
