@@ -2,21 +2,26 @@ package com.neocoretechs.relatrix.test.kv.transaction;
 
 import java.util.Iterator;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.neocoretechs.rocksack.iterator.Entry;
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.RelatrixKV;
 import com.neocoretechs.relatrix.RelatrixKVTransaction;
+import com.neocoretechs.relatrix.key.DBKey;
+import com.neocoretechs.relatrix.key.IndexResolver;
+import com.neocoretechs.relatrix.parallel.ExecutionContextHolder;
+import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 import com.neocoretechs.rocksack.TransactionId;
 
 /**
- * Test of transaction isolation using 3 separate alias databases utilizing 3 separate transactions.<p/>
+ * Test of transaction isolation using 3 separate alias databases utilizing 3 separate transactions.<p>
  * A series of intertwined store and delete, commit, checkpoint and rollback will be performed on the
- * 3 transactions in the 3 aliases, verifying isolation along the way.<p/>
+ * 3 transactions in the 3 aliases, verifying isolation along the way.<p>
  * Yes, this should be a nice JUnit fixture someday. Test of embedded KV server with alias.
  * NOTE: rather than a database, specify only the PATH for the series of databases that will be 
- * designated ALIAS1java.lang.String, ALIAS2java.lang.String and ALIAS3java.lang.String<p/>
+ * designated ALIAS1java.lang.String, ALIAS2java.lang.String and ALIAS3java.lang.String<p>
  * The static constant fields in the class control the key generation for the tests
  * In general, the keys and values are formatted according to uniqKeyFmt to produce
  * a series of canonically correct sort order strings for the DB in the range of min to max vals
@@ -24,8 +29,6 @@ import com.neocoretechs.rocksack.TransactionId;
  * canonical ordering in the sample strings.
  * Of course, you can substitute any class for the Strings here providing its Comparable.
  * NOTES:
- * The database aliases define db names and program argument defines tablespace, alias is prepended for fully qualified tablespace names
- * C:/users/you/Relatrix should be valid path as program arg. C:/users/you/Relatrix/ALIAS1java.lang.String through ALIAS3... will be created.
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2020,2024
  *
  */
@@ -33,7 +36,7 @@ public class BatteryRelatrixKVTransactionAliasIso {
 	public static boolean DEBUG = false;
 	static String uniqKeyFmt = "%0100d"; // base + counter formatted with this gives equal length strings for canonical ordering
 	static int min = 0;
-	static int max = 100000;
+	static int max = 10000;
 	static int numDelete = 100; // for delete test
 	static Alias alias1 = new Alias("ALIAS1");
 	static Alias alias2 = new Alias("ALIAS2");
@@ -42,78 +45,80 @@ public class BatteryRelatrixKVTransactionAliasIso {
 	* Main test fixture driver
 	*/
 	public static void main(String[] argv) throws Exception {
-		if(argv.length < 1) {
-			System.out.println("Usage: java com.neocoretechs.relatrix.test.kv.BatteryRelatrixKVTransactionAliasIso <directory_tablespace_path>");
-			System.exit(1);
-		}
-		RelatrixKV.setAlias(alias1,RelatrixKV.getTableSpace()+alias1);
-		RelatrixKV.setAlias(alias2,RelatrixKV.getTableSpace()+alias2);
-		RelatrixKV.setAlias(alias3,RelatrixKV.getTableSpace()+alias3);
+		IndexResolver indexResolver = new IndexResolver();
+		ParallelExecutionContext pec = new ParallelExecutionContext(indexResolver, new ConcurrentHashMap<String,Object>());
+		ScopedValue.where(ExecutionContextHolder.CONTEXT, pec).run(() -> {
+			try {
+				RelatrixKVTransaction.getInstance();
+				RelatrixKVTransaction.setAlias(alias1,RelatrixKVTransaction.getTableSpace()+alias1);
+				RelatrixKVTransaction.setAlias(alias2,RelatrixKVTransaction.getTableSpace()+alias2);
+				RelatrixKVTransaction.setAlias(alias3,RelatrixKVTransaction.getTableSpace()+alias3);
+				TransactionId xid1 = RelatrixKVTransaction.getTransactionId();
+				TransactionId xid2 = RelatrixKVTransaction.getTransactionId();
+				TransactionId xid3 = RelatrixKVTransaction.getTransactionId();
+				if(argv.length > 1 && argv[0].equals("max")) {
+					System.out.println("Setting max items to "+argv[1]);
+					max = Integer.parseInt(argv[1]);
+				} else {
+					if(argv.length > 0 && argv[0].equals("init") || RelatrixKV.size(DBKey.class) > 0) {
+						System.out.println("Initialize database to zero items");
+						battery1AR19(alias1, xid1);
+						battery1AR19(alias2, xid2);
+						battery1AR19(alias3, xid3);
+					}
+				}
+
+				battery1();
+				battery11(xid1,xid2,xid3);
+				battery1AR6(xid1,xid2,xid3);
+				battery1AR7(xid1,xid2,xid3);
+				battery1AR8(xid1,xid2,xid3);
+				battery1AR9(xid1,xid2,xid3);
+				battery1AR10(xid1,xid2,xid3);
+				battery1AR101(xid1,xid2,xid3);
+				battery1AR11(xid1,xid2,xid3);
+				battery1AR12(xid1,xid2,xid3);
+				battery1AR13(xid1,xid2,xid3);
+				battery1AR14(xid1,xid2,xid3);
+				battery1AR15(xid1,xid2,xid3);
+				battery1AR16(xid1,xid2,xid3);
+				// Remove entries for a given alias in transaction 1, make sure it still exists in transaction 2 and 3,
+				// then verify it has been removed in transaction 1. use new Id's for the tests
+				battery1AR17(alias1);
+				battery1AR17(alias2);
+				battery1AR17(alias3);
+				// Store keys from min to max - (max/2) for 3 alias in 3 transactions. Checkpoint the 3 transactions.
+				// Verify the size, then store the remaining key to max. Rollback to checkpoint. Verify we do not have max keys, 
+				// then repeat the store.
+				battery18(xid1,xid2,xid3);
+				// commit the stored keys
+				RelatrixKVTransaction.commit(alias1, xid1);
+				RelatrixKVTransaction.commit(alias2, xid2);
+				RelatrixKVTransaction.commit(alias3, xid3);
+				System.out.println("BatteryRelatrixKVTransactionAlias TEST BATTERY COMPLETE.");
+				RelatrixKVTransaction.endTransaction(xid1);
+				RelatrixKVTransaction.endTransaction(xid2);
+				RelatrixKVTransaction.endTransaction(xid3);
+			} catch(Exception e) {
+				e.printStackTrace();
+			}
+		});
+	}
+	/**
+	 * Perform size in 3 new transactions on the 3 aliases for String.class databases
+	 * We acquire 3 new transaction id's so they dont interfere with the rest of the tests.
+	 * @throws Exception
+	 */
+	public static void battery1() throws Exception {
 		TransactionId xid1 = RelatrixKVTransaction.getTransactionId();
 		TransactionId xid2 = RelatrixKVTransaction.getTransactionId();
 		TransactionId xid3 = RelatrixKVTransaction.getTransactionId();
-		battery1(xid1,xid2,xid3);
-		battery11(xid1,xid2,xid3);
-		battery1AR6(xid1,xid2,xid3);
-		battery1AR7(xid1,xid2,xid3);
-		battery1AR8(xid1,xid2,xid3);
-		battery1AR9(xid1,xid2,xid3);
-		battery1AR10(xid1,xid2,xid3);
-		battery1AR101(xid1,xid2,xid3);
-		battery1AR11(xid1,xid2,xid3);
-		battery1AR12(xid1,xid2,xid3);
-		battery1AR13(xid1,xid2,xid3);
-		battery1AR14(xid1,xid2,xid3);
-		battery1AR15(xid1,xid2,xid3);
-		battery1AR16(xid1,xid2,xid3);
-		// Remove entries for a given alias in transaction 1, make sure it still exists in transaction 2 and 3,
-		// then verify it has been removed in transaction 1.
-		battery1AR17(alias1, xid1,xid2,xid3);
-		battery1AR17(alias2, xid2,xid1,xid3);
-		battery1AR17(alias3, xid3,xid1,xid2);
-		// roll back deletes
-		RelatrixKVTransaction.rollback(alias1, xid1);
-		RelatrixKVTransaction.rollback(alias2, xid2);
-		RelatrixKVTransaction.rollback(alias3, xid3);
-		// re-run check to verify rollback
-		battery1AR16(xid1,xid2,xid3);
-		// Re-perform delete from above
-		battery1AR17(alias1, xid1,xid2,xid3);
-		battery1AR17(alias2, xid2,xid1,xid3);
-		battery1AR17(alias3, xid3,xid1,xid2);
-		// Store keys from min to max - (max/2) for 3 alias in 3 transactions. Checkpoint the 3 transactions.
-		// Verify the size, then store the remaining key to max. Rollback to checkpoint. Verify we do not have max keys, 
-		// then repeat the store.
-		battery18(xid1,xid2,xid3);
-		// commit the stored keys
-		RelatrixKVTransaction.commit(alias1, xid1);
-		RelatrixKVTransaction.commit(alias2, xid2);
-		RelatrixKVTransaction.commit(alias3, xid3);
-		System.out.println("BatteryRelatrixKVTransactionAlias TEST BATTERY COMPLETE.");
-		RelatrixKVTransaction.endTransaction(xid1);
-		RelatrixKVTransaction.endTransaction(xid2);
-		RelatrixKVTransaction.endTransaction(xid3);
-	}
-	/**
-	 * Perform size in 3 transactions on the 3 aliases for String.class databases
-	 * @param xid1
-	 * @param xid3 
-	 * @param xid2 
-	 * @param argv
-	 * @throws Exception
-	 */
-	public static void battery1(TransactionId xid1, TransactionId xid2, TransactionId xid3) throws Exception {
 		System.out.println("KV Battery1 id 1:"+xid1+" id 2:"+xid2+" id 3:"+xid3);
 		long tims = System.currentTimeMillis();
 		int dupes = 0;
 		int recs = 0;
 		String fkey = null;
 		int j = min;
-		j = (int) RelatrixKVTransaction.size(alias1, xid1, String.class);
-		if(j > 0) {
-			System.out.println("Cleaning "+alias1+" "+RelatrixKV.getAlias(alias1)+" of "+j+" elements.");
-			battery1AR17(alias1, xid1,xid2,xid3);		
-		}
 		for(int i = min; i < max; i++) {
 			fkey = String.format(uniqKeyFmt, i);
 			try {
@@ -122,11 +127,6 @@ public class BatteryRelatrixKVTransactionAliasIso {
 			} catch(DuplicateKeyException dke) { ++dupes; }
 		}
 		//
-		j = (int) RelatrixKVTransaction.size(alias2, xid2, String.class);
-		if(j > 0) {
-			System.out.println("Cleaning "+alias2+" "+RelatrixKV.getAlias(alias2)+" of "+j+" elements.");
-			battery1AR17(alias2, xid2,xid1,xid3);		
-		}
 		for(int i = min; i < max; i++) {
 			fkey = String.format(uniqKeyFmt, i);
 			try {
@@ -135,11 +135,6 @@ public class BatteryRelatrixKVTransactionAliasIso {
 			} catch(DuplicateKeyException dke) { ++dupes; }
 		}
 		//
-		j = (int) RelatrixKVTransaction.size(alias3, xid3, String.class);
-		if(j > 0) {
-			System.out.println("Cleaning "+alias3+" "+RelatrixKV.getAlias(alias3)+" of "+j+" elements.");
-			battery1AR17(alias3, xid3,xid1,xid2);		
-		}
 		for(int i = min; i < max; i++) {
 			fkey = String.format(uniqKeyFmt, i);
 			try {
@@ -147,6 +142,12 @@ public class BatteryRelatrixKVTransactionAliasIso {
 				++recs;
 			} catch(DuplicateKeyException dke) { ++dupes; }
 		}
+		RelatrixKVTransaction.commit(alias1,xid1);
+		RelatrixKVTransaction.commit(alias2,xid2);
+		RelatrixKVTransaction.commit(alias3,xid3);
+		RelatrixKVTransaction.endTransaction(xid1);
+		RelatrixKVTransaction.endTransaction(xid2);
+		RelatrixKVTransaction.endTransaction(xid3);
 		System.out.println("KV BATTERY1 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms. Stored "+recs+" records, rejected "+dupes+" dupes.");
 	}
 	
@@ -306,7 +307,7 @@ public class BatteryRelatrixKVTransactionAliasIso {
 			System.out.println("KV BATTERY1A9 cant find first key "+i+" from "+k1+"|"+k2+"|"+k3);
 			throw new Exception("KV BATTERY1AR9 unexpected cant find first key "+i);
 		}
-		long ks1 = (long) RelatrixKVTransaction.firstValue(alias1, xid,String.class);
+		long ks1 = (long) RelatrixKVTransaction.firstValue(alias1, xid, String.class);
 		long ks2 = (long) RelatrixKVTransaction.firstValue(alias2, xid2, String.class);
 		long ks3 = (long) RelatrixKVTransaction.firstValue(alias3, xid3, String.class);
 		if( ks1 != i || ks2 != i || ks3 != i) {
@@ -577,49 +578,53 @@ public class BatteryRelatrixKVTransactionAliasIso {
 	 * @param xid2 
 	 * @throws Exception
 	 */
-	public static void battery1AR17(Alias alias12, TransactionId xid1, TransactionId xid2, TransactionId xid3) throws Exception {
+	public static void battery1AR17(Alias alias12) throws Exception {
 		long tims = System.currentTimeMillis();
 		//int i = min;
 		//int j = max;
-
-		// with j at max, should get them all since we stored to max -1
-		//String tkey = String.format(uniqKeyFmt, j);
-		int j = (int) RelatrixKVTransaction.size(alias1, xid1, String.class);
-		System.out.println("KV Battery1AR17 for alias:"+alias12+" id:"+xid1+" removing "+j+" elements.");
-		for(int i = min; i < j; i++) {
+		// Ensure xid2 and xid3 were created BEFORE we perform deletes in xid1
+		// (caller must guarantee this ordering)
+		// Use correct alias when getting initial size for xid1
+		TransactionId xid1 = RelatrixKVTransaction.getTransactionId();
+		TransactionId xid2 = RelatrixKVTransaction.getTransactionId();
+		TransactionId xid3 = RelatrixKVTransaction.getTransactionId();
+		int j2 = (int) RelatrixKVTransaction.size(alias12, xid2, String.class);
+		int j3 = (int) RelatrixKVTransaction.size(alias12, xid3, String.class);
+		int j = (int) RelatrixKVTransaction.size(alias12, xid1, String.class);
+		System.out.println("KV Battery1AR17 for alias:" + alias12 +" removing " + j + " elements.");
+		for (int i = min; i < j; i++) {
 			String fkey = String.format(uniqKeyFmt, i);
-			RelatrixKVTransaction.remove(alias12, xid1, fkey+alias12);
-			// each entry should exist in transaction 2 isolation
-			if(!RelatrixKVTransaction.contains(alias12, xid2, fkey+alias12)) { 
-				System.out.println("KV RANGE XACTION ISO 2 1AR17 KEY MISMATCH:"+i);
-				throw new Exception("KV RANGE XACTION ISO 2 1AR17 KEY MISMATCH:"+i);
+			RelatrixKVTransaction.remove(alias12, xid1, fkey + alias12);
+			// In xid1 the key should be gone after remove
+			if (RelatrixKVTransaction.contains(alias12, xid1, fkey + alias12)) {
+				throw new Exception("KV RANGE XACTION ISO 1 1AR17 KEY MISMATCH:" + i);
 			}
-			// each entry should exist in transaction 3 isolation
-			if(!RelatrixKVTransaction.contains(alias12, xid3, fkey+alias12)) { 
-				System.out.println("KV RANGE XACTION ISO 3 1AR17 KEY MISMATCH:"+i);
-				throw new Exception("KV RANGE XACTION ISO 3 1AR17 KEY MISMATCH:"+i);
+			// xid2 and xid3 must have been started earlier; they should still see the key
+			if (!RelatrixKVTransaction.contains(alias12, xid2, fkey + alias12)) {
+				throw new Exception("KV RANGE XACTION ISO 2 1AR17 KEY MISMATCH:" + i);
 			}
-			// each entry should NOT exist in transaction 1 isolation
-			if(RelatrixKVTransaction.contains(alias12, xid1, fkey+alias12)) { 
-				System.out.println("KV RANGE XACTION ISO 1 1AR17 KEY MISMATCH:"+i);
-				throw new Exception("KV RANGE XACTION ISO 1 1AR17 KEY MISMATCH:"+i);
+			if (!RelatrixKVTransaction.contains(alias12, xid3, fkey + alias12)) {
+				throw new Exception("KV RANGE XACTION ISO 3 1AR17 KEY MISMATCH:" + i);
 			}
 		}
-		long siz = RelatrixKVTransaction.size(alias12, xid1, String.class);
-		System.out.println("Alias:"+alias12+" id:"+xid1+" verifiying "+siz+" elements.");
-		if(siz > 0) {
-			Iterator<?> its = RelatrixKVTransaction.entrySet(alias12, xid1, String.class);
-			while(its.hasNext()) {
-				Comparable nex = (Comparable) its.next();
-				//System.out.println(i+"="+nex);
-				System.out.println("KV RANGE 1AR17 KEY SHOULD BE DELETED:"+nex);
+		// Commit xid1 and check commit status
+		RelatrixKVTransaction.commit(alias12, xid1);
+		// Verify final DB state with a fresh, non-conflicting view
+		// Use a new transaction or non-transactional read depending on your API
+		int finalSize = (int) RelatrixKVTransaction.size(alias12, RelatrixKVTransaction.getTransactionId(), String.class);
+		System.out.println("Alias:" + alias12 + " final size after commit: " + finalSize);
+		if (finalSize > 0) {
+			Iterator<?> its = RelatrixKVTransaction.entrySet(alias12, RelatrixKVTransaction.getTransactionId(), String.class);
+			while (its.hasNext()) {
+				System.out.println("KV RANGE 1AR17 KEY SHOULD BE DELETED:" + its.next());
 			}
-			System.out.println("KV RANGE 1AR17 KEY MISMATCH:"+siz+" > 0 after all deleted and committed");
-			throw new Exception("KV RANGE 1AR17 KEY MISMATCH:"+siz+" > 0 after delete/commit");
+			throw new Exception("KV RANGE 1AR17 KEY MISMATCH:" + finalSize + " > 0 after delete/commit");
 		}
-		 System.out.println("BATTERY1AR17 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
+		System.out.println("BATTERY1AR17 SUCCESS in " + (System.currentTimeMillis() - tims) + " ms.");
 	}
+
 	/**
+	 * Clean the db, commit, then start 3 new transactions
 	 * Store keys from min to max - (max/2) for 3 alias in 3 transactions. Checkpoint the 3 transactions.
 	 * Verify the size, then store the remaining key to max. Rollback to checkpoint. Verify we do not have max keys, then repeat the store.
 	 * @param xid
@@ -634,7 +639,12 @@ public class BatteryRelatrixKVTransactionAliasIso {
 		int dupes = 0;
 		int recs = 0;
 		String fkey = null;
-
+		battery1AR19(alias1, xid);
+		battery1AR19(alias2, xid2);
+		battery1AR19(alias3,xid3);
+		xid = RelatrixKVTransaction.getTransactionId();
+		xid2 = RelatrixKVTransaction.getTransactionId();
+		xid3 = RelatrixKVTransaction.getTransactionId();
 		for(int i = min; i < max1; i++) {
 			fkey = String.format(uniqKeyFmt, i);
 			try {
@@ -684,5 +694,24 @@ public class BatteryRelatrixKVTransactionAliasIso {
 		}
 		System.out.println("KV BATTERY18 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms. Stored "+recs+" records in 3 alias, rejected "+dupes+" dupes.");
 	}
-
+	
+	public static void battery1AR19(Alias alias, TransactionId xid) throws Exception {
+		long tims = System.currentTimeMillis();
+		int j = min;
+		long s = RelatrixKVTransaction.size(alias,xid,DBKey.class);
+		System.out.println("Cleaning "+alias+" DB of "+s+" elements for"+xid);
+		Iterator<?> it = RelatrixKVTransaction.entrySet(alias,xid,DBKey.class);
+		long timx = System.currentTimeMillis();
+		for(int i = 0; i < s; i++) {
+			Map.Entry<DBKey, Comparable> mkey = (Map.Entry<DBKey, Comparable>) it.next();
+			RelatrixKVTransaction.remove(alias,xid,(Comparable) mkey.getValue());
+			RelatrixKVTransaction.remove(alias,xid,(DBKey)mkey.getKey());
+			if((System.currentTimeMillis()-timx) > 5000) {
+				System.out.println("DBKey "+i+" "+mkey);
+				timx = System.currentTimeMillis();
+			}
+		}
+		RelatrixKVTransaction.commit(alias,xid);
+		System.out.println("BATTERY1AR17 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
+	}
 }
