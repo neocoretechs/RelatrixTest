@@ -2,12 +2,16 @@ package com.neocoretechs.relatrix.test.kv.transaction;
 
 import java.util.Iterator;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.neocoretechs.rocksack.iterator.Entry;
 import com.neocoretechs.rocksack.Alias;
 import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.RelatrixKV;
 import com.neocoretechs.relatrix.RelatrixKVTransaction;
+import com.neocoretechs.relatrix.key.IndexResolver;
+import com.neocoretechs.relatrix.parallel.ExecutionContextHolder;
+import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 import com.neocoretechs.rocksack.TransactionId;
 
 /**
@@ -38,40 +42,49 @@ public class BatteryRelatrixKVTransactionAlias {
 	* Main test fixture driver
 	*/
 	public static void main(String[] argv) throws Exception {
-		if(argv.length < 1) {
-			System.out.println("Usage: java com.neocoretechs.relatrix.test.kv.BatteryRelatrixKVTransactionAlias <directory_tablespace_path>");
-			System.exit(1);
-		}
-		RelatrixKV.setAlias(alias1,RelatrixKV.getTableSpace()+alias1);
-		RelatrixKV.setAlias(alias2,RelatrixKV.getTableSpace()+alias2);
-		RelatrixKV.setAlias(alias3,RelatrixKV.getTableSpace()+alias3);
-		TransactionId xid = RelatrixKVTransaction.getTransactionId();
-		battery1(xid);
-		battery11(xid);
-		battery1AR6(xid);
-		battery1AR7(xid);
-		battery1AR8(xid);
-		battery1AR9(xid);
-		battery1AR10(xid);
-		battery1AR101(xid);
-		battery1AR11(xid);
-		battery1AR12(xid);
-		battery1AR13(xid);
-		battery1AR14(xid);
-		battery1AR15(xid);
-		battery1AR16(xid);
-		battery1AR17(alias1, xid);
-		battery1AR17(alias2, xid);
-		battery1AR17(alias3, xid);
-		battery18(xid);
-		RelatrixKVTransaction.commit(alias1, xid);
-		RelatrixKVTransaction.commit(alias2, xid);
-		RelatrixKVTransaction.commit(alias3, xid);
-		 System.out.println("BatteryRelatrixKVTransactionAlias TEST BATTERY COMPLETE.");
-		RelatrixKVTransaction.endTransaction(xid);
-		RelatrixKVTransaction.endTransaction(xid);
-		RelatrixKVTransaction.endTransaction(xid);
-		
+		IndexResolver indexResolver = new IndexResolver();
+		ParallelExecutionContext pec = new ParallelExecutionContext(indexResolver, new ConcurrentHashMap<String,Object>());
+		ScopedValue.where(ExecutionContextHolder.CONTEXT, pec).run(() -> {
+			try {
+				RelatrixKVTransaction.getInstance();
+				RelatrixKV.setAlias(alias1,RelatrixKV.getTableSpace()+alias1);
+				RelatrixKV.setAlias(alias2,RelatrixKV.getTableSpace()+alias2);
+				RelatrixKV.setAlias(alias3,RelatrixKV.getTableSpace()+alias3);
+				TransactionId xid = RelatrixKVTransaction.getTransactionId();
+				if(argv.length > 1 && argv[0].equals("max")) {
+					System.out.println("Setting max items to "+argv[1]);
+					max = Integer.parseInt(argv[1]);
+				} else {
+					if(argv.length > 0 && argv[0].equals("init") ) {
+						System.out.println("Initialize database to zero items");
+						battery1AR17(alias1,xid);
+						battery1AR17(alias2,xid);
+						battery1AR17(alias3,xid);
+					}
+				}
+				battery1(xid);
+				battery11(xid);
+				battery1AR6(xid);
+				battery1AR7(xid);
+				battery1AR8(xid);
+				battery1AR9(xid);
+				battery1AR10(xid);
+				battery1AR101(xid);
+				battery1AR11(xid);
+				battery1AR12(xid);
+				battery1AR13(xid);
+				battery1AR14(xid);
+				battery1AR15(xid);
+				battery1AR16(xid);
+				RelatrixKVTransaction.commit(alias1, xid);
+				RelatrixKVTransaction.commit(alias2, xid);
+				RelatrixKVTransaction.commit(alias3, xid);
+				System.out.println("BatteryRelatrixKVTransactionAlias TEST BATTERY COMPLETE.");
+				RelatrixKVTransaction.endTransaction(xid);
+			} catch(Exception e) {
+				e.printStackTrace();
+			}
+		});
 	}
 	/**
 	 * Loads up on keys, should be 0 to max-1, or min, to max -1
@@ -85,12 +98,6 @@ public class BatteryRelatrixKVTransactionAlias {
 		int dupes = 0;
 		int recs = 0;
 		String fkey = null;
-		int j = min;
-		j = (int) RelatrixKVTransaction.size(alias1, xid, String.class);
-		if(j > 0) {
-			System.out.println("Cleaning "+alias1+" "+RelatrixKV.getAlias(alias1)+" of "+j+" elements.");
-			battery1AR17(alias1, xid);		
-		}
 		for(int i = min; i < max; i++) {
 			fkey = String.format(uniqKeyFmt, i);
 			try {
@@ -99,11 +106,6 @@ public class BatteryRelatrixKVTransactionAlias {
 			} catch(DuplicateKeyException dke) { ++dupes; }
 		}
 		//
-		j = (int) RelatrixKVTransaction.size(alias2, xid, String.class);
-		if(j > 0) {
-			System.out.println("Cleaning "+alias2+" "+RelatrixKV.getAlias(alias2)+" of "+j+" elements.");
-			battery1AR17(alias2, xid);		
-		}
 		for(int i = min; i < max; i++) {
 			fkey = String.format(uniqKeyFmt, i);
 			try {
@@ -112,11 +114,6 @@ public class BatteryRelatrixKVTransactionAlias {
 			} catch(DuplicateKeyException dke) { ++dupes; }
 		}
 		//
-		j = (int) RelatrixKVTransaction.size(alias3, xid, String.class);
-		if(j > 0) {
-			System.out.println("Cleaning "+alias3+" "+RelatrixKV.getAlias(alias3)+" of "+j+" elements.");
-			battery1AR17(alias3, xid);		
-		}
 		for(int i = min; i < max; i++) {
 			fkey = String.format(uniqKeyFmt, i);
 			try {
@@ -546,7 +543,6 @@ public class BatteryRelatrixKVTransactionAlias {
 				timx = System.currentTimeMillis();
 			}
 		}
-
 		long siz = RelatrixKVTransaction.size(alias12, xid, String.class);
 		if(siz > 0) {
 			Iterator<?> its = RelatrixKVTransaction.entrySet(alias12, xid, String.class);
@@ -559,40 +555,6 @@ public class BatteryRelatrixKVTransactionAlias {
 		}
 		 System.out.println("BATTERY1AR17 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
-	/**
-	 * Loads up on keys, should be 0 to max-1, or min, to max -1
-	 * @param argv
-	 * @throws Exception
-	 */
-	public static void battery18(TransactionId xid) throws Exception {
-		System.out.println("KV Battery18 ");
-		int max1 = max - 50000;
-		long tims = System.currentTimeMillis();
-		int dupes = 0;
-		int recs = 0;
-		String fkey = null;
-		for(int i = min; i < max1; i++) {
-			fkey = String.format(uniqKeyFmt, i);
-			try {
-				RelatrixKVTransaction.store(alias1, xid, fkey+alias1, Long.valueOf(i));
-				RelatrixKVTransaction.store(alias2, xid, fkey+alias2, Long.valueOf(i));
-				RelatrixKVTransaction.store(alias3, xid, fkey+alias3, Long.valueOf(i));
-				++recs;
-			} catch(DuplicateKeyException dke) { ++dupes; }
-		}
-		long s = RelatrixKVTransaction.size(alias1, xid, String.class);
-		if(s != max1)
-			System.out.println("Size at halway point of restore incorrect:"+s+" should be "+max1);
-		for(int i = max1; i < max; i++) {
-			fkey = String.format(uniqKeyFmt, i);
-			try {
-				RelatrixKVTransaction.store(alias1, xid, fkey+alias1, Long.valueOf(i));
-				RelatrixKVTransaction.store(alias2, xid, fkey+alias2, Long.valueOf(i));
-				RelatrixKVTransaction.store(alias3, xid, fkey+alias3, Long.valueOf(i));
-				++recs;
-			} catch(DuplicateKeyException dke) { ++dupes; }
-		}
-		System.out.println("KV BATTERY18 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms. Stored "+recs+" records in 3 alias, rejected "+dupes+" dupes.");
-	}
+	
 
 }

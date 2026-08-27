@@ -45,7 +45,6 @@ public class BatteryRelatrixKVTransaction {
 		ParallelExecutionContext pec = new ParallelExecutionContext(indexResolver, new ConcurrentHashMap<String,Object>());
 		ScopedValue.where(ExecutionContextHolder.CONTEXT, pec).run(() -> {
 			try {
-				RelatrixKVTransaction.getInstance();
 				TransactionId xid = RelatrixKVTransaction.getTransactionId();
 				if(argv.length > 1 && argv[0].equals("max")) {
 					System.out.println("Setting max items to "+argv[1]);
