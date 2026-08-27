@@ -59,28 +59,28 @@ public class BatteryRelatrixKVTransactionStream {
 						batteryCleanDB(xid);
 					}
 				}
-		battery1(xid);	// build and store
-		battery11(xid);  // build and store
-		battery1AR6(xid);
-		battery1AR7(xid);
-		battery1AR8(xid); // search by value, slow operation no key
-		battery1AR9(xid);
-		battery1AR10(xid);
-		battery1AR101(xid);
-		battery1AR11(xid);
-		battery1AR12(xid);
-		battery1AR13(xid);
-		battery1AR14(xid);
-		battery1AR15(xid);
-		battery1AR16(xid);
-		battery1AR17(xid);
-		battery18(xid);
-		System.out.println("BatteryRelatrixKVTransactionStream TEST BATTERY COMPLETE.");
-		RelatrixKVTransaction.endTransaction(xid);
-	} catch(Exception e) {
-		e.printStackTrace();
-	}
-});
+				battery1(xid);	// build and store
+				battery11(xid);  // build and store
+				battery1AR6(xid);
+				battery1AR7(xid);
+				battery1AR8(xid); // search by value, slow operation no key
+				battery1AR9(xid);
+				battery1AR10(xid);
+				battery1AR101(xid);
+				battery1AR11(xid);
+				battery1AR12(xid);
+				battery1AR13(xid);
+				battery1AR14(xid);
+				battery1AR15(xid);
+				battery1AR16(xid);
+				battery1AR17(xid);
+				battery18(xid);
+				System.out.println("BatteryRelatrixKVTransactionStream TEST BATTERY COMPLETE.");
+				RelatrixKVTransaction.endTransaction(xid);
+			} catch(Exception e) {
+				e.printStackTrace();
+			}
+		});
 	}
 	/**
 	 * Loads up on keys, should be 0 to max-1, or min, to max -1
