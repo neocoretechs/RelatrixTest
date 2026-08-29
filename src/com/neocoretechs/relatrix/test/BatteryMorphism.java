@@ -49,8 +49,21 @@ public class BatteryMorphism {
 			ScopedValue.where(ExecutionContextHolder.CONTEXT, pec).run(() -> {
 				Relatrix.getInstance();
 				try {
-					battery1AR17();
-					battery1();
+					if(argv.length > 0 && argv[0].equals("max")) {
+						System.out.println("Setting max items to "+argv[1]);
+						max = Integer.parseInt(argv[1]);
+					} else {
+						if(argv.length > 0 && argv[0].equals("init")) {
+							System.out.println("Initialize database to zero items, then terminate...");
+							battery1AR17();
+							System.exit(0);
+						}
+					}
+					if(Relatrix.size() == 0) {
+						if(DEBUG)
+							System.out.println("Zero items, Begin insertion from "+min+" to "+max);
+						battery1();
+					}
 					// load keys table from Relation class instance, which is the concrete subclass of PrimaryKeySet
 					battery1AR4();
 					battery1AR44();
@@ -92,8 +105,7 @@ public class BatteryMorphism {
 			for(int i = min; i < max; i++) {
 				d = String.format(uniqKeyFmt, i);
 				m = String.format(uniqKeyFmt, i+1);
-				r = String.format(uniqKeyFmt, i+1);
-				
+				r = String.format(uniqKeyFmt, i+1);			
 				Relation identity = Relatrix.store(d, m, r);
 				// mirrors partial Relatrix store
 				// Relation is annotated to Relation
@@ -106,8 +118,6 @@ public class BatteryMorphism {
 					System.out.println("Identity store element key "+dbkey+" not valid due to:"+DBKey.whyInvalid(dbkey));
 					throw new Exception("Identity store element key "+dbkey+" not valid due to:"+DBKey.whyInvalid(dbkey));
 				}
-				// store in mirror table
-				dbtable.put(dbkey, identity);
 				if((System.currentTimeMillis()-timx) > 1000) {
 					System.out.println("DBKey stored "+recs+" "+identity);
 					timx = System.currentTimeMillis();
@@ -120,10 +130,7 @@ public class BatteryMorphism {
 			// compact relation table
 			Relatrix.flushAndCompactDB(Relation.class);
 			System.out.println("Compaction and flush in "+(System.currentTimeMillis()-ctim)+" ms.");
-			if(DEBUG) {
-				System.out.println("---DBtable---");
-				dbtable.forEach((k,v)->{System.out.println(k+" "+v);});
-			}
+	
 			System.out.println("BATTERY1 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms. Stored "+recs+" records, rejected "+dupes+" dupes.");
 		}
 		
@@ -145,12 +152,14 @@ public class BatteryMorphism {
 					System.out.println("RANGE KEY MISMATCH: "+nexe+" prev:"+prev);
 					throw new Exception("RANGE KEY MISMATCH: "+nexe+" prev:"+prev);
 				}
-				prev = nexe.getKey();
+				prev = nexe.getKey();                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 
 				prev.setIdentity(nexe.getValue());
 				if(!DBKey.isValid(nexe.getValue())) {
 					System.out.println("Keys table element from tailMap iterator "+nexe.getValue()+" not valid due to:"+DBKey.whyInvalid(nexe.getValue()));
 					throw new Exception("Keys table element from tailMap iterator "+nexe.getValue()+" not valid due to:"+DBKey.whyInvalid(nexe.getValue()));
 				}
+				// store in mirror table
+				dbtable.put(nexe.getValue(), nexe.getKey());
 				keys.add(prev);
 				if(DEBUG)
 					System.out.println("1AR4 "+(cnt)+"="+nexe);
@@ -163,6 +172,8 @@ public class BatteryMorphism {
 			if(DEBUG) {
 				System.out.println("---Instance keys---");
 				keys.forEach(j->{System.out.println(j);});
+				System.out.println("---DBtable---");
+				dbtable.forEach((k,v)->{System.out.println(k+" "+v);});
 			}
 			 System.out.println("BATTERY1AR4 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms. obtained "+keys.size());
 		}

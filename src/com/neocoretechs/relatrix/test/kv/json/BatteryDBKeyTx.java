@@ -9,6 +9,7 @@ import java.util.stream.Stream;
 import org.json.JSONObject;
 
 import com.neocoretechs.relatrix.DuplicateKeyException;
+import com.neocoretechs.relatrix.RelatrixJson;
 import com.neocoretechs.relatrix.RelatrixKVJsonTransaction;
 import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
@@ -17,11 +18,11 @@ import com.neocoretechs.rocksack.TransactionId;
 
 
 /**
- * The set of tests verifies the lower level {@link DBKey} functions in the {@link  Relatrix}
+ * The set of tests verifies the functions in the {@link RelatrixKVJsonTransaction}
+ * This module spins up a session using {@link SynchronizedThreadManager#spinWithContext} to provide the {@link IndexResolver}
  * NOTES:
  * A database unique to this test module should be used.
- * tablespace is specified via system cmdl property
- * @author Jonathan Groff Copyright (C) NeoCoreTechs 2016,2017
+ * @author Jonathan Groff Copyright (C) NeoCoreTechs 2016,2017,2026
  *
  */
 public class BatteryDBKeyTx {
@@ -49,14 +50,23 @@ public class BatteryDBKeyTx {
 			public void run() {
 				try {
 					xid = RelatrixKVJsonTransaction.getTransactionId();
-					battery1AR17(argv);
-					battery1(argv);
+					if(argv.length == 1 && argv[0].equals("init")) {
+						System.out.println("Initialize database to zero items, then terminate...");
+						battery1AR17(argv);
+						System.exit(0);
+					}
+					long siz = RelatrixKVJsonTransaction.size(xid, String.class);
+					if(siz == 0) {
+						if(DEBUG)
+							System.out.println("Zero items, Begin insertion from "+min+" to "+max);
+						battery1(argv);
+					}
 					battery1AR4(argv);
 					battery1AR7(argv);
 					battery1AR8(argv);
 					battery1AR9(argv);
 					RelatrixKVJsonTransaction.commit(xid);
-					//battery1AR17(argv);
+					RelatrixKVJsonTransaction.endTransaction(xid);
 				} catch(Exception e) {
 					e.printStackTrace();
 				}
@@ -77,7 +87,6 @@ public class BatteryDBKeyTx {
 		int dupes = 0;
 		int recs = 0;
 		JSONObject jo = new JSONObject(x);
-
 		for(int i = min; i < max; i++) {
 			try {
 				RelatrixKVJsonTransaction.store(xid, jo, i);
