@@ -61,13 +61,25 @@ public class BatteryMorphismAlias {
 				Relatrix.setAlias(alias1,Relatrix.getTableSpace()+alias1);
 				Relatrix.setAlias(alias2,Relatrix.getTableSpace()+alias2);
 				Relatrix.setAlias(alias3,Relatrix.getTableSpace()+alias3);
-				battery1AR17(alias1, keys, dbtable);
-				battery1AR17(alias2, keys2, dbtable2);
-				battery1AR17(alias3, keys3, dbtable3);
-
-				battery1(alias1, keys, dbtable);
-				battery1(alias2, keys2, dbtable2);
-				battery1(alias3, keys3, dbtable3);
+				if(argv.length > 0 && argv[0].equals("max")) {
+					System.out.println("Setting max items to "+argv[1]);
+					max = Integer.parseInt(argv[1]);
+				} else {
+					if(argv.length > 0 && argv[0].equals("init")) {
+						System.out.println("Initialize database to zero items, then terminate...");
+						battery1AR17(alias1, keys, dbtable);
+						battery1AR17(alias2, keys2, dbtable2);
+						battery1AR17(alias3, keys3, dbtable3);
+						System.exit(0);
+					}
+				}
+				if(Relatrix.size(alias1) == 0) {
+					if(DEBUG)
+						System.out.println("Zero items, Begin insertion from "+min+" to "+max);
+					battery1(alias1, keys, dbtable);
+					battery1(alias2, keys2, dbtable2);
+					battery1(alias3, keys3, dbtable3);
+				}
 
 				// load keys table from Relation class instance, which is the concrete subclass of PrimaryKeySet
 				battery1AR4(alias1, keys, dbtable);
@@ -153,12 +165,6 @@ public class BatteryMorphismAlias {
 				System.out.println("Identity store element key "+dbkey+" not valid due to:"+DBKey.whyInvalid(dbkey));
 				throw new Exception("Identity store element key "+dbkey+" not valid due to:"+DBKey.whyInvalid(dbkey));
 			}
-			// store in mirror table
-			dbtable.put(dbkey, identity);
-			// now store relationship as domain and create a new entry
-			Relation identity2 = Relatrix.store(alias12, identity, m, r);
-			// store in mirror table
-			dbtable.put(identity2.getIdentity(), identity2);
 			++recs;
 			if((System.currentTimeMillis()-timx) > 1000) {
 				System.out.println("DBKey stored "+recs+" "+identity);
@@ -168,10 +174,7 @@ public class BatteryMorphismAlias {
 				System.out.println("Relatrix.store stored :"+identity);
 			++recs;
 		}
-		if(DEBUG) {
-			System.out.println("---DBtable---");
-			dbtable.forEach((k,v)->{System.out.println(k+" "+v);});
-		}
+	
 		System.out.println("BATTERY1 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms. Stored "+recs+" records, rejected "+dupes+" dupes.");
 	}
 	
@@ -200,18 +203,23 @@ public class BatteryMorphismAlias {
 				System.out.println("Keys table element from tailMap iterator "+nexe.getValue()+" not valid due to:"+DBKey.whyInvalid(nexe.getValue()));
 				throw new Exception("Keys table element from tailMap iterator "+nexe.getValue()+" not valid due to:"+DBKey.whyInvalid(nexe.getValue()));
 			}
+			// store in mirror table
+			dbtable.put(nexe.getValue(), nexe.getKey());
+	
 			keys.add(prev);
 			if(DEBUG)
 				System.out.println("1AR4 "+(cnt)+"="+nexe);
 			++cnt;
 		}
-		if(keys.size() != max*2) {
-			System.out.println("Size  MISMATCH: "+keys.size()+" max:"+max*2);
-			throw new Exception("Size  MISMATCH: "+keys.size()+" max:"+max*2);
+		if(keys.size() != max) {
+			System.out.println("Size  MISMATCH: "+keys.size()+" max:"+max);
+			throw new Exception("Size  MISMATCH: "+keys.size()+" max:"+max);
 		}
 		if(DEBUG) {
 			System.out.println("---Instance keys---");
 			keys.forEach(j->{System.out.println(j);});
+			System.out.println("---DBtable---");
+			dbtable.forEach((k,v)->{System.out.println(k+" "+v);});
 		}
 		 System.out.println("BATTERY1AR4 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms. obtained "+keys.size());
 	}
@@ -250,9 +258,9 @@ public class BatteryMorphismAlias {
 				System.out.println("1AR4A "+(cnt)+"="+nexe);
 			++cnt;
 		}
-		if(keys.size() != max*2) {
-			System.out.println("Size  MISMATCH: "+keys.size()+" max:"+max*2);
-			throw new Exception("Size  MISMATCH: "+keys.size()+" max:"+max*2);
+		if(keys.size() != max) {
+			System.out.println("Size  MISMATCH: "+keys.size()+" max:"+max);
+			throw new Exception("Size  MISMATCH: "+keys.size()+" max:"+max);
 		}
 		if(DEBUG) {
 			System.out.println("---DBKey keys---");
