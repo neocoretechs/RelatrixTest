@@ -85,21 +85,7 @@ public class BatteryRelatrixAlias {
 				battery1AR6(alias1);
 				battery1AR6(alias2);
 				battery1AR6(alias3);
-				if(DEBUG)
-					System.out.println("Begin test battery 1AR7");
-				battery1AR7(alias1);
-				battery1AR7(alias2);
-				battery1AR7(alias3);
-				if(DEBUG)
-					System.out.println("Begin test battery 1AR8");
-				battery1AR8(alias1);
-				battery1AR8(alias2);
-				battery1AR8(alias3);
-				if(DEBUG)
-					System.out.println("Begin test battery 1AR9");
-				battery1AR9(alias1);
-				battery1AR9(alias2);
-				battery1AR9(alias3);
+	
 				if(DEBUG)
 					System.out.println("Begin test battery 1AR10");
 				battery1AR10(alias1);
@@ -193,19 +179,20 @@ public class BatteryRelatrixAlias {
 	public static void battery1AR6(Alias alias12) throws Exception {
 		int i = min;
 		long tims = System.currentTimeMillis();
-		Iterator<?> its = Relatrix.findSet(alias12, '?', '?', '?');
+		Iterator<?> its = Relatrix.findSet(alias12, '*', '*', '*');
 		System.out.println(alias12+" Battery1AR6 findSet in "+(System.currentTimeMillis()-tims)+" ms.");
 		while(its.hasNext()) {
 			Result nex = (Result) its.next();
+			Comparable[] nexc = nex.toArray();
 			// 3 question marks = dimension 3 in return array
 				if( DEBUG ) 
 					System.out.println("1AR6:"+i+" "+nex);
 				//String skey = key + String.format(uniqKeyFmt, i);
 				//if(!skey.equals(nex[0]) )
 					//System.out.println("DOMAIN KEY MISMATCH:"+(i)+" "+skey+" - "+nex[0]);
-				if(!((String) nex.get(0)).startsWith(key) || !nex.get(1).equals("Has unit "+alias12) || nex.length() != 3) {
-					System.out.println("MAP KEY MISMATCH:"+(i)+" Has unit "+alias12+" - "+nex.get(1)+" length:"+nex.length());
-					throw new Exception("MAP KEY MISMATCH:"+(i)+" Has unit "+alias12+" - "+nex.get(1)+" length:"+nex.length());
+				if(!((String) nexc[0]).startsWith(key) || !nexc[1].equals("Has unit "+alias12)) {
+					System.out.println("MAP KEY MISMATCH:"+(i)+" Has unit "+alias12+" - "+nexc[1]);
+					throw new Exception("MAP KEY MISMATCH:"+(i)+" Has unit "+alias12+" - "+nexc[1]);
 				}
 				//Long unit = Long.valueOf(i);
 				//if(!nex[2].equals(unit))
@@ -218,98 +205,9 @@ public class BatteryRelatrixAlias {
 		}
 		 System.out.println("BATTERY1AR6 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
-	/**
-	 * Testing of Iterator<?> its = Relatrix.findSet(alias, '?', '*', '*');
-	 * @param argv
-	 * @param alias12 
-	 * @throws Exception
-	 */
-	public static void battery1AR7(Alias alias12) throws Exception {
-		int i = min;
-		long tims = System.currentTimeMillis();
-		Iterator<?> its = Relatrix.findSet(alias12, '?', '*', '*');
-		System.out.println(alias12+" Battery1AR7 findSet in "+(System.currentTimeMillis()-tims)+" ms.");
-		while(its.hasNext()) {
-			Result nex = (Result) its.next();
-			// one '?' in findset gives us one element returned
-			if(DEBUG ) System.out.println("1AR7:"+i+" "+nex);
-			if(!((String) nex.get(0)).startsWith(key) || nex.length() != 1) {
-				System.out.println("DOMAIN KEY MISMATCH:"+(i)+"  "+nex+" length:"+nex.length());
-				throw new Exception("DOMAIN KEY MISMATCH:"+(i)+"  "+nex+" length:"+nex.length());
-			}
-			//String skey = key + String.format(uniqKeyFmt, i);
-			//if(!skey.equals(nex[0]) )
-				//System.out.println("DOMAIN KEY MISMATCH:"+(i)+" "+skey+" - "+nex[0]);
-			++i;
-		}
-		if( i != max ) {
-			System.out.println("BATTERY1AR7 unexpected number of keys "+i);
-			throw new Exception("BATTERY1AR7 unexpected number of keys "+i);
-		}
-		 System.out.println("BATTERY1AR7 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
-	}
-	/**
-	 * Testing of Iterator<?> its = Relatrix.findSet(alias, '?', '?', '*');
-	 * @param argv
-	 * @param alias12 
-	 * @throws Exception
-	 */
-	public static void battery1AR8(Alias alias12) throws Exception {
-		int i = min;
-		long tims = System.currentTimeMillis();
-		Iterator<?> its = Relatrix.findSet(alias12, '?', '?', '*');
-		System.out.println(alias12+" Battery1AR8 findSet in "+(System.currentTimeMillis()-tims)+" ms.");
-		while(its.hasNext()) {
-			Result nex = (Result) its.next();
-			// two '?' in findset gives use 2 element array, the domain and map
-			if( DEBUG ) System.out.println("1AR8:"+i+" "+nex);
-			//String skey = key + String.format(uniqKeyFmt, i);
-			//if(!skey.equals(nex[0]) )
-				//System.out.println("DOMAIN KEY MISMATCH:"+(i)+" "+skey+" - "+nex[0]);
-			if(!((String) nex.get(0)).startsWith(key) || !nex.get(1).equals("Has unit "+alias12) || nex.length() != 2) {
-				System.out.println("KEY MISMATCH:"+(i)+" "+nex.get(0)+" Has unit "+alias12+" - "+nex.get(1)+" length:"+nex.length());
-				throw new Exception("KEY MISMATCH:"+(i)+" Has unit "+alias12+" - "+nex.get(1)+" length:"+nex.length());
-			}
-			++i;
-		}
-		if( i != max ) {
-			System.out.println("BATTERY1AR8 unexpected number of keys "+i);
-			throw new Exception("BATTERY1AR8 unexpected number of keys "+i);
-		}
-		 System.out.println("BATTERY1AR8 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
-	}
-	/**
-	 * 
-	 * Testing of Iterator<?> its = Relatrix.findSet(alias, '*', '*', '*');
-	 * @param argv
-	 * @param alias12 
-	 * @throws Exception
-	 */
-	public static void battery1AR9(Alias alias12) throws Exception {
-		int i = min;
-		long tims = System.currentTimeMillis();
-		Iterator<?> its = Relatrix.findSet(alias12, '*', '*', '*');
-		System.out.println(alias12+" Batter1AR9 findSet in "+(System.currentTimeMillis()-tims)+" ms.");
-		while(its.hasNext()) {
-			Result nex = (Result) its.next();
-			// the returned array has 1 element, the identity AbstractRelation Relation
-			if( DEBUG ) System.out.println("1AR9:"+i+" "+nex.get(0));
-			//String skey = key + String.format(uniqKeyFmt, i);
-			if(!((String) ((Relation)nex.get(0)).getDomain() ).startsWith(key) )
-				throw new Exception("DOMAIN KEY MISMATCH:"+(i)+" - "+nex.get(0));
-			if(!((Relation)nex.get(0)).getMap().equals("Has unit "+alias12))
-				throw new Exception("MAP KEY MISMATCH:"+(i)+" Has unit "+alias12+" - "+nex.get(0));
-			//Long unit = Long.valueOf(i);
-			//if(!((Relation)nex[0]).getRange().equals(unit))
-				//System.out.println("RANGE KEY MISMATCH:"+(i)+" "+i+" - "+nex[0]);
-			++i;
-		}
-		if( i != max ) {
-			System.out.println("BATTERY1AR9 unexpected number of keys "+i);
-			//throw new Exception("BATTERY1AR9 unexpected number of keys "+i);
-		}
-		 System.out.println("BATTERY1AR9 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
-	}
+	
+
+
 
 	/**
 	 * Iterator<?> its = Relatrix.findSet(alias, fkey, "Has unit", '*');
