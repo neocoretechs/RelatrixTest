@@ -175,13 +175,14 @@ public class BatteryRelatrixStream {
 		Relatrix.findStream('*', '*', '*').parallel().forEach(e->
 			ScopedValue.where(ExecutionContextHolder.CONTEXT, pec).run(() -> {
 			Result nex = (Result)e;
+			Comparable[] nexc = nex.toArray();
 			// 3 question marks = dimension 3 in return array
 			if( DEBUG ) System.out.println("1AR6:"+i+" "+nex);
 			//String fkey = key + String.format(uniqKeyFmt, i);
 			// no guarantee of ordering with unqualified findSet/findStream
-			if(!((String) nex.get(0)).startsWith(key) || !nex.get(1).equals("Has unit") || nex.length() != 3) {
-				System.out.println("MAP KEY MISMATCH:"+(i)+" Has unit - "+nex.get(1)+" length:"+nex.length());
-				throw new RuntimeException("MAP KEY MISMATCH:"+(i)+" Has unit - "+nex.get(1)+" length:"+nex.length());
+			if(!((String) nexc[0]).startsWith(key) || !nexc[1].equals("Has unit")) {
+				System.out.println("MAP KEY MISMATCH:"+(i)+" Has unit - "+nexc[1]);
+				throw new RuntimeException("MAP KEY MISMATCH:"+(i)+" Has unit - "+nexc[1]);
 			}
 			i.getAndIncrement();
 		}));
@@ -203,13 +204,14 @@ public class BatteryRelatrixStream {
 		Relatrix.findStream('*', '*', '*').parallel().forEach(e->
 		ScopedValue.where(ExecutionContextHolder.CONTEXT, pec).run(() -> {
 			Result nex = (Result)e;
+			Comparable[] nexc = nex.toArray();
 			// one '*' in findStream gives us one element returned
 			if(DEBUG ) System.out.println("1AR7:"+i+" "+nex);
 			//String fkey = key + String.format(uniqKeyFmt, i);
 			// No guarantee of order with unqualified findSet/findStream
-			if(!((String)nex.get(0)).startsWith(key) || nex.length() != 1) {
-				System.out.println("DOMAIN KEY MISMATCH:"+(i)+"  "+nex+" length:"+nex.length());
-				throw new RuntimeException("DOMAIN KEY MISMATCH:"+(i)+"  "+nex+" length:"+nex.length());
+			if(!((String)nexc[0]).startsWith(key)) {
+				System.out.println("DOMAIN KEY MISMATCH:"+(i)+"  "+nex);
+				throw new RuntimeException("DOMAIN KEY MISMATCH:"+(i)+"  "+nex);
 			}
 			i.getAndIncrement();
 		}));
@@ -264,9 +266,9 @@ public class BatteryRelatrixStream {
 			if( DEBUG ) System.out.println("1AR9:"+i+" "+nex.get(0));
 			//String skey = key + String.format(uniqKeyFmt, i);
 			// no guarantee of ordering with unqualified findSet/findStream
-			if(!((String) ((Relation)nex.get(0)).getDomain() ).startsWith(key) )
+			if(!((String)nex.getDomain()).startsWith(key) )
 				throw new RuntimeException("DOMAIN KEY MISMATCH:"+(i)+" - "+nex.get(0));
-			if(!((Relation)nex.get(0)).getMap().equals("Has unit"))
+			if(!nex.getMap().equals("Has unit"))
 				throw new RuntimeException("MAP KEY MISMATCH:"+(i)+" Has unit - "+nex.get(0));
 			i.getAndIncrement();
 		}));
@@ -299,9 +301,9 @@ public class BatteryRelatrixStream {
 			if(DEBUG) System.out.println("1AR10:"+i+" "+nex.get(0));
 			//String skey = key + String.format(uniqKeyFmt, i);
 			// no guarantee of ordering with unqualified findSet/findStream
-			if(!((String) ((Relation)nex.get(0)).getDomain() ).startsWith(key) )
+			if(!((String)nex.getDomain()).startsWith(key) )
 				throw new RuntimeException("DOMAIN KEY MISMATCH:"+(i)+" "+key+" - "+nex.get(0));
-			if(!((Relation)nex.get(0)).getMap().equals("Has unit"))
+			if(!nex.getMap().equals("Has unit"))
 				throw new RuntimeException("MAP KEY MISMATCH:"+(i)+" Has unit - "+nex.get(0));
 			i.getAndIncrement();
 		}));
@@ -333,9 +335,9 @@ public class BatteryRelatrixStream {
 			if(DEBUG) System.out.println("1AR101:"+i+" "+nex.get(0));
 			//String skey = key + String.format(uniqKeyFmt, i);
 			// no guarantee of ordering with unqualified findSet/findStream
-			if(!( (String)((Relation)nex.get(0)).getDomain() ).startsWith(key) )
+			if(! ((String)nex.getDomain()).startsWith(key) )
 				throw new RuntimeException("DOMAIN KEY MISMATCH:"+(i)+" "+key+" - "+nex.get(0));
-			if(!((Relation)nex.get(0)).getMap().equals("Has unit"))
+			if(!nex.getMap().equals("Has unit"))
 				throw new RuntimeException("MAP KEY MISMATCH:"+(i)+" Has unit - "+nex.get(0));
 			//Long unit = Long.valueOf(i);
 			//if(!((Relation)nex[0]).getRange().equals(unit))
