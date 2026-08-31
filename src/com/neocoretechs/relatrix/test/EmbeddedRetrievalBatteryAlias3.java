@@ -140,26 +140,11 @@ public class EmbeddedRetrievalBatteryAlias3 {
 		// this list will store an object used to test subsequent queries where a named object is needed
 		// it will be extracted from the wildcard queries
 		ArrayList<Comparable> ar = new ArrayList<Comparable>();
-		ArrayList<Comparable> ad = new ArrayList<Comparable>();
-		ArrayList<Comparable> am = new ArrayList<Comparable>();
-		ArrayList<Comparable> ar2 = new ArrayList<Comparable>(); // will store 2 element result sets map range
-		ArrayList<Comparable> ar2dm = new ArrayList<Comparable>(); // will store 2 element result sets domain map
-		ArrayList<Comparable> ar2dr = new ArrayList<Comparable>(); // will store 2 element result sets domain range
-		ArrayList<Comparable> ar3 = new ArrayList<Comparable>(); // will store 3 element result sets
+
 		Iterator<?> it = null;
 		System.out.println("Wildcard queries:");
 		displayLine = 0;
-		System.out.println("1.) findTailSet("+alias12+",*,*,*,String.class, String.class, Long.class)...");
-		it =  Relatrix.findTailSet(alias12, '*', '*', '*',String.class, String.class, Long.class);
-		while(it.hasNext()) {
-			Object o = it.next();
-			Result c = (Result)o;
-			displayCtrl();
-			if(DISPLAY || DISPLAYALL)
-				System.out.println(displayLine+"="+c);
-		}
-		displayLine = 0;
-		System.out.println("2.) findTailSet("+alias12+",*,*,*,String.class, String.class, Long.class)...");		
+		System.out.println("1.) findTailSet("+alias12+",*,*,*,String.class, String.class, Long.class)...");	
 		it = Relatrix.findTailSet(alias12, '*', '*', '*',String.class, String.class, Long.class);
 		while(it.hasNext()) {
 			Object o = it.next();
@@ -172,88 +157,12 @@ public class EmbeddedRetrievalBatteryAlias3 {
 			}
 		}
 		displayLine = 0;
-		System.out.println("3.) findTailSet("+alias12+",*,*,*,String.class, String.class, Long.class)...");		
-		it = Relatrix.findTailSet(alias12, '*', '*', '*',String.class, String.class, Long.class);
-		while(it.hasNext()) {
-			Object o = it.next();
-			Result  c = (Result )o;
-			displayCtrl();
-			if(DISPLAY || DISPLAYALL)
-				System.out.println(displayLine+"="+c);
-			if(am.size() < SAMPLESIZE ) {
-				am.add(c);
-			}
-		}
-		displayLine = 0;
-		System.out.println("4.) findTailSet("+alias12+",*,*,*.String.class, String.class, Long.class)...");		
-		it = Relatrix.findTailSet(alias12, '*', '*', '*',String.class, String.class, Long.class);
-		while(it.hasNext()) {
-			Object o = it.next();
-			Result  c = (Result )o;
-			displayCtrl();
-			if(DISPLAY || DISPLAYALL)
-				System.out.println(displayLine+"="+c);
-			if(ad.size() < SAMPLESIZE) {
-				ad.add(c);
-			}
-		}
-		displayLine=0;
-		System.out.println("5.) findTailSet("+alias12+",*,*,*,String.class, String.class, Long.class)...");		
-		it = Relatrix.findTailSet(alias12, '*', '*', '*',String.class, String.class, Long.class);
-		while(it.hasNext()) {
-			Object o = it.next();
-			Result1 c = (Result1)o; // Result1
-			displayCtrl();
-			if(DISPLAY || DISPLAYALL)
-				System.out.println(displayLine+"="+c);
-			if(ar2.size() < SAMPLESIZE) {
-				ar2.add(c);
-			}
-		}
-		displayLine = 0;
-		System.out.println("6.) findTailSet("+alias12+",*,*,*,String.class, String.class, Long.class)...");		
-		it = Relatrix.findTailSet(alias12, '*', '*', '*',String.class, String.class, Long.class);
-		while(it.hasNext()) {
-			Object o = it.next();
-			Result1 c = (Result1)o;
-			displayCtrl();
-			if(DISPLAY || DISPLAYALL)
-				System.out.println(displayLine+"="+c);
-			if(ar2dr.size() < SAMPLESIZE) {
-				ar2dr.add(c);
-			}
-		}
-		displayLine = 0;
-		System.out.println("7.) findTailSet("+alias12+",*,*,*,String.class, String.class, Long.class)...");		
-		it = Relatrix.findTailSet(alias12, '*', '*', '*',String.class, String.class, Long.class);
-		while(it.hasNext()) {
-			Object o = it.next();
-			Result1 c = (Result1)o;
-			displayCtrl();
-			if(DISPLAY || DISPLAYALL)
-				System.out.println(displayLine+"="+c);
-			if(ar2dm.size() < SAMPLESIZE) {
-				ar2dm.add(c);
-			}
-
-		}
-		displayLine = 0;
-		System.out.println("8.) findTailSet("+alias12+",*,*,*,String.class, String.class, Long.class)...");		
-		it = Relatrix.findTailSet(alias12, '*', '*', '*',String.class, String.class, Long.class);
-		while(it.hasNext()) {
-			Object o = it.next();
-			Result c = (Result)o;
-			displayCtrl();
-			if(DISPLAY || DISPLAYALL)
-				System.out.println(displayLine+"="+c);
-			if(ar3.size() < SAMPLESIZE) {
-				ar3.add(c);
-			}
-		}
-		for(int j = 0; j < ar3.size(); j++) {
+	
+	
+		for(int j = 0; j < ar.size(); j++) {
 			displayLine = 0;
-			System.out.println("8."+j+") findTailSet("+alias12+",*,*,*,<obj>,<obj>,<obj>) using domain="+((Result)ar3.get(j)).get(0)+",map="+((Result)ar3.get(j)).get(1)+",range="+((Result)ar3.get(j)).get(2));
-			it = Relatrix.findTailSet(alias12, '*','*','*',((Result)ar3.get(j)).get(0), ((Result)ar3.get(j)).get(1), ((Result)ar3.get(j)).get(2));
+			System.out.println("8."+j+") findTailSet("+alias12+",*,*,*,<obj>,<obj>,<obj>) using domain="+((Result)ar.get(j)).getDomain()+",map="+((Result)ar.get(j)).getMap()+",range="+((Result)ar.get(j)).getRange());
+			it = Relatrix.findTailSet(alias12, '*','*','*',((Result)ar.get(j)).getDomain(), ((Result)ar.get(j)).getMap(), ((Result)ar.get(j)).getRange());
 			while(it.hasNext()) {
 				Object o = it.next();
 				Result c = (Result)o;
@@ -264,8 +173,8 @@ public class EmbeddedRetrievalBatteryAlias3 {
 			displayLine=0;
 			//RelatrixHeadsetIterator.DEBUG = true;
 			System.out.println("Should retrieve none, since range is specified as String and we only stored Long...");
-			System.out.println("8A."+j+") findTailSet("+alias12+",*,*,*,<obj>,String.class, String.class) using domain="+((Result)ar3.get(j)).get(0));		
-			it = Relatrix.findTailSet(alias12, '*','*', '*', ((Result)ar3.get(j)).get(0), String.class, String.class);
+			System.out.println("8A."+j+") findTailSet("+alias12+",*,*,*,<obj>,String.class, String.class) using domain="+((Result)ar.get(j)).getDomain());		
+			it = Relatrix.findTailSet(alias12, '*','*', '*', ((Result)ar.get(j)).getDomain(), String.class, String.class);
 			while(it.hasNext()) {
 				Object o = it.next();
 				Result c = (Result)o;
@@ -276,10 +185,10 @@ public class EmbeddedRetrievalBatteryAlias3 {
 		}
 		System.out.println("----------\r\nAbove are wildcard permutations. Now retrieve those with object references using the");
 		System.out.println("wildcard results. Recall tailset is greater or equal to 'from' element...");
-		for(int j = 0; j < ar3.size(); j++) {
+		for(int j = 0; j < ar.size(); j++) {
 			displayLine = 0;
-			System.out.println("9."+j+") findTailSet("+alias12+",<obj>,<obj>,<obj>) using domain="+((Result)ar3.get(j)).get(0)+",map="+((Result)ar3.get(j)).get(1)+",range="+((Result)ar3.get(j)).get(2));
-			it = Relatrix.findTailSet(alias12, ((Result)ar3.get(j)).get(0), ((Result)ar3.get(j)).get(1), ((Result)ar3.get(j)).get(2));
+			System.out.println("9."+j+") findTailSet("+alias12+",<obj>,<obj>,<obj>) using domain="+((Result)ar.get(j)).getDomain()+",map="+((Result)ar.get(j)).getMap()+",range="+((Result)ar.get(j)).getRange());
+			it = Relatrix.findTailSet(alias12, ((Result)ar.get(j)).getDomain(), ((Result)ar.get(j)).getMap(), ((Result)ar.get(j)).getRange());
 			while(it.hasNext()) {
 				Object o = it.next();
 				Result c = (Result)o;
@@ -289,8 +198,8 @@ public class EmbeddedRetrievalBatteryAlias3 {
 			}
 			displayLine=0;
 			//RelatrixHeadsetIterator.DEBUG = true;
-			System.out.println("10."+j+") findTailSet("+alias12+",*,*,<obj>,String.class, String.class) using range="+((Result)ar.get(j)).get(0));		
-			it = Relatrix.findTailSet(alias12, '*', '*', ((Result)ar.get(j)).get(0), String.class, String.class);
+			System.out.println("10."+j+") findTailSet("+alias12+",*,*,<obj>,String.class, String.class) using range="+((Result)ar.get(j)).getDomain());		
+			it = Relatrix.findTailSet(alias12, '*', '*', ((Result)ar.get(j)).getDomain(), String.class, String.class);
 			while(it.hasNext()) {
 				Object o = it.next();
 				Result c = (Result)o;
@@ -302,8 +211,8 @@ public class EmbeddedRetrievalBatteryAlias3 {
 		for(int j = 0; j < ar.size(); j++) {
 			displayLine = 0;
 			//RelatrixHeadsetIterator.DEBUG = true;
-			System.out.println("11."+j+") findTailSet("+alias12+",*,<obj>,*, String.class, Long.class) using map="+((Result)am.get(j)).get(0));		
-			it = Relatrix.findTailSet(alias12, '*', ((Result)am.get(j)).get(0), '*',String.class, Long.class);
+			System.out.println("11."+j+") findTailSet("+alias12+",*,<obj>,*, String.class, Long.class) using map="+((Result)ar.get(j)).getDomain());		
+			it = Relatrix.findTailSet(alias12, '*', ((Result)ar.get(j)).getDomain(), '*',String.class, Long.class);
 			while(it.hasNext()) {
 				Object o = it.next();
 				Result c = (Result)o;
@@ -312,8 +221,8 @@ public class EmbeddedRetrievalBatteryAlias3 {
 					System.out.println(displayLine+"="+c);
 			}
 			displayLine =0;
-			System.out.println("12."+j+") findTailSet("+alias12+",<obj>,*,*,String.class, Long.class) using domain="+((Result)ad.get(j)).get(0));		
-			it = Relatrix.findTailSet(alias12, ((Result)ad.get(j)).get(0), '*', '*',String.class, Long.class);
+			System.out.println("12."+j+") findTailSet("+alias12+",<obj>,*,*,String.class, Long.class) using domain="+((Result)ar.get(j)).getDomain());		
+			it = Relatrix.findTailSet(alias12, ((Result)ar.get(j)).getDomain(), '*', '*',String.class, Long.class);
 			while(it.hasNext()) {
 				Object o = it.next();
 				Result c = (Result)o;
@@ -322,11 +231,11 @@ public class EmbeddedRetrievalBatteryAlias3 {
 					System.out.println(displayLine+"="+c);
 			}
 		}
-		for(int j = 0; j < ar2.size(); j++) {
+		for(int j = 0; j < ar.size(); j++) {
 			// From a Result1 we can call get(0) and get(1), like an array, we can also call toArray
 			displayLine = 0;
-			System.out.println("13."+j+") findTailSet("+alias12+",*,<obj>,<obj>,String.class) using map="+((Result)ar2.get(j)).toArray()[0]+" range="+((Result)ar2.get(j)).toArray()[1]);		
-			it = Relatrix.findTailSet(alias12, '*', ((Result)ar2.get(j)).toArray()[0], ((Result)ar2.get(j)).toArray()[1], String.class);
+			System.out.println("13."+j+") findTailSet("+alias12+",*,<obj>,<obj>,String.class) using map="+((Result)ar.get(j)).toArray()[0]+" range="+((Result)ar.get(j)).toArray()[1]);		
+			it = Relatrix.findTailSet(alias12, '*', ((Result)ar.get(j)).toArray()[0], ((Result)ar.get(j)).toArray()[1], String.class);
 			while(it.hasNext()) {
 				Object o = it.next();
 				Result c = (Result)o;
@@ -335,20 +244,8 @@ public class EmbeddedRetrievalBatteryAlias3 {
 					System.out.println(displayLine+"="+c);
 			}
 			displayLine = 0;
-			System.out.println("14."+j+") findTailSet("+alias12+",<obj>,*,<obj>,String.class) using domain="+((Result)ar2dr.get(j)).toArray()[0]+", range="+((Result)ar2dr.get(j)).toArray()[1]);		
-			it = Relatrix.findTailSet(alias12, ((Result)ar2dr.get(j)).toArray()[0], '*', ((Result)ar2dr.get(j)).toArray()[1], String.class);
-			while(it.hasNext()) {
-				Object o = it.next();
-				Result c = (Result)o;
-				displayCtrl();
-				if(DISPLAY || DISPLAYALL)
-					System.out.println(displayLine+"="+c);
-			}
-		}
-		for(int j = 0; j < ar2.size(); j++) {
-			displayLine=0;
-			System.out.println("15."+j+") findTailSet("+alias12+",<obj>,<obj>,*, Long.class) using domain="+((Result)ar2dm.get(j)).toArray()[0]+", map="+((Result)ar2dm.get(j)).toArray()[1]);		
-			it = Relatrix.findTailSet(alias12, ((Result)ar2dm.get(j)).toArray()[0], ((Result)ar2dm.get(j)).toArray()[1], '*', Long.class);
+			System.out.println("14."+j+") findTailSet("+alias12+",<obj>,*,<obj>,String.class) using domain="+((Result)ar.get(j)).toArray()[0]+", range="+((Result)ar.get(j)).toArray()[1]);		
+			it = Relatrix.findTailSet(alias12, ((Result)ar.get(j)).toArray()[0], '*', ((Result)ar.get(j)).toArray()[1], String.class);
 			while(it.hasNext()) {
 				Object o = it.next();
 				Result c = (Result)o;
@@ -359,8 +256,20 @@ public class EmbeddedRetrievalBatteryAlias3 {
 		}
 		for(int j = 0; j < ar.size(); j++) {
 			displayLine=0;
-			System.out.println("16."+j+") findTailSet("+alias12+",*,*,<obj>, String.class, String.class) using range="+((Result)ar.get(j)).get(0));		
-			it = Relatrix.findTailSet(alias12, '*', '*', ((Result)ar.get(j)).get(0), String.class, String.class);
+			System.out.println("15."+j+") findTailSet("+alias12+",<obj>,<obj>,*, Long.class) using domain="+((Result)ar.get(j)).toArray()[0]+", map="+((Result)ar.get(j)).toArray()[1]);		
+			it = Relatrix.findTailSet(alias12, ((Result)ar.get(j)).toArray()[0], ((Result)ar.get(j)).toArray()[1], '*', Long.class);
+			while(it.hasNext()) {
+				Object o = it.next();
+				Result c = (Result)o;
+				displayCtrl();
+				if(DISPLAY || DISPLAYALL)
+					System.out.println(displayLine+"="+c);
+			}
+		}
+		for(int j = 0; j < ar.size(); j++) {
+			displayLine=0;
+			System.out.println("16."+j+") findTailSet("+alias12+",*,*,<obj>, String.class, String.class) using range="+((Result)ar.get(j)).getDomain());		
+			it = Relatrix.findTailSet(alias12, '*', '*', ((Result)ar.get(j)).getDomain(), String.class, String.class);
 			while(it.hasNext()) {
 				Object o = it.next();
 				Result c = (Result)o;
@@ -369,8 +278,8 @@ public class EmbeddedRetrievalBatteryAlias3 {
 					System.out.println(displayLine+"="+c);
 			}
 			displayLine=0;
-			System.out.println("17."+j+") findTailSet("+alias12+",*,<obj>,*, String.class, Long.class) using map="+((Result)am.get(j)).get(0));		
-			it = Relatrix.findTailSet(alias12, '*', ((Result)am.get(j)).get(0), '*', String.class, Long.class);
+			System.out.println("17."+j+") findTailSet("+alias12+",*,<obj>,*, String.class, Long.class) using map="+((Result)ar.get(j)).getDomain());		
+			it = Relatrix.findTailSet(alias12, '*', ((Result)ar.get(j)).getDomain(), '*', String.class, Long.class);
 			while(it.hasNext()) {
 				Object o = it.next();
 				Result1 c = (Result1)o;
@@ -379,8 +288,8 @@ public class EmbeddedRetrievalBatteryAlias3 {
 					System.out.println(displayLine+"="+c);
 			}
 			displayLine=0;
-			System.out.println("18."+j+") findTailSet("+alias12+",<obj>,*,*, String.class, Long.class) using domain="+((Result)ad.get(j)).get(0));		
-			it = Relatrix.findTailSet(alias12, ((Result)ad.get(j)).get(0), '*', '*', String.class, Long.class);
+			System.out.println("18."+j+") findTailSet("+alias12+",<obj>,*,*, String.class, Long.class) using domain="+((Result)ar.get(j)).getDomain());		
+			it = Relatrix.findTailSet(alias12, ((Result)ar.get(j)).getDomain(), '*', '*', String.class, Long.class);
 			while(it.hasNext()) {
 				Object o = it.next();
 				Result c = (Result)o;
@@ -389,10 +298,10 @@ public class EmbeddedRetrievalBatteryAlias3 {
 					System.out.println(displayLine+"="+c);
 			}
 		}
-		for(int j = 0; j < ar2.size(); j++) {
+		for(int j = 0; j < ar.size(); j++) {
 			displayLine=0;
-			System.out.println("19."+j+") findTailSet("+alias12+",*,<obj>,<obj>, String.class) using map="+((Result)ar2.get(j)).get(0)+" range="+((Result)ar2.get(j)).get(1));		
-			it = Relatrix.findTailSet(alias12, '*', ((Result)ar2.get(j)).get(0), ((Result)ar2.get(j)).get(1), String.class);
+			System.out.println("19."+j+") findTailSet("+alias12+",*,<obj>,<obj>, String.class) using map="+((Result)ar.get(j)).getDomain()+" range="+((Result)ar.get(j)).getMap());		
+			it = Relatrix.findTailSet(alias12, '*', ((Result)ar.get(j)).getDomain(), ((Result)ar.get(j)).getMap(), String.class);
 			while(it.hasNext()) {
 				Object o = it.next();
 				Result c = (Result)o;
@@ -401,8 +310,8 @@ public class EmbeddedRetrievalBatteryAlias3 {
 					System.out.println(displayLine+"="+c);
 			}
 			displayLine =0;
-			System.out.println("20."+j+") findTailSet("+alias12+",<obj>,*,<obj>,String.class) using domain="+((Result)ar2dr.get(j)).get(0)+" range="+ ((Result)ar2dr.get(j)).get(1));		
-			it = Relatrix.findTailSet(alias12, ((Result)ar2dr.get(j)).get(0), '*', ((Result)ar2dr.get(j)).get(1), String.class);
+			System.out.println("20."+j+") findTailSet("+alias12+",<obj>,*,<obj>,String.class) using domain="+((Result)ar.get(j)).getDomain()+" range="+ ((Result)ar.get(j)).getMap());		
+			it = Relatrix.findTailSet(alias12, ((Result)ar.get(j)).getDomain(), '*', ((Result)ar.get(j)).getMap(), String.class);
 			while(it.hasNext()) {
 				Object o = it.next();
 				Result c = (Result)o;
@@ -411,8 +320,8 @@ public class EmbeddedRetrievalBatteryAlias3 {
 					System.out.println(displayLine+"="+c);
 			}
 			displayLine =0;
-			System.out.println("21."+j+") findTailSet("+alias12+",<obj>,<obj>,*,Long.class) using domain="+((Result)ar2dm.get(j)).get(0)+" map="+((Result)ar2dm.get(j)).get(1));		
-			it = Relatrix.findTailSet(alias12, ((Result)ar2dm.get(j)).get(0), ((Result)ar2dm.get(j)).get(1), '*',Long.class);
+			System.out.println("21."+j+") findTailSet("+alias12+",<obj>,<obj>,*,Long.class) using domain="+((Result)ar.get(j)).getDomain()+" map="+((Result)ar.get(j)).getMap());		
+			it = Relatrix.findTailSet(alias12, ((Result)ar.get(j)).getDomain(), ((Result)ar.get(j)).getMap(), '*',Long.class);
 			//ar = new ArrayList<Comparable>();
 			while(it.hasNext()) {
 				Object o = it.next();

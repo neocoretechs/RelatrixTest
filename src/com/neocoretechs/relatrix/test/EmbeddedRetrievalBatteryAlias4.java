@@ -335,8 +335,8 @@ public class EmbeddedRetrievalBatteryAlias4 {
 			displayLine =0;
 			Result arr = (Result) ar.get(j);
 			Comparable[] ac = arr.toArray();
-			System.out.println("22."+j+") findSubSet("+alias12+",*,*,*,<class>,<class>,<obj>,<obj>) using domain="+ac[0]+" map="+ac[1]+" range="+lo+" to "+hi);		
-			it = Relatrix.findSubSet(alias12,'*','*','*',ac[0], ac[1],lo,hi);
+			System.out.println("22."+j+") findSubSet("+alias12+",*,*,*,<class>,<class>,<obj>,<obj>) using domain="+ac[0].getClass()+" map="+ac[1].getClass()+" range="+lo+" to "+hi);		
+			it = Relatrix.findSubSet(alias12,'*','*','*',ac[0].getClass(), ac[1].getClass(),lo,hi);
 			while(it.hasNext()) {
 				Object o = it.next();
 				Result c = (Result)o;
@@ -346,8 +346,8 @@ public class EmbeddedRetrievalBatteryAlias4 {
 			}
 			lo+=increment;
 			hi+=increment;
-			System.out.println("23."+j+") findSubSet("+alias12+",*,*,*,<class>,<class>,<obj>,<obj>) using domain="+((Result)ar.get(j)).get(0).getClass()+" map="+((Result)ar.get(j)).get(1).getClass()+" range="+lo+" to "+hi);		
-			it = Relatrix.findSubSet(alias12,'*','*','*',((Result)ar.get(j)).get(0).getClass(), ((Result)ar.get(j)).get(1).getClass(),lo,hi);
+			System.out.println("23."+j+") findSubSet("+alias12+",*,*,*,<class>,<class>,<obj>,<obj>) using domain="+((Result)ar.get(j)).getDomain().getClass()+" map="+((Result)ar.get(j)).getMap().getClass()+" range="+lo+" to "+hi);		
+			it = Relatrix.findSubSet(alias12,'*','*','*',((Result)ar.get(j)).getDomain().getClass(), ((Result)ar.get(j)).getMap().getClass(),lo,hi);
 			while(it.hasNext()) {
 				Object o = it.next();
 				Result c = (Result)o;
@@ -357,8 +357,8 @@ public class EmbeddedRetrievalBatteryAlias4 {
 			}
 			lo+=increment;
 			hi+=increment;
-			System.out.println("24."+j+") findSubSet("+alias12+",*,*,*,<class>,<class>,<obj>,<obj>) using domain="+((Result)ar.get(j)).get(0).getClass()+" map="+((Result)ar.get(j)).get(1).getClass()+" range="+lo+" to "+hi);		
-			it = Relatrix.findSubSet(alias12,'*','*','*',((Result)ar.get(j)).get(0).getClass(), ((Result)ar.get(j)).get(1).getClass(),lo,hi);
+			System.out.println("24."+j+") findSubSet("+alias12+",*,*,*,<class>,<class>,<obj>,<obj>) using domain="+((Result)ar.get(j)).getDomain().getClass()+" map="+((Result)ar.get(j)).getMap().getClass()+" range="+lo+" to "+hi);		
+			it = Relatrix.findSubSet(alias12,'*','*','*',((Result)ar.get(j)).getDomain().getClass(), ((Result)ar.get(j)).getMap().getClass(),lo,hi);
 			while(it.hasNext()) {
 				Object o = it.next();
 				Result c = (Result)o;
