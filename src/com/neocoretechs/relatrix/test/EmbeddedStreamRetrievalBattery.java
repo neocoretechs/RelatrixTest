@@ -89,13 +89,7 @@ public class EmbeddedStreamRetrievalBattery {
 		recs = 0;
 		// this list will store an object used to test subsequent queries where a named object is needed
 		// it will be extracted from the wildcard queries
-		ArrayList<Comparable> ar = new ArrayList<Comparable>();
-		ArrayList<Comparable> am = new ArrayList<Comparable>();
-		ArrayList<Comparable> ad = new ArrayList<Comparable>();
-		ArrayList<Comparable[]> ar2 = new ArrayList<Comparable[]>(); // will store 2 element result sets map range
-		ArrayList<Comparable[]> ar2dr = new ArrayList<Comparable[]>(); // will store 2 element result sets domain range
-		ArrayList<Comparable[]> ar2dm = new ArrayList<Comparable[]>(); // will store 2 element result sets domain map
-		ArrayList<Comparable[]> ar3 = new ArrayList<Comparable[]>(); // will store 3 element result sets
+		ArrayList<Result> ar = new ArrayList<Result>();
 	
 		System.out.println("Wildcard queries. Will store samplesize of "+SAMPLESIZE+" for subsequent tests.");
 		recs = 0;
@@ -108,61 +102,15 @@ public class EmbeddedStreamRetrievalBattery {
 		Relatrix.findStream('*', '*', '*').parallel().forEach(e->{
 			System.out.println(++recs+"="+e);
 			if(ar.size() < SAMPLESIZE  ) 
-				ar.add(((Result)e).get());
+				ar.add((Result)e);
 		});
-		recs = 0;
-		System.out.println("3.) findStream(*,*,*)...");		
-		Relatrix.findStream('*', '*', '*').parallel().forEach(e->{
-			System.out.println(++recs+"="+e);
-			if(am.size() < SAMPLESIZE ) 
-				am.add(((Result)e).get());
-		});
-		recs = 0;
-		System.out.println("4.) findStream(?,*,*)...");		
-		Relatrix.findStream('*', '*', '*').parallel().forEach(e->{
-			System.out.println(++recs+"="+e);
-			if(ad.size() < SAMPLESIZE) 
-				ad.add(((Result)e).get());
-		});
-		recs=0;
-		System.out.println("5.) findStream(*,*,*)...");		
-		Relatrix.findStream('*', '*', '*').parallel().forEach(e->{
-			Comparable[] c = ((Result)e).toArray();
-			System.out.println(++recs+"="+e);
-			if(ar2.size() < SAMPLESIZE) 
-				ar2.add(c);
-		});
-		recs = 0;
-		System.out.println("6.) findStream(?,*,*)...");		
-		Relatrix.findStream('*', '*', '*').parallel().forEach(e->{
-			Comparable[] c = ((Result)e).toArray();
-			System.out.println(++recs+"="+c[0]+" --- "+c[1]);
-			if(ar2dr.size() < SAMPLESIZE) 
-				ar2dr.add(c);
-		});
-		recs = 0;
-		System.out.println("7.) findStream(?,*,*)...");		
-		Relatrix.findStream('*', '*', '*').parallel().forEach(e->{
-			Comparable[] c = ((Result)e).toArray();
-			System.out.println(++recs+"="+c[0]+" --- "+c[1]);
-			if(ar2dm.size() < SAMPLESIZE) 
-				ar2dm.add(c);
-		});
-		recs = 0;
-		System.out.println("8.) findStream(?,*,*)...");		
-		Relatrix.findStream('*', '*', '*').parallel().forEach(e->{
-			Comparable[] c = ((Result)e).toArray();
-			System.out.println(++recs+"="+c[0]+" --- "+c[1]+" --- "+c[2]);
-			if(ar3.size() < SAMPLESIZE) 
-				ar3.add(c);
-		});
-		
+	
 		System.out.println("Above are all the wildcard permutations. Now retrieve those with object references using the results");
 		System.out.println("3 object instances:");
-		for(int j = 0; j < ar3.size(); j++) {
+		for(int j = 0; j < ar.size(); j++) {
 			recs = 0;
-			System.out.println("9."+j+") findStream(<obj>,<obj>,<obj>) using domain="+ar3.get(j)[0]+" map="+ar3.get(j)[1]+" range="+ar3.get(j)[2]);
-			Relatrix.findStream(ar3.get(j)[0], ar3.get(j)[1], ar3.get(j)[2]).parallel().forEach(e->{
+			System.out.println("9."+j+") findStream(<obj>,<obj>,<obj>) using domain="+((Result)ar.get(j)).getDomain()+" map="+((Result)ar.get(j)).getMap()+" range="+((Result)ar.get(j)).getRange());
+			Relatrix.findStream(((Result)ar.get(j)).getDomain(), ((Result)ar.get(j)).getMap(), ((Result)ar.get(j)).getRange()).parallel().forEach(e->{
 				System.out.println(++recs+"="+e);
 			});
 		}
@@ -170,75 +118,75 @@ public class EmbeddedStreamRetrievalBattery {
 		System.out.println("1 object instance with wildcards:");
 		for(int j = 0; j < ar.size(); j++) {
 			recs = 0;
-			System.out.println("10."+j+") findStream(*,*,<obj>) using range="+ar.get(j));		
-			Relatrix.findStream('*', '*', ar.get(j)).parallel().forEach(e->{
+			System.out.println("10."+j+") findStream(*,*,<obj>) using range="+ar.get(j).getRange());		
+			Relatrix.findStream('*', '*', ar.get(j).getRange()).parallel().forEach(e->{
 				System.out.println(++recs+"="+e);
 			});
 			recs = 0;
-			System.out.println("11."+j+") findStream(*,<obj>,*) using map="+am.get(j));		
-			Relatrix.findStream('*', am.get(j), '*').parallel().forEach(e->{
+			System.out.println("11."+j+") findStream(*,<obj>,*) using map="+ar.get(j).getMap());		
+			Relatrix.findStream('*', ar.get(j).getMap(), '*').parallel().forEach(e->{
 				System.out.println(++recs+"="+e);
 			});
 			recs = 0;
-			System.out.println("12."+j+") findStream(<obj>,*,*) using domain="+ad.get(j));		
-			Relatrix.findStream(ad.get(j), '*', '*').parallel().forEach(e->{
+			System.out.println("12."+j+") findStream(<obj>,*,*) using domain="+ar.get(j).getDomain());		
+			Relatrix.findStream(ar.get(j).getDomain(), '*', '*').parallel().forEach(e->{
 				System.out.println(++recs+"="+e);
 			});
 		}
 		System.out.println("----------");
 		System.out.println("2 object instances with wildcards:");
-		for(int j = 0; j < ar2.size(); j++) {
+		for(int j = 0; j < ar.size(); j++) {
 			recs = 0;
-			System.out.println("13."+j+") findStream(*,<obj>,<obj>) using map="+ar2.get(j)[0]+" range="+ar2.get(j)[1]);		
-			Relatrix.findStream('*', ar2.get(j)[0], ar2.get(j)[1]).parallel().forEach(e->{
+			System.out.println("13."+j+") findStream(*,<obj>,<obj>) using map="+ar.get(j).getDomain()+" range="+ar.get(j).getMap());		
+			Relatrix.findStream('*', ar.get(j).getDomain(), ar.get(j).getMap()).parallel().forEach(e->{
 				System.out.println(++recs+"="+e);
 			});
 			recs = 0;
-			System.out.println("14."+j+") findStream(<obj>,*,<obj>) using domain="+ar2dr.get(j)[0]+" range="+ar2dr.get(j)[1]);		
-			Relatrix.findStream(ar2dr.get(j)[0], '*', ar2dr.get(j)[1]).parallel().forEach(e->{
+			System.out.println("14."+j+") findStream(<obj>,*,<obj>) using domain="+ar.get(j).getDomain()+" range="+ar.get(j).getMap());		
+			Relatrix.findStream(ar.get(j).getDomain(), '*', ar.get(j).getMap()).parallel().forEach(e->{
 				System.out.println(++recs+"="+e);
 			});
 			recs = 0;
-			System.out.println("15."+j+") findStream(<obj>,<obj>,*) using domain="+ar2dm.get(j)[0]+" map="+ar2dm.get(j)[1]);		
-			Relatrix.findStream(ar2dm.get(j)[0], ar2dm.get(j)[1], '*').parallel().forEach(e->{
+			System.out.println("15."+j+") findStream(<obj>,<obj>,*) using domain="+ar.get(j).getDomain()+" map="+ar.get(j).getMap());		
+			Relatrix.findStream(ar.get(j).getDomain(), ar.get(j).getMap(), '*').parallel().forEach(e->{
 				System.out.println(++recs+"="+e);
 			});
 		}
 		recs = 0;
 		System.out.println("----------");
-		System.out.println("1 object instance with 2 returns:");
+		System.out.println("1 object instance with 2 wildcard");
 		for(int j = 0; j < ar.size(); j++) {
-			System.out.println("16."+j+") findStream(?,*,<obj>) using range="+ar.get(j));		
-			Relatrix.findStream('*', '*', ar.get(j)).parallel().forEach(e->{
+			System.out.println("16."+j+") findStream(*,*,<obj>) using range="+ar.get(j).getRange());		
+			Relatrix.findStream('*', '*', ar.get(j).getRange()).parallel().forEach(e->{
 				System.out.println(++recs+"="+e);
 			});
 			recs =0;
-			System.out.println("17."+j+") findStream(?,<obj>,*) using map="+am.get(j));		
-			Relatrix.findStream('*', am.get(j), '*').parallel().forEach(e->{
+			System.out.println("17."+j+") findStream(*,<obj>,*) using map="+ar.get(j).getMap());		
+			Relatrix.findStream('*', ar.get(j).getMap(), '*').parallel().forEach(e->{
 				System.out.println(++recs+"="+e);
 			});
 			recs =0;
-			System.out.println("18."+j+") findStream(<obj>,*,*) using domain="+ad.get(j));		
-			Relatrix.findStream(ad.get(j), '*', '*').parallel().forEach(e->{
+			System.out.println("18."+j+") findStream(<obj>,*,*) using domain="+ar.get(j).getDomain());		
+			Relatrix.findStream(ar.get(j).getDomain(), '*', '*').parallel().forEach(e->{
 				System.out.println(++recs+"="+e);
 			});
 		}
 		System.out.println("----------");
-		System.out.println("2 object instances with 1 return:");
-		for(int j = 0; j < ar2.size(); j++) {
+		System.out.println("2 object instances with 1 wildcard:");
+		for(int j = 0; j < ar.size(); j++) {
 			recs = 0;
-			System.out.println("19."+j+") findStream(?,<obj>,<obj>) using map="+ar2.get(j)[0]+" range="+ar2.get(j)[1]);		
-			Relatrix.findStream('*', ar2.get(j)[0], ar2.get(j)[1]).parallel().forEach(e->{
+			System.out.println("19."+j+") findStream(?,<obj>,<obj>) using map="+ar.get(j).getDomain()+" range="+ar.get(j).getMap());		
+			Relatrix.findStream('*', ar.get(j).getDomain(), ar.get(j).getMap()).parallel().forEach(e->{
 				System.out.println(++recs+"="+e);
 			});
 			recs = 0;
-			System.out.println("20."+j+") findStream(<obj>,*,<obj>) using domain="+ar2dr.get(j)[0]+" range="+ ar2dr.get(j)[1]);		
-			Relatrix.findStream(ar2dr.get(j)[0], '*', ar2dr.get(j)[1]).parallel().forEach(e->{
+			System.out.println("20."+j+") findStream(<obj>,*,<obj>) using domain="+ar.get(j).getDomain()+" range="+ ar.get(j).getMap());		
+			Relatrix.findStream(ar.get(j).getDomain(), '*', ar.get(j).getMap()).parallel().forEach(e->{
 				System.out.println(++recs+"="+e);
 			});
 			recs = 0;
-			System.out.println("21."+j+") findStream(<obj>,<obj>,*) using domain="+ar2dm.get(j)[0]+" map="+ar2dm.get(j)[1]);		
-			Relatrix.findStream(ar2dm.get(j)[0], ar2dm.get(j)[1], '*').parallel().forEach(e->{
+			System.out.println("21."+j+") findStream(<obj>,<obj>,*) using domain="+ar.get(j).getDomain()+" map="+ar.get(j).getMap());		
+			Relatrix.findStream(ar.get(j).getDomain(), ar.get(j).getMap(), '*').parallel().forEach(e->{
 				System.out.println(++recs+"="+e);
 			});
 		}
