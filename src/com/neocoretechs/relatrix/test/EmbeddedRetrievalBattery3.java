@@ -113,7 +113,7 @@ public class EmbeddedRetrievalBattery3 {
 			int recs = 0;
 			// this list will store an object used to test subsequent queries where a named object is needed
 			// it will be extracted from the wildcard queries
-			ArrayList<Comparable> ar = new ArrayList<Comparable>();
+			ArrayList<Result> ar = new ArrayList<Result>();
 
 			Iterator<?> it = null;
 			System.out.println("Wildcard queries:");
@@ -258,7 +258,7 @@ public class EmbeddedRetrievalBattery3 {
 					displayCtrl();
 					if(DISPLAY || DISPLAYALL)
 						System.out.println(displayLine+"="+c);
-					//if(ar2.size() == 1) ar2.add(c);
+					//if(ar.size() == 1) ar2.add(c);
 				}
 			}
 			System.out.println("---------");

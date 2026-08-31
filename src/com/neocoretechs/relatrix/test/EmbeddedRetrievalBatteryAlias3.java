@@ -139,7 +139,7 @@ public class EmbeddedRetrievalBatteryAlias3 {
 		long tims = System.currentTimeMillis();
 		// this list will store an object used to test subsequent queries where a named object is needed
 		// it will be extracted from the wildcard queries
-		ArrayList<Comparable> ar = new ArrayList<Comparable>();
+		ArrayList<Result> ar = new ArrayList<Result>();
 
 		Iterator<?> it = null;
 		System.out.println("Wildcard queries:");

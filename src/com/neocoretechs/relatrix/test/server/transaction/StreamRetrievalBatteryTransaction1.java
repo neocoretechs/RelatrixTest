@@ -201,7 +201,7 @@ public class StreamRetrievalBatteryTransaction1 {
 					displayCtrl();
 					if(DISPLAY)
 						System.out.println("(6."+j+" of "+ar.size()+") "+displayLine+"="+c);
-					//if(ar2.size() == 0) ar2.add(c);
+					//if(ar.size() == 0) ar2.add(c);
 				});
 			}
 			for(j = 0; j < ar.size(); j++) {
@@ -217,7 +217,7 @@ public class StreamRetrievalBatteryTransaction1 {
 					displayCtrl();
 					if(DISPLAY)
 						System.out.println("(7."+j+" of "+ar.size()+") "+displayLine+"="+c);
-					//if(ar2.size() == 1) ar2.add(c);
+					//if(ar.size() == 1) ar2.add(c);
 				});
 			}
 			for(j = 0; j < ar.size(); j++) {
@@ -232,7 +232,7 @@ public class StreamRetrievalBatteryTransaction1 {
 					displayCtrl();
 					if(DISPLAY)
 						System.out.println("(8."+j+" of "+ar.size()+") "+displayLine+"="+c);
-					//if(ar2.size() == 2) ar2.add(c);
+					//if(ar.size() == 2) ar2.add(c);
 				});
 			}
 			//

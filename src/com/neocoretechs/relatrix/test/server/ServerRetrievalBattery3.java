@@ -186,7 +186,7 @@ public class ServerRetrievalBattery3 {
 					displayCtrl();
 					if(DISPLAY)
 						System.out.println(displayLine+"="+c);
-					//if(ar2.size() == 0) ar2.add(c);
+					//if(ar.size() == 0) ar2.add(c);
 				}
 				displayLine = 0;
 				System.out.println("7.) findTailSet(<obj>,*,<obj>,String.class) using domain="+arel[0]+", range="+arel[2]);	
@@ -200,7 +200,7 @@ public class ServerRetrievalBattery3 {
 					displayCtrl();
 					if(DISPLAY)
 						System.out.println(displayLine+"="+c);
-					//if(ar2.size() == 1) ar2.add(c);
+					//if(ar.size() == 1) ar2.add(c);
 				}
 				displayLine =0;
 				System.out.println("8.) findTailSet(<obj>,<obj>,*, Long.class) using domain="+arel[0]+", map="+arel[1]);
@@ -214,7 +214,7 @@ public class ServerRetrievalBattery3 {
 					displayCtrl();
 					if(DISPLAY)
 						System.out.println(displayLine+"="+c);
-					//if(ar2.size() == 2) ar2.add(c);
+					//if(ar.size() == 2) ar2.add(c);
 				}
 			}
 			//
