@@ -1,8 +1,12 @@
 package com.neocoretechs.relatrix.test.kv.json;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 
@@ -11,10 +15,11 @@ import org.json.JSONObject;
 import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.RelatrixJson;
 import com.neocoretechs.relatrix.RelatrixKVJson;
-
+import com.neocoretechs.relatrix.client.json.util.Converter;
 import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.parallel.ExecutionContextHolder;
 import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
+import com.neocoretechs.rocksack.iterator.KeyValuePair;
 
 
 /**
@@ -37,8 +42,8 @@ public class BatteryDBKeyCombo {
 	static int numDelete = 100; // for delete test
 	static int i;
 
-	static ArrayList<Comparable> findkeys = new ArrayList<Comparable>();
-	static ArrayList<Comparable> findkeysq = new ArrayList<Comparable>();
+	static TreeSet<Comparable<?>> findkeys = new TreeSet<Comparable<?>>();
+	static TreeSet<Comparable<String>> findkeysq = new TreeSet<Comparable<String>>();
 	/**
 	* Main test fixture driver
 	*/
@@ -89,7 +94,7 @@ public class BatteryDBKeyCombo {
 		for(int i = min; i < max; i++) {
 			try {
 				RelatrixKVJson.store(jo, i);
-				RelatrixKVJson.store(jo.toString(), i);
+				RelatrixKVJson.store(Converter.normalizeJson(jo), i);
 				long tim = jo.getLong("timestamp");
 				++tim;
 				jo.put("timestamp",tim);
@@ -113,55 +118,77 @@ public class BatteryDBKeyCombo {
 		// set up previous key as first key, insert to key map
 		Object o =  RelatrixKVJson.firstKey(c);
 		Comparable prev = (Comparable) o;
-		System.out.println(o);
+		System.out.println("First key morphic:"+o+" - "+RelatrixKVJson.getData((Comparable) o));
 		Object p = RelatrixKVJson.lastKey(c);
-		System.out.println(p);
+		System.out.println("Lasy key morphic:"+p+" - "+RelatrixKVJson.getData((Comparable) p));
 		Object q =  RelatrixKVJson.firstKey(cx);
 		Comparable prevq = (Comparable) q;
-		System.out.println(q);
+		System.out.println("First key String:"+q+" class:"+q.getClass().getName());
 		Object r = RelatrixKVJson.lastKey(cx);
-		System.out.println(r);
+		System.out.println("Last key String:"+r+" class:"+r.getClass().getName());
+		System.out.println("size morphic:"+siz+", size String:"+siz2);
 		Iterator<?> its = RelatrixKVJson.findTailMapKV((Comparable<?>) o);
+		Iterator<?> itsx = RelatrixKVJson.findTailMapKV((Comparable<?>) q);
 		System.out.println("KV Battery1AR4");
+		i = 0;
 		while(its.hasNext()) {
 			Map.Entry<Comparable,Object> nex = (Map.Entry<Comparable,Object>) its.next();
-			findkeys.add(nex.getKey());
+			if(!findkeys.add(nex.getKey()))
+				throw new Exception("Key previously inserted to findkeys TreeSet:"+nex.getKey());
 			if(((Comparable)o).compareTo(nex.getKey()) != 0 && nex.getKey().compareTo(prev) <= 0) { // should always be >
 			// Map.Entry
 				System.out.println("KV RANGE KEY MISMATCH: prev:"+prev+" nex:"+nex.getKey()+" cmpr:"+nex.getKey().compareTo(prev));
 				throw new Exception("KV RANGE KEY MISMATCH: prev:"+prev+" nex:"+nex.getKey()+" cmpr:"+nex.getKey().compareTo(prev));
 			}
 			prev = nex.getKey();
+			Map.Entry<Comparable,Object> nexq = (Map.Entry<Comparable,Object>) itsx.next();
+			if(!findkeysq.add(nexq.getKey()))
+				throw new Exception("Key previously inserted to findkeysq TreeSet:"+nexq.getKey());
+			if(((Comparable)q).compareTo(nexq.getKey()) != 0 && nexq.getKey().compareTo(prevq) <= 0) { // should always be >
+			// Map.Entry
+				System.out.println("KV RANGE KEY MISMATCH: prev:"+prevq+" nex:"+nexq.getKey()+" cmpr:"+nexq.getKey().compareTo(prevq));
+				throw new Exception("KV RANGE KEY MISMATCH: prev:"+prevq+" nex:"+nexq.getKey()+" cmpr:"+nexq.getKey().compareTo(prevq));
+			}
+			if(((Comparable)RelatrixKVJson.getData(nex.getKey())).compareTo(nexq.getKey()) != 0) { // compate the 2 iterations from the 2 DB's
+				// Map.Entry
+					System.out.println("KV KEY MISMATCH: morphic:"+RelatrixKVJson.getData(nex.getKey())+" string:"+nexq.getKey()+" at iteration "+i);
+					throw new Exception("KV KEY MISMATCH: morphic:"+RelatrixKVJson.getData(nex.getKey())+" string:"+nexq.getKey()+" at iteration "+i);
+				}
+			prevq = nexq.getKey();
+			++i;
+		}
+		if(i != siz || i != findkeys.size()) {
+			System.out.println("KV SIZE MISMATCH morphic db size:"+siz+" to array size:"+findkeys.size()+" to iteration:"+i);
+			throw new Exception("KV SIZE MISMATCH morphic db size:"+siz+" to array size:"+findkeys.size()+" to iteration:"+i);
 		}
 		if(findkeys.size() != siz) {
-			System.out.println("KV SIZE MISMATCH "+siz+" to "+findkeys.size());
-			throw new Exception("KV SIZE MISMATCH "+siz+" to "+findkeys.size());
+			System.out.println("KV SIZE MISMATCH db:"+siz+" to array:"+findkeys.size());
+			throw new Exception("KV SIZE MISMATCH db:"+siz+" to array:"+findkeys.size());
 		}
-		if(((Comparable)o).compareTo(findkeys.get(0)) != 0 || ((Comparable)p).compareTo(findkeys.get(findkeys.size()-1)) != 0) {
-			System.out.println("KEY 0 MISMATCH "+o+" to "+findkeys.get(0)+" or "+p+" to "+findkeys.get(findkeys.size()-1));
-			throw new Exception("KEY 0 MISMATCH "+o+" to "+findkeys.get(0)+" or "+p+" to "+findkeys.get(findkeys.size()-1));
+		if(((Comparable)o).compareTo(findkeys.first()) != 0 || ((Comparable)p).compareTo(findkeys.last()) != 0) {
+			System.out.println("KEY 0 MISMATCH "+o+" to "+findkeys.first()+" or "+p+" to "+findkeys.last());
+			throw new Exception("KEY 0 MISMATCH "+o+" to "+findkeys.first()+" or "+p+" to "+findkeys.last());
 		}
 		//--
-		its = RelatrixKVJson.findTailMapKV((Comparable<?>) q);
-		while(its.hasNext()) {
-			Map.Entry<Comparable,Object> nex = (Map.Entry<Comparable,Object>) its.next();
-			findkeysq.add(nex.getKey());
-			if(((Comparable)q).compareTo(nex.getKey()) != 0 && nex.getKey().compareTo(prevq) <= 0) { // should always be >
-			// Map.Entry
-				System.out.println("KV RANGE KEY MISMATCH: prev:"+prevq+" nex:"+nex.getKey()+" cmpr:"+nex.getKey().compareTo(prevq));
-				throw new Exception("KV RANGE KEY MISMATCH: prev:"+prevq+" nex:"+nex.getKey()+" cmpr:"+nex.getKey().compareTo(prevq));
-			}
-			prevq = nex.getKey();
+		if(i != siz2 || i != findkeysq.size()) {
+			System.out.println("KV SIZE MISMATCH morphic db size:"+siz+" to array size:"+findkeys.size()+" to iteration:"+i);
+			throw new Exception("KV SIZE MISMATCH morphic db size:"+siz+" to array size:"+findkeys.size()+" to iteration:"+i);
 		}
-		if(findkeysq.size() != siz) {
-			System.out.println("KV SIZE MISMATCH "+siz+" to "+findkeysq.size());
-			throw new Exception("KV SIZE MISMATCH "+siz+" to "+findkeysq.size());
+		if(findkeysq.size() != siz || siz2 != siz) {
+			System.out.println("KV SIZE MISMATCH morphic db size:"+siz+" to string size:"+siz2+" to string array:"+findkeysq.size());
+			throw new Exception("KV SIZE MISMATCH morphic db size:"+siz+" to string size:"+siz2+" to string array:"+findkeysq.size());
 		}
-		if(((Comparable)q).compareTo(findkeysq.get(0)) != 0 || ((Comparable)r).compareTo(findkeysq.get(findkeysq.size()-1)) != 0) {
-			System.out.println("KEY 0 MISMATCH "+q+" to "+findkeysq.get(0)+" or "+r+" to "+findkeysq.get(findkeysq.size()-1));
-			throw new Exception("KEY 0 MISMATCH "+q+" to "+findkeysq.get(0)+" or "+r+" to "+findkeysq.get(findkeysq.size()-1));
+		if(((Comparable)q).compareTo(findkeysq.first()) != 0 || ((Comparable)r).compareTo(findkeysq.last()) != 0) {
+			System.out.println("KEY 0 MISMATCH "+q+" to "+findkeysq.first()+" or "+r+" to "+findkeysq.last());
+			throw new Exception("KEY 0 MISMATCH "+q+" to "+findkeysq.first()+" or "+r+" to "+findkeysq.last());
 		}
-		 System.out.println("BATTERY1AR4 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
+		for(Comparable cc: findkeys) {
+			String hx = RelatrixKVJson.getData(cc);
+			SortedSet<Comparable<String>> ss = findkeysq.tailSet(hx);
+			if(ss.first().compareTo(hx) != 0)
+				throw new Exception("Cannot locate morphic value in string table:"+hx+" from tailset:"+ss.first());
+		}
+		System.out.println("BATTERY1AR4 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 
 	/**
@@ -178,55 +205,34 @@ public class BatteryDBKeyCombo {
 		//Comparable<?> jto = RelatrixKVJson.getObject(jo75k);
 		Iterator<?> its = RelatrixKVJson.findSubMap(jo, jo75k);
 		Iterator<?> itst = RelatrixKVJson.getStringIterator(its);
+		Iterator<?> itsx = RelatrixKVJson.findSubMap(Converter.normalizeJson(jo), Converter.normalizeJson(jo75k));
 		System.out.println("KV Battery1AR7");
 		System.out.println("=============== String Submap Iterator ======================");
 		while(itst.hasNext()) {
 			Object y = itst.next();
+			Object yy = itsx.next();
+			if(((Comparable)y).compareTo((String) yy) != 0)
+				throw new Exception("Mismatch in iterator values:"+y+" and "+yy);
 			++i;
 			System.out.println(i+".) "+y);
-		}
-		if( i != max ) {
-			System.out.println("KV BATTERY1AR7 unexpected number of keys "+i);
-			throw new Exception("KV BATTERY1AR7 unexpected number of keys "+i);
-		}
-		i = min;
-		its = RelatrixKVJson.findSubMap(jo.toString(), jo75k.toString());
-		System.out.println("KV Battery1AR7x");
-		System.out.println("=============== String Submap Iterator ======================");
-		while(its.hasNext()) {
-			Object y = its.next();
-			++i;
-			System.out.println(i+".) "+y);
-		}
-		if( i != max ) {
-			System.out.println("KV BATTERY1AR7x unexpected number of keys "+i);
-			throw new Exception("KV BATTERY1AR7x unexpected number of keys "+i);
 		}
 		System.out.println("=============== String Submap K/V Iterator ======================");
 		i = 0;
-		//its = RelatrixKVJson.findSubMapKV(jkey, jto);
 		its = RelatrixKVJson.findSubMapKV(jo, jo75k);
-		itst = RelatrixKVJson.getStringMapIterator(its);
+		itst = RelatrixKVJson.getStringMapIterator(its); // transform into a string key map iterator
+		itsx = RelatrixKVJson.findSubMapKV(Converter.normalizeJson(jo), Converter.normalizeJson(jo75k)); // KeyValuePair iterator
 		while(itst.hasNext()) {
 			Object y = itst.next();
+			Object yy = itsx.next();
+			KeyValuePair kvp = (KeyValuePair)yy;
+			if(((String)(((Map.Entry)y).getKey())).compareTo((String)kvp.getKey()) != 0)
+				throw new Exception("Mismatch in iterator values:"+y+" and "+yy);
 			++i;
 			System.out.println(i+".) "+y);
 		}
 		if( i != max ) {
 			System.out.println("KV BATTERY1AR7 unexpected number of keys "+i);
 			throw new Exception("KV BATTERY1AR7 unexpected number of keys "+i);
-		}
-		i = 0;
-		//its = RelatrixKVJson.findSubMapKV(jkey, jto);
-		its = RelatrixKVJson.findSubMapKV(jo.toString(), jo75k.toString());
-		while(its.hasNext()) {
-			Object y = its.next();
-			++i;
-			System.out.println(i+".) "+y);
-		}
-		if( i != max ) {
-			System.out.println("KV BATTERY1AR7x unexpected number of keys "+i);
-			throw new Exception("KV BATTERY1AR7x unexpected number of keys "+i);
 		}
 		System.out.println("=============== JSONObject Submap Iterator ======================");
 		i = 0;
@@ -244,7 +250,7 @@ public class BatteryDBKeyCombo {
 		}
 		i = 0;
 		//its = RelatrixKVJson.findSubMap(jkey, jto);
-		its = RelatrixKVJson.findSubMap(jo.toString(), jo75k.toString());
+		its = RelatrixKVJson.findSubMap(Converter.normalizeJson(jo), Converter.normalizeJson(jo75k));
 		while(its.hasNext()) {
 			Object y = its.next();
 			++i;
@@ -266,7 +272,7 @@ public class BatteryDBKeyCombo {
 		}
 		i = 0;
 		//Stream<?> sts = RelatrixKVJson.findSubMapStream(jkey, jto);
-		sts = RelatrixKVJson.findSubMapStream(jo.toString(), jo75k.toString());
+		sts = RelatrixKVJson.findSubMapStream(Converter.normalizeJson(jo), Converter.normalizeJson(jo75k));
 		sts.forEachOrdered(e-> {++i;System.out.println(i+".) "+e);});
 		if( i != max ) {
 			System.out.println("KV BATTERY1AR7x unexpected number of keys "+i);
@@ -284,7 +290,7 @@ public class BatteryDBKeyCombo {
 		}
 		i = 0;
 		//sts = RelatrixKVJson.findSubMapKVStream(jkey, jto);
-		sts = RelatrixKVJson.findSubMapKVStream(jo.toString(), jo75k.toString());
+		sts = RelatrixKVJson.findSubMapKVStream(Converter.normalizeJson(jo), Converter.normalizeJson(jo75k));
 		sts.forEachOrdered(e-> {++i;System.out.println(i+".) "+e);});
 		if( i != max ) {
 			System.out.println("KV BATTERY1AR7x unexpected number of keys "+i);
@@ -302,7 +308,7 @@ public class BatteryDBKeyCombo {
 		}
 		i = 0;
 		//sts = RelatrixKVJson.findSubMapStream(jkey, jto);
-		sts = RelatrixKVJson.findSubMapStream(jo.toString(), jo75k.toString());
+		sts = RelatrixKVJson.findSubMapStream(Converter.normalizeJson(jo), Converter.normalizeJson(jo75k));
 		sts.forEachOrdered(e-> {++i;System.out.println(i+".) "+e);});
 		if( i != max ) {
 			System.out.println("KV BATTERY1AR7x unexpected number of keys "+i);
@@ -321,7 +327,7 @@ public class BatteryDBKeyCombo {
 		System.out.println("KV BATTERY1AR7 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 		i = 0;
 		//sts = RelatrixKVJson.findSubMapKVStream(jkey, jto);
-		sts = RelatrixKVJson.findSubMapKVStream(jo.toString(), jo75k.toString());
+		sts = RelatrixKVJson.findSubMapKVStream(Converter.normalizeJson(jo), Converter.normalizeJson(jo75k));
 		sts.forEachOrdered(e-> {++i;System.out.println(i+".) "+e);});
 		if( i != max ) {
 			System.out.println("KV BATTERY1AR7x unexpected number of keys "+i);
@@ -356,7 +362,7 @@ public class BatteryDBKeyCombo {
 			throw new Exception("KV BATTERY1AR8 unexpected number of keys "+i);
 		}
 		i = 0;
-		its = RelatrixKVJson.findHeadMap(jo.toString());
+		its = RelatrixKVJson.findHeadMap(Converter.normalizeJson(jo));
 		System.out.println("KV Battery1AR8x");
 		System.out.println("=============== String Headmap Iterator ======================");
 		while(its.hasNext()) {
@@ -384,7 +390,7 @@ public class BatteryDBKeyCombo {
 		}
 		i = 0;
 		//its = RelatrixKVJson.findHeadMapKV(jkey);
-		its = RelatrixKVJson.findHeadMapKV(jo.toString());
+		its = RelatrixKVJson.findHeadMapKV(Converter.normalizeJson(jo));
 		while(its.hasNext()) {
 			Object y = its.next();
 			++i;
@@ -410,7 +416,7 @@ public class BatteryDBKeyCombo {
 		}
 		i = 0;
 		//its = RelatrixKVJson.findHeadMap(jkey);
-		its = RelatrixKVJson.findHeadMap(jo.toString());
+		its = RelatrixKVJson.findHeadMap(Converter.normalizeJson(jo));
 		while(its.hasNext()) {
 			Object y = its.next();
 			++i;
@@ -432,7 +438,7 @@ public class BatteryDBKeyCombo {
 		}
 		i = 0;
 		//Stream<?> sts = RelatrixKVJson.findHeadMapStream(jkey);
-		sts = RelatrixKVJson.findHeadMapStream(jo.toString());
+		sts = RelatrixKVJson.findHeadMapStream(Converter.normalizeJson(jo));
 		sts.forEachOrdered(e-> {++i;System.out.println(i+".) "+e);});
 		if( i != max ) {
 			System.out.println("KV BATTERY1AR8x unexpected number of keys "+i);
@@ -450,7 +456,7 @@ public class BatteryDBKeyCombo {
 		}
 		i = 0;
 		//sts = RelatrixKVJson.findHeadMapKVStream(jkey);
-		sts = RelatrixKVJson.findHeadMapKVStream(jo.toString());
+		sts = RelatrixKVJson.findHeadMapKVStream(Converter.normalizeJson(jo));
 		sts.forEachOrdered(e-> {++i;System.out.println(i+".) "+e);});
 		if( i != max ) {
 			System.out.println("KV BATTERY1AR8x unexpected number of keys "+i);
@@ -468,7 +474,7 @@ public class BatteryDBKeyCombo {
 		}
 		i = 0;
 		//sts = RelatrixKVJson.findHeadMapStream(jkey);
-		sts = RelatrixKVJson.findHeadMapStream(jo.toString());
+		sts = RelatrixKVJson.findHeadMapStream(Converter.normalizeJson(jo));
 		sts.forEachOrdered(e-> {++i;System.out.println(i+".) "+e);});
 		if( i != max ) {
 			System.out.println("KV BATTERY1AR8x unexpected number of keys "+i);
@@ -487,7 +493,7 @@ public class BatteryDBKeyCombo {
 		System.out.println("KV BATTERY1AR8 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 		i = 0;
 		//sts = RelatrixKVJson.findHeadMapKVStream(jkey);
-		sts = RelatrixKVJson.findHeadMapKVStream(jo.toString());
+		sts = RelatrixKVJson.findHeadMapKVStream(Converter.normalizeJson(jo));
 		sts.forEachOrdered(e-> {++i;System.out.println(i+".) "+e);});
 		if( i != max ) {
 			System.out.println("KV BATTERY1AR8x unexpected number of keys "+i);
@@ -522,7 +528,7 @@ public class BatteryDBKeyCombo {
 			throw new Exception("KV BATTERY1AR9 unexpected number of keys "+i);
 		}
 		i = 0;
-		its = RelatrixKVJson.findTailMap(jo.toString());
+		its = RelatrixKVJson.findTailMap(Converter.normalizeJson(jo));
 		System.out.println("KV Battery1AR9x");
 		System.out.println("=============== String Tailmap Iterator ======================");
 		while(its.hasNext()) {
@@ -550,7 +556,7 @@ public class BatteryDBKeyCombo {
 		}
 		i = 0;
 		//its = RelatrixKVJson.findTailMapKV(jkey);
-		its = RelatrixKVJson.findTailMapKV(jo.toString());
+		its = RelatrixKVJson.findTailMapKV(Converter.normalizeJson(jo));
 		while(its.hasNext()) {
 			Object y = its.next();
 			++i;
@@ -576,7 +582,7 @@ public class BatteryDBKeyCombo {
 		}
 		i = 0;
 		//its = RelatrixKVJson.findTailMap(jkey);
-		its = RelatrixKVJson.findTailMap(jo.toString());
+		its = RelatrixKVJson.findTailMap(Converter.normalizeJson(jo));
 		while(its.hasNext()) {
 			Object y = its.next();
 			++i;
@@ -598,7 +604,7 @@ public class BatteryDBKeyCombo {
 		}
 		i = 0;
 		//Stream<?> sts = RelatrixKVJson.findTailMapStream(jkey);
-		sts = RelatrixKVJson.findTailMapStream(jo.toString());
+		sts = RelatrixKVJson.findTailMapStream(Converter.normalizeJson(jo));
 		sts.forEachOrdered(e-> {++i;System.out.println(i+".) "+e);});
 		if( i != max ) {
 			System.out.println("KV BATTERY1AR9x unexpected number of keys "+i);
@@ -616,7 +622,7 @@ public class BatteryDBKeyCombo {
 		}
 		i = 0;
 		//sts = RelatrixKVJson.findTailMapKVStream(jkey);
-		sts = RelatrixKVJson.findTailMapKVStream(jo.toString());
+		sts = RelatrixKVJson.findTailMapKVStream(Converter.normalizeJson(jo));
 		sts.forEachOrdered(e-> {++i;System.out.println(i+".) "+e);});
 		if( i != max ) {
 			System.out.println("KV BATTERY1AR9x unexpected number of keys "+i);
@@ -634,7 +640,7 @@ public class BatteryDBKeyCombo {
 		}
 		i = 0;
 		//sts = RelatrixKVJson.findTailMapStream(jkey);
-		sts = RelatrixKVJson.findTailMapStream(jo.toString());
+		sts = RelatrixKVJson.findTailMapStream(Converter.normalizeJson(jo));
 		sts.forEachOrdered(e-> {++i;System.out.println(i+".) "+e);});
 		if( i != max ) {
 			System.out.println("KV BATTERY1AR9x unexpected number of keys "+i);
@@ -653,7 +659,7 @@ public class BatteryDBKeyCombo {
 		System.out.println("KV BATTERY1AR9 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 		i = 0;
 		//sts = RelatrixKVJson.findTailMapKVStream(jkey);
-		sts = RelatrixKVJson.findTailMapKVStream(jo.toString());
+		sts = RelatrixKVJson.findTailMapKVStream(Converter.normalizeJson(jo));
 		sts.forEachOrdered(e-> {++i;System.out.println(i+".) "+e);});
 		if( i != max ) {
 			System.out.println("KV BATTERY1AR9x unexpected number of keys "+i);
@@ -687,7 +693,23 @@ public class BatteryDBKeyCombo {
 				timx = System.currentTimeMillis();
 			}
 		}
-	
+		c = Converter.normalizeJson(jo).getClass();
+		j = min;
+		s = RelatrixKVJson.size(c);
+		System.out.println("Cleaning DB "+c+" of "+s+" elements.");
+		it = RelatrixKVJson.keySet(c);
+		timx = System.currentTimeMillis();
+		i = 0;
+		while(it.hasNext()) {	
+			++i;
+			Object fkey = it.next();
+			System.out.println(i+".) "+fkey);
+			RelatrixKVJson.remove((Comparable) fkey);
+			if((System.currentTimeMillis()-timx) > 5000) {
+				System.out.println("Key "+i+" "+fkey);
+				timx = System.currentTimeMillis();
+			}
+		}
 		long siz = RelatrixKVJson.size(c);
 		if(siz > 0) {
 			Iterator<?> its = RelatrixKVJson.entrySet(c);
