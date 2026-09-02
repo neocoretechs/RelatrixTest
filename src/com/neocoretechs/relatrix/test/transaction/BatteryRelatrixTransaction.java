@@ -182,9 +182,9 @@ public class BatteryRelatrixTransaction {
 			//String skey = key + String.format(uniqKeyFmt, i);
 			//if(!skey.equals(nex[0]) )
 			//System.out.println("DOMAIN KEY MISMATCH:"+(i)+" "+skey+" - "+nex[0]);
-			if(!((String) nex.get(0)).startsWith(key) || !nex.get(1).equals("Has unit") || nex.length() != 3) {
-				System.out.println("MAP KEY MISMATCH:"+(i)+" Has unit - "+nex.get(1)+" length:"+nex.length());
-				throw new Exception("MAP KEY MISMATCH:"+(i)+" Has unit - "+nex.get(1)+" length:"+nex.length());
+			if(!((String) nex.getDomain()).startsWith(key) || !nex.getMap().equals("Has unit")) {
+				System.out.println("MAP KEY MISMATCH:"+(i)+" Has unit - "+nex.getMap());
+				throw new Exception("MAP KEY MISMATCH:"+(i)+" Has unit - "+nex.getMap());
 			}
 			//Long unit = Long.valueOf(i);
 			//if(!nex[2].equals(unit))
@@ -198,7 +198,7 @@ public class BatteryRelatrixTransaction {
 		 System.out.println("BATTERY1AR6 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 	/**
-	 * Testing of Iterator<?> its = Relatrix.findSet("?", "*", "*");
+	 * Testing of Iterator<?> its = Relatrix.findSet("*", "*", "*");
 	 * @param argv
 	 * @param xid2 
 	 * @throws Exception
@@ -212,9 +212,9 @@ public class BatteryRelatrixTransaction {
 			Result nex = (Result) its.next();
 			// one '*' in findset gives us one element returned
 			if(DEBUG ) System.out.println("1AR7:"+i+" "+nex);
-			if(!((String) nex.get(0)).startsWith(key) || nex.length() != 1) {
-				System.out.println("DOMAIN KEY MISMATCH:"+(i)+"  "+nex+" length:"+nex.length());
-				throw new Exception("DOMAIN KEY MISMATCH:"+(i)+"  "+nex+" length:"+nex.length());
+			if(!((String) nex.getDomain()).startsWith(key)) {
+				System.out.println("DOMAIN KEY MISMATCH:"+(i)+"  "+nex);
+				throw new Exception("DOMAIN KEY MISMATCH:"+(i)+"  "+nex);
 			}
 			//String skey = key + String.format(uniqKeyFmt, i);
 			//if(!skey.equals(nex[0]) )
@@ -228,7 +228,7 @@ public class BatteryRelatrixTransaction {
 		 System.out.println("BATTERY1AR7 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 	/**
-	 * Testing of Iterator<?> its = Relatrix.findSet("?", "?", "*");
+	 * Testing of Iterator<?> its = Relatrix.findSet("*", "*", "*");
 	 * @param argv
 	 * @param xid2 
 	 * @throws Exception
@@ -271,10 +271,10 @@ public class BatteryRelatrixTransaction {
 			// the returned array has 1 element, the identity AbstractRelation Relation
 			if( DEBUG ) System.out.println("1AR9:"+i+" "+nex.get(0));
 			//String skey = key + String.format(uniqKeyFmt, i);
-			if(!((String) ((Relation)nex.get(0)).getDomain() ).startsWith(key) )
-				throw new Exception("DOMAIN KEY MISMATCH:"+(i)+" - "+nex.get(0));
+			if(!((String)nex.getDomain() ).startsWith(key) )
+				throw new Exception("DOMAIN KEY MISMATCH:"+(i)+" - "+nex.getDomain());
 			if(!((Relation)nex.get(0)).getMap().equals("Has unit"))
-				throw new Exception("MAP KEY MISMATCH:"+(i)+" Has unit - "+nex.get(0));
+				throw new Exception("MAP KEY MISMATCH:"+(i)+" Has unit - "+nex.getDomain());
 			//Long unit = Long.valueOf(i);
 			//if(!((Relation)nex[0]).getRange().equals(unit))
 				//System.out.println("RANGE KEY MISMATCH:"+(i)+" "+i+" - "+nex[0]);
@@ -307,12 +307,12 @@ public class BatteryRelatrixTransaction {
 			Result nex = (Result) its.next();
 			if( nex.length() != 1)
 				throw new Exception("RETURNED ARRAY TUPLE LENGTH INCORRECT, SHOULD BE 1, is "+nex.length());
-			if(DEBUG) System.out.println("1AR10:"+i+" "+nex.get(0));
+			if(DEBUG) System.out.println("1AR10:"+i+" "+nex.getDomain());
 			String skey = key + String.format(uniqKeyFmt, i);
-			if(!((String) ((Relation)nex.get(0)).getDomain() ).startsWith(skey) )
-				throw new Exception("DOMAIN KEY MISMATCH:"+(i)+" "+skey+" - "+nex.get(0));
-			if(!((Relation)nex.get(0)).getMap().equals("Has unit"))
-				throw new Exception("MAP KEY MISMATCH:"+(i)+" Has unit - "+nex.get(0));
+			if(!((String)nex.getDomain() ).startsWith(skey) )
+				throw new Exception("DOMAIN KEY MISMATCH:"+(i)+" "+skey+" - "+nex.getDomain());
+			if(!nex.getMap().equals("Has unit"))
+				throw new Exception("MAP KEY MISMATCH:"+(i)+" Has unit - "+nex.getMap());
 			//Long unit = Long.valueOf(i);
 			//if(!((Relation)nex[0]).getRange().equals(unit))
 			//	System.out.println("RANGE KEY MISMATCH:"+(i)+" "+i+" - "+nex[0]);
@@ -327,7 +327,6 @@ public class BatteryRelatrixTransaction {
 	/**
 	 * Iterator<?> its = Relatrix.findSet(fkey, "Has unit", Long.valueOf(max));
 	 * Range value is max, so zero keys should be retrieved since we insert 0 to max-1
-	 * @param argv
 	 * @param xid2 
 	 * @throws Exception
 	 */
@@ -346,10 +345,10 @@ public class BatteryRelatrixTransaction {
 				throw new Exception("RETURNED ARRAY TUPLE LENGTH INCORRECT, SHOULD BE 1, is "+nex.length());
 			if(DEBUG) System.out.println("1AR101:"+i+" "+nex.get(0));
 			//String skey = key + String.format(uniqKeyFmt, i);
-			if(!( (String)((Relation)nex.get(0)).getDomain() ).startsWith(key) )
-				throw new Exception("DOMAIN KEY MISMATCH:"+(i)+" "+key+" - "+nex.get(0));
-			if(!((Relation)nex.get(0)).getMap().equals("Has unit"))
-				throw new Exception("MAP KEY MISMATCH:"+(i)+" Has unit - "+nex.get(0));
+			if(!( (String)nex.getDomain() ).startsWith(key) )
+				throw new Exception("DOMAIN KEY MISMATCH:"+(i)+" "+key+" - "+nex.getDomain());
+			if(!nex.getMap().equals("Has unit"))
+				throw new Exception("MAP KEY MISMATCH:"+(i)+" Has unit - "+nex.getMap());
 			//Long unit = Long.valueOf(i);
 			//if(!((Relation)nex[0]).getRange().equals(unit))
 				//System.out.println("RANGE KEY MISMATCH:"+(i)+" "+i+" - "+nex[0]);

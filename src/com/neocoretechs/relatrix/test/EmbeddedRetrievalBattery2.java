@@ -3,6 +3,7 @@ package com.neocoretechs.relatrix.test;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import com.neocoretechs.relatrix.Relation;
 import com.neocoretechs.relatrix.DomainRangeMap;
@@ -15,7 +16,7 @@ import com.neocoretechs.relatrix.RangeMapDomain;
 import com.neocoretechs.relatrix.Relatrix;
 import com.neocoretechs.relatrix.RelatrixKV;
 import com.neocoretechs.relatrix.Result;
-
+import com.neocoretechs.relatrix.AbstractRelation.displayLevels;
 import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.parallel.ExecutionContextHolder;
 import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
@@ -50,13 +51,24 @@ public class EmbeddedRetrievalBattery2 {
 		ScopedValue.where(ExecutionContextHolder.CONTEXT, pec).run(() -> {
 			try {
 				Relatrix.getInstance();
+					Relatrix.getInstance();
+					AbstractRelation.displayLevel = displayLevels.VERBOSE;
+					if(argv.length > 0 && argv[0].equals("max")) {
+						System.out.println("Setting max items to "+argv[1]);
+						max = Integer.parseInt(argv[1]);
+					} else {
+						if(argv.length > 0 && argv[0].equals("init")) {
+							System.out.println("Initialize database to zero items, then terminate...");
+							battery1AR17();
+							System.exit(0);
+						}
+					}
+					if(Relatrix.size() == 0) {
+						if(DEBUG)
+							System.out.println("Zero items, Begin insertion from "+min+" to "+max);
+						battery0();
+					}
 				AbstractRelation.displayLevel = AbstractRelation.displayLevels.VERBOSE;
-				if(argv.length == 1 && argv[0].equals("init")) {
-					battery1AR17();
-				}
-				if(Relatrix.size() == 0) {
-					battery0();
-				}
 				battery1();
 			} catch (Exception e) {
 				e.printStackTrace();
