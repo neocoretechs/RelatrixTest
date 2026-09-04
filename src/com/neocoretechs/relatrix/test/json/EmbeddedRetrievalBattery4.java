@@ -176,7 +176,7 @@ public class EmbeddedRetrievalBattery4 {
 		}
 		// return range, domainclass, mapclass, range lo/hi, use it to build our one-element ar range sample array for later
 		displayLine = 0;
-		System.out.println("2.) findSubSet(*,*,?,"+xClass+","+ xfClass+","+ x50klo+","+ x50khi+")");
+		System.out.println("2.) findSubSet(*,*,*,"+xClass+","+ xfClass+","+ x50klo+","+ x50khi+")");
 		it = RelatrixJson.findSubSet('*', '*', '*',xClass, xfClass, RelatrixKVJson.getObject(xo50lo), RelatrixKVJson.getObject(xo50hi));
 		while(it.hasNext()) {
 			Object o = it.next();
@@ -189,7 +189,7 @@ public class EmbeddedRetrievalBattery4 {
 		}
 		// return map, domainclass, mapclass, range lo/hi, use it to build our one-element am map sample array for later
 		displayLine = 0;
-		System.out.println("3.) findSubSet(*,?,*,"+xClass+","+ xflo+","+ xfhi+","+x50Class+")");
+		System.out.println("3.) findSubSet(*,*,*,"+xClass+","+ xflo+","+ xfhi+","+x50Class+")");
 		it = RelatrixJson.findSubSet('*', '*', '*',xClass, RelatrixKVJson.getObject(xflo), RelatrixKVJson.getObject(xfhi), x50Class);
 		while(it.hasNext()) {
 			Object o = it.next();
@@ -202,7 +202,7 @@ public class EmbeddedRetrievalBattery4 {
 		}
 		// return domain, mapclass, rangeclass, domain lo/hi, use it to build our one-element ad domain sample array for later
 		displayLine = 0;
-		System.out.println("4.) findSubSet(?,*,*,"+xlo+","+xhi+","+ xfClass+","+x50Class+")");
+		System.out.println("4.) findSubSet(*,*,*,"+xlo+","+xhi+","+ xfClass+","+x50Class+")");
 		it = RelatrixJson.findSubSet('*', '*', '*',RelatrixKVJson.getObject(xolo), RelatrixKVJson.getObject(xohi), xfClass, x50Class);
 		while(it.hasNext()) {
 			Object o = it.next();
@@ -215,7 +215,7 @@ public class EmbeddedRetrievalBattery4 {
 		}
 		// return map and range. domainclass, mapclass, range lo/hi to build our two-element ar2 sample array for later
 		displayLine = 0;
-		System.out.println("5.) findSubSet(*,?,?,"+xClass+","+ xfClass+","+ x50klo+","+ x50khi+")");
+		System.out.println("5.) findSubSet(*,*,*,"+xClass+","+ xfClass+","+ x50klo+","+ x50khi+")");
 		it = RelatrixJson.findSubSet('*', '*', '*',xClass, xfClass, RelatrixKVJson.getObject(xo50lo), RelatrixKVJson.getObject(xo50hi));
 		while(it.hasNext()) {
 			Object o = it.next();
@@ -228,7 +228,7 @@ public class EmbeddedRetrievalBattery4 {
 		}
 		// return domain and range. domainclass, mapclass, range lo/hi to build our two-element ar2dr sample array for later
 		displayLine = 0;
-		System.out.println("6.) findSubSet(?,*,?,"+xClass+","+ xfClass+","+ x50klo+","+ x50khi+")");
+		System.out.println("6.) findSubSet(*,*,*,"+xClass+","+ xfClass+","+ x50klo+","+ x50khi+")");
 		it = RelatrixJson.findSubSet('*', '*', '*',xClass, xfClass, RelatrixKVJson.getObject(xo50lo), RelatrixKVJson.getObject(xo50hi));
 		while(it.hasNext()) {
 			Object o = it.next();
@@ -241,7 +241,7 @@ public class EmbeddedRetrievalBattery4 {
 		}
 		// return domain and map. domainclass, mapclass, range lo/hi to build our two-element ar2dm sample array for later
 		displayLine = 0;
-		System.out.println("7.) findSubSet(?,?,*,"+xClass+","+ xfClass+","+ x50klo+","+ x50khi+")");
+		System.out.println("7.) findSubSet(*,*,*,"+xClass+","+ xfClass+","+ x50klo+","+ x50khi+")");
 		it = RelatrixJson.findSubSet('*', '*', '*',xClass, xfClass, RelatrixKVJson.getObject(xo50lo), RelatrixKVJson.getObject(xo50hi));
 		while(it.hasNext()) {
 			Object o = it.next();
@@ -254,7 +254,7 @@ public class EmbeddedRetrievalBattery4 {
 		}
 		// return domain, map, and range, domainclass, mapclass, range lo/hi to build our three-element ar3 sample array for later
 		displayLine = 0;
-		System.out.println("8.) findSubSet(?,?,?,"+xClass+","+ xfClass+","+ x50klo+","+ x50khi+")");
+		System.out.println("8.) findSubSet(*,*,*,"+xClass+","+ xfClass+","+ x50klo+","+ x50khi+")");
 		it = RelatrixJson.findSubSet('*', '*', '*',xClass, xfClass, RelatrixKVJson.getObject(xo50lo), RelatrixKVJson.getObject(xo50hi));
 		while(it.hasNext()) {
 			Object o = it.next();
@@ -364,7 +364,7 @@ public class EmbeddedRetrievalBattery4 {
 		System.out.println("Begin return 2 element Result set from: match 1 object instance, 2 class types");
 		for(int j = 0; j < ar.size(); j++) {
 			displayLine =0;
-			System.out.println("16."+j+") findSubSet(?,?,<obj>,"+xClass+","+xfClass+") using range="+Arrays.toString(RelatrixJson.tupleResolver(((Result)ar.get(j)))));		
+			System.out.println("16."+j+") findSubSet(*,*,<obj>,"+xClass+","+xfClass+") using range="+Arrays.toString(RelatrixJson.tupleResolver(((Result)ar.get(j)))));		
 			it = RelatrixJson.findSubSet('*', '*', ar.get(j).getDomain(), xClass, xfClass);
 			while(it.hasNext()) {
 				Object o = it.next();
@@ -374,7 +374,7 @@ public class EmbeddedRetrievalBattery4 {
 					System.out.println(displayLine+"="+Arrays.toString(RelatrixJson.tupleResolver(c)));
 			}
 			displayLine =0;
-			System.out.println("17."+j+") findSubSet(?,<obj>,?,"+xClass+","+x50Class+") using map="+Arrays.toString(RelatrixJson.tupleResolver(((Result)am.get(j)))));		
+			System.out.println("17."+j+") findSubSet(*,<obj>,*,"+xClass+","+x50Class+") using map="+Arrays.toString(RelatrixJson.tupleResolver(((Result)am.get(j)))));		
 			it = RelatrixJson.findSubSet('*', ar.get(j).getDomain(), '*', xClass, x50Class);
 			while(it.hasNext()) {
 				Object o = it.next();
@@ -384,7 +384,7 @@ public class EmbeddedRetrievalBattery4 {
 					System.out.println(displayLine+"="+Arrays.toString(RelatrixJson.tupleResolver(c)));
 			}
 			displayLine =0;
-			System.out.println("18."+j+") findSubSet(<obj>,?,?,"+xfClass+","+x50Class+") using domain="+Arrays.toString(RelatrixJson.tupleResolver(((Result)ad.get(j)))));		
+			System.out.println("18."+j+") findSubSet(<obj>,*,*,"+xfClass+","+x50Class+") using domain="+Arrays.toString(RelatrixJson.tupleResolver(((Result)ad.get(j)))));		
 			it = RelatrixJson.findSubSet(ar.get(j).getDomain(), '*', '*', xfClass, x50Class);
 			while(it.hasNext()) {
 				Object o = it.next();
@@ -398,7 +398,7 @@ public class EmbeddedRetrievalBattery4 {
 		System.out.println("Begin return 1 element Result set from: match 2 object instance, 1 class type");
 		for(int j = 0; j < ar.size(); j++) {
 			displayLine=0;
-			System.out.println("19."+j+") findSubSet(?,<obj>,<obj>,"+xClass+") using map="+RelatrixKVJson.getData(ar.get(j).getDomain())+" range="+RelatrixKVJson.getData(ar.get(j).getMap()));		
+			System.out.println("19."+j+") findSubSet(*,<obj>,<obj>,"+xClass+") using map="+RelatrixKVJson.getData(ar.get(j).getDomain())+" range="+RelatrixKVJson.getData(ar.get(j).getMap()));		
 			it = RelatrixJson.findSubSet('*', ar.get(j).getDomain(), ar.get(j).getMap(), xClass);
 			while(it.hasNext()) {
 				Object o = it.next();
@@ -408,7 +408,7 @@ public class EmbeddedRetrievalBattery4 {
 					System.out.println(displayLine+"="+Arrays.toString(RelatrixJson.tupleResolver(c)));
 			}
 			displayLine=0;
-			System.out.println("20."+j+") findSubSet(<obj>,?,<obj>,+"+xfClass+") using domain="+RelatrixKVJson.getData(ar.get(j).getDomain())+" range="+ RelatrixKVJson.getData(ar.get(j).getMap()));		
+			System.out.println("20."+j+") findSubSet(<obj>,*,<obj>,+"+xfClass+") using domain="+RelatrixKVJson.getData(ar.get(j).getDomain())+" range="+ RelatrixKVJson.getData(ar.get(j).getMap()));		
 			it = RelatrixJson.findSubSet(ar.get(j).getDomain(), '*', ar.get(j).getMap(), xfClass);
 			while(it.hasNext()) {
 				Object o = it.next();
@@ -418,7 +418,7 @@ public class EmbeddedRetrievalBattery4 {
 					System.out.println(displayLine+"="+Arrays.toString(RelatrixJson.tupleResolver(c)));
 			}
 			displayLine=0;
-			System.out.println("21."+j+") findSubSet(<obj>,<obj>,?,"+x50Class+") using domain="+RelatrixKVJson.getData(ar.get(j).getDomain())+" map="+RelatrixKVJson.getData(ar.get(j).getMap()));		
+			System.out.println("21."+j+") findSubSet(<obj>,<obj>,*,"+x50Class+") using domain="+RelatrixKVJson.getData(ar.get(j).getDomain())+" map="+RelatrixKVJson.getData(ar.get(j).getMap()));		
 			it = RelatrixJson.findSubSet(ar.get(j).getDomain(), ar.get(j).getMap(), '*',x50Class);
 			while(it.hasNext()) {
 				Object o = it.next();
@@ -435,7 +435,7 @@ public class EmbeddedRetrievalBattery4 {
 		System.out.println("Begin hi/lo range testing");
 		for(int j = 0; j < ar2dm.size(); j++) {
 			displayLine =0;
-			System.out.println("22."+j+") findSubSet(*,*,?,<class>,<class>,<obj>,<obj>) using domain="+ar.get(j).getDomain().getClass()+" map="+ar.get(j).getMap().getClass()+
+			System.out.println("22."+j+") findSubSet(*,*,*,<class>,<class>,<obj>,<obj>) using domain="+ar.get(j).getDomain().getClass()+" map="+ar.get(j).getMap().getClass()+
 					" range="+RelatrixKVJson.getData(RelatrixKVJson.getObject(xo50lo))+" to "+ RelatrixKVJson.getData(RelatrixKVJson.getObject(xo50hi)));		
 			it = RelatrixJson.findSubSet('*','*','*',ar.get(j).getDomain().getClass(), ar.get(j).getMap().getClass(),RelatrixKVJson.getObject(xo50lo),RelatrixKVJson.getObject(xo50hi));
 			while(it.hasNext()) {
@@ -451,7 +451,7 @@ public class EmbeddedRetrievalBattery4 {
 			l = xo50hi.getLong("timestamp");
 			l+=increment;
 			xo50hi.put("timestamp", l);
-			System.out.println("23."+j+") findSubSet(?,?,?,<class>,<class>,<obj>,<obj>) using domain="+ar.get(j).getDomain().getClass()+" map="+ar.get(j).getMap().getClass()+
+			System.out.println("23."+j+") findSubSet(*,*,*,<class>,<class>,<obj>,<obj>) using domain="+ar.get(j).getDomain().getClass()+" map="+ar.get(j).getMap().getClass()+
 					" range="+RelatrixKVJson.getData(RelatrixKVJson.getObject(xo50lo))+" to "+ RelatrixKVJson.getData(RelatrixKVJson.getObject(xo50hi)));	
 			it = RelatrixJson.findSubSet('*','*','*',ar.get(j).getDomain().getClass(), ar.get(j).getMap().getClass(),RelatrixKVJson.getObject(xo50lo),RelatrixKVJson.getObject(xo50hi));
 			while(it.hasNext()) {
@@ -467,7 +467,7 @@ public class EmbeddedRetrievalBattery4 {
 			l = xo50hi.getLong("timestamp");
 			l+=increment;
 			xo50hi.put("timestamp", l);
-			System.out.println("24."+j+") findSubSet(?,*,?,<class>,<class>,<obj>,<obj>) using domain="+ar.get(j).getDomain().getClass()+" map="+ar.get(j).getMap().getClass()+
+			System.out.println("24."+j+") findSubSet(*,*,*,<class>,<class>,<obj>,<obj>) using domain="+ar.get(j).getDomain().getClass()+" map="+ar.get(j).getMap().getClass()+
 					" range="+RelatrixKVJson.getData(RelatrixKVJson.getObject(xo50lo))+" to "+ RelatrixKVJson.getData(RelatrixKVJson.getObject(xo50hi)));	
 			it = RelatrixJson.findSubSet('*','*','*',ar.get(j).getDomain().getClass(), ar.get(j).getMap().getClass(),RelatrixKVJson.getObject(xo50lo),RelatrixKVJson.getObject(xo50hi));
 			while(it.hasNext()) {

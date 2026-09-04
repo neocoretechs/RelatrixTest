@@ -158,7 +158,7 @@ public class EmbeddedStreamRetrievalBatteryAlias2 {
 				System.out.println(displayLine+"="+c);
 		});
 		displayLine = 0;
-		System.out.println("2.) findHeadStream("+alias12+",*,*,?,String.class, String.class, Long.class)...");		
+		System.out.println("2.) findHeadStream("+alias12+",*,*,*,String.class, String.class, Long.class)...");		
 		Relatrix.findHeadStream(alias12, '*', '*', '*',String.class, String.class, Long.class).forEach(o->{
 			Result c = (Result)o;
 			displayCtrl();
@@ -169,7 +169,7 @@ public class EmbeddedStreamRetrievalBatteryAlias2 {
 			}
 		});
 		displayLine = 0;
-		System.out.println("3.) findHeadStream("+alias12+",*,?,*,String.class, String.class, Long.class)...");		
+		System.out.println("3.) findHeadStream("+alias12+",*,*,*,String.class, String.class, Long.class)...");		
 		Relatrix.findHeadStream(alias12, '*', '*', '*',String.class, String.class, Long.class).forEach(o->{
 			Result  c = (Result )o;
 			displayCtrl();
@@ -180,7 +180,7 @@ public class EmbeddedStreamRetrievalBatteryAlias2 {
 			}
 		});
 		displayLine = 0;
-		System.out.println("4.) findHeadStream("+alias12+",?,*,*.String.class, String.class, Long.class)...");		
+		System.out.println("4.) findHeadStream("+alias12+",*,*,*.String.class, String.class, Long.class)...");		
 		Relatrix.findHeadStream(alias12, '*', '*', '*',String.class, String.class, Long.class).forEach(o->{
 			Result  c = (Result )o;
 			displayCtrl();
@@ -191,7 +191,7 @@ public class EmbeddedStreamRetrievalBatteryAlias2 {
 			}
 		});
 		displayLine=0;
-		System.out.println("5.) findHeadStream("+alias12+",*,?,?,String.class, String.class, Long.class)...");		
+		System.out.println("5.) findHeadStream("+alias12+",*,*,*,String.class, String.class, Long.class)...");		
 		Relatrix.findHeadStream(alias12, '*', '*', '*',String.class, String.class, Long.class).forEach(o->{
 			Result c = (Result)o; // result2
 			displayCtrl();
@@ -202,7 +202,7 @@ public class EmbeddedStreamRetrievalBatteryAlias2 {
 			}
 		});
 		displayLine = 0;
-		System.out.println("6.) findHeadStream("+alias12+",?,*,?,String.class, String.class, Long.class)...");		
+		System.out.println("6.) findHeadStream("+alias12+",*,*,*,String.class, String.class, Long.class)...");		
 		Relatrix.findHeadStream(alias12, '*', '*', '*',String.class, String.class, Long.class).forEach(o->{
 			Result c = (Result)o;
 			displayCtrl();
@@ -213,7 +213,7 @@ public class EmbeddedStreamRetrievalBatteryAlias2 {
 			}
 		});
 		displayLine = 0;
-		System.out.println("7.) findHeadStream("+alias12+",?,?,*,String.class, String.class, Long.class)...");		
+		System.out.println("7.) findHeadStream("+alias12+",*,*,*,String.class, String.class, Long.class)...");		
 		Relatrix.findHeadStream(alias12, '*', '*', '*',String.class, String.class, Long.class).forEach(o->{
 			Result c = (Result)o;
 			displayCtrl();
@@ -224,7 +224,7 @@ public class EmbeddedStreamRetrievalBatteryAlias2 {
 			}
 		});
 		displayLine = 0;
-		System.out.println("8.) findHeadStream("+alias12+",?,?,?,String.class, String.class, Long.class)...");		
+		System.out.println("8.) findHeadStream("+alias12+",*,*,*,String.class, String.class, Long.class)...");		
 		Relatrix.findHeadStream(alias12, '*', '*', '*',String.class, String.class, Long.class).forEach(o->{
 			Result c = (Result)o;
 			displayCtrl();
@@ -236,7 +236,7 @@ public class EmbeddedStreamRetrievalBatteryAlias2 {
 		});
 		for(int j = 0; j < ar3.size(); j++) {
 			displayLine = 0;
-			System.out.println("8."+j+") findHeadStream("+alias12+",?,?,?,<obj>,<obj>,<obj>) using domain="+ar.get(j).getDomain()+",map="+ar.get(j).getMap()+",range="+ar.get(j).getRange());
+			System.out.println("8."+j+") findHeadStream("+alias12+",*,*,*,<obj>,<obj>,<obj>) using domain="+ar.get(j).getDomain()+",map="+ar.get(j).getMap()+",range="+ar.get(j).getRange());
 			Relatrix.findHeadStream(alias12, '*','*','*',ar.get(j).getDomain(), ar.get(j).getMap(), ar.get(j).getRange()).forEach(o->{
 				Result c = (Result)o;
 				displayCtrl();
@@ -246,7 +246,7 @@ public class EmbeddedStreamRetrievalBatteryAlias2 {
 			displayLine=0;
 			//RelatrixHeadsetIterator.DEBUG = true;
 			System.out.println("Should retrieve none, since range is specified as String and we only stored Long...");
-			System.out.println("8A."+j+") findHeadStream("+alias12+",?,*,*,<obj>,String.class, String.class) using domain="+ar.get(j).getDomain());		
+			System.out.println("8A."+j+") findHeadStream("+alias12+",*,*,*,<obj>,String.class, String.class) using domain="+ar.get(j).getDomain());		
 			Relatrix.findHeadStream(alias12, '*','*', '*', ar.get(j).getDomain(), String.class, String.class).forEach(o->{
 				Result c = (Result)o;
 				displayCtrl();
@@ -325,7 +325,7 @@ public class EmbeddedStreamRetrievalBatteryAlias2 {
 		}
 		for(int j = 0; j < ar.size(); j++) {
 			displayLine=0;
-			System.out.println("16."+j+") findHeadStream("+alias12+",?,?,<obj>, String.class, String.class) using range="+ar.get(j).getDomain());		
+			System.out.println("16."+j+") findHeadStream("+alias12+",*,*,<obj>, String.class, String.class) using range="+ar.get(j).getDomain());		
 			Relatrix.findHeadStream(alias12, '*', '*', ar.get(j).getDomain(), String.class, String.class).forEach(o->{
 				Result c = (Result)o;
 				displayCtrl();
@@ -333,7 +333,7 @@ public class EmbeddedStreamRetrievalBatteryAlias2 {
 					System.out.println(displayLine+"="+c);
 			});
 			displayLine=0;
-			System.out.println("17."+j+") findHeadStream("+alias12+",?,<obj>,?, String.class, Long.class) using map="+ar.get(j).getDomain());		
+			System.out.println("17."+j+") findHeadStream("+alias12+",*,<obj>,*, String.class, Long.class) using map="+ar.get(j).getDomain());		
 			Relatrix.findHeadStream(alias12, '*', ar.get(j).getDomain(), '*', String.class, Long.class).forEach(o->{
 				Result c = (Result)o;
 				displayCtrl();
@@ -341,7 +341,7 @@ public class EmbeddedStreamRetrievalBatteryAlias2 {
 					System.out.println(displayLine+"="+c);
 			});
 			displayLine=0;
-			System.out.println("18."+j+") findHeadStream("+alias12+",<obj>,?,?, String.class, Long.class) using domain="+ar.get(j).getDomain());		
+			System.out.println("18."+j+") findHeadStream("+alias12+",<obj>,*,*, String.class, Long.class) using domain="+ar.get(j).getDomain());		
 			Relatrix.findHeadStream(alias12, ar.get(j).getDomain(), '*', '*', String.class, Long.class).forEach(o->{
 				Result c = (Result)o;
 				displayCtrl();
@@ -351,7 +351,7 @@ public class EmbeddedStreamRetrievalBatteryAlias2 {
 		}
 		for(int j = 0; j < ar.size(); j++) {
 			displayLine=0;
-			System.out.println("19."+j+") findHeadStream("+alias12+",?,<obj>,<obj>, String.class) using map="+ar.get(j).getDomain()+" range="+ar.get(j).getMap());		
+			System.out.println("19."+j+") findHeadStream("+alias12+",*,<obj>,<obj>, String.class) using map="+ar.get(j).getDomain()+" range="+ar.get(j).getMap());		
 			Relatrix.findHeadStream(alias12, '*', ar.get(j).getDomain(), ar.get(j).getMap(), String.class).forEach(o->{
 				Result c = (Result)o;
 				displayCtrl();
@@ -359,7 +359,7 @@ public class EmbeddedStreamRetrievalBatteryAlias2 {
 					System.out.println(displayLine+"="+c);
 			});
 			displayLine=0;
-			System.out.println("20."+j+") findHeadStream("+alias12+",<obj>,?,<obj>,String.class) using domain="+ar.get(j).getDomain()+" range="+ ar.get(j).getMap());		
+			System.out.println("20."+j+") findHeadStream("+alias12+",<obj>,*,<obj>,String.class) using domain="+ar.get(j).getDomain()+" range="+ ar.get(j).getMap());		
 			Relatrix.findHeadStream(alias12, ar.get(j).getDomain(), '*', ar.get(j).getMap(), String.class).forEach(o->{
 				Result c = (Result)o;
 				displayCtrl();
@@ -367,7 +367,7 @@ public class EmbeddedStreamRetrievalBatteryAlias2 {
 					System.out.println(displayLine+"="+c);
 			});
 			displayLine=0;
-			System.out.println("21."+j+") findHeadStream("+alias12+",<obj>,<obj>,?,Long.class) using domain="+ar.get(j).getDomain()+" map="+ar.get(j).getMap());		
+			System.out.println("21."+j+") findHeadStream("+alias12+",<obj>,<obj>,*,Long.class) using domain="+ar.get(j).getDomain()+" map="+ar.get(j).getMap());		
 			Relatrix.findHeadStream(alias12, ar.get(j).getDomain(), ar.get(j).getMap(), '*',Long.class).forEach(o->{
 				Result c = (Result)o;
 				displayCtrl();

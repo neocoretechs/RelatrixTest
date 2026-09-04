@@ -136,7 +136,7 @@ public class EmbeddedRetrievalBatteryTransaction2 {
 				System.out.println(displayLine+"="+c);
 		}
 		displayLine = 0;
-		System.out.println("2.) FindHeadset(xid,*,*,?,String.class, String.class, Long.class)...");		
+		System.out.println("2.) FindHeadset(xid,*,*,*,String.class, String.class, Long.class)...");		
 		it = RelatrixTransaction.findHeadSet(xid2,'*', '*', '*',String.class, String.class, Long.class);
 		while(it.hasNext()) {
 			Object o = it.next();
@@ -235,7 +235,7 @@ public class EmbeddedRetrievalBatteryTransaction2 {
 		}
 		for(int j = 0; j < ar.size(); j++) {
 			displayLine=0;
-			System.out.println("16."+j+") FindHeadSet(xid,?,?,<obj>, String.class, String.class) using range="+ar.get(j).getDomain());		
+			System.out.println("16."+j+") FindHeadSet(xid,*,*,<obj>, String.class, String.class) using range="+ar.get(j).getDomain());		
 			it = RelatrixTransaction.findHeadSet(xid2,'*', '*', ar.get(j).getDomain(), String.class, String.class);
 			while(it.hasNext()) {
 				Object o = it.next();
@@ -245,7 +245,7 @@ public class EmbeddedRetrievalBatteryTransaction2 {
 					System.out.println(displayLine+"="+c);
 			}
 			displayLine=0;
-			System.out.println("17."+j+") FindHeadSet(xid,?,<obj>,?, String.class, Long.class) using map="+ar.get(j).getDomain());		
+			System.out.println("17."+j+") FindHeadSet(xid,*,<obj>,*, String.class, Long.class) using map="+ar.get(j).getDomain());		
 			it = RelatrixTransaction.findHeadSet(xid2,'*', ar.get(j).getDomain(), '*', String.class, Long.class);
 			while(it.hasNext()) {
 				Object o = it.next();
@@ -255,7 +255,7 @@ public class EmbeddedRetrievalBatteryTransaction2 {
 					System.out.println(displayLine+"="+c);
 			}
 			displayLine=0;
-			System.out.println("18."+j+") FindHeadSet(xid,<obj>,?,?, String.class, Long.class) using domain="+ar.get(j).getDomain());		
+			System.out.println("18."+j+") FindHeadSet(xid,<obj>,*,*, String.class, Long.class) using domain="+ar.get(j).getDomain());		
 			it = RelatrixTransaction.findHeadSet(xid2,ar.get(j).getDomain(), '*', '*', String.class, Long.class);
 			while(it.hasNext()) {
 				Object o = it.next();
@@ -267,7 +267,7 @@ public class EmbeddedRetrievalBatteryTransaction2 {
 		}
 		for(int j = 0; j < ar.size(); j++) {
 			displayLine=0;
-			System.out.println("19."+j+") FindHeadSet(xid,?,<obj>,<obj>, String.class) using map="+ar.get(j).getDomain()+" range="+ar.get(j).getMap());		
+			System.out.println("19."+j+") FindHeadSet(xid,*,<obj>,<obj>, String.class) using map="+ar.get(j).getDomain()+" range="+ar.get(j).getMap());		
 			it = RelatrixTransaction.findHeadSet(xid2,'*', ar.get(j).getDomain(), ar.get(j).getMap(), String.class);
 			while(it.hasNext()) {
 				Object o = it.next();
@@ -277,7 +277,7 @@ public class EmbeddedRetrievalBatteryTransaction2 {
 					System.out.println(displayLine+"="+c);
 			}
 			displayLine =0;
-			System.out.println("20."+j+") FindHeadSet(xid,<obj>,?,<obj>,String.class) using domain="+ar.get(j).getDomain()+" range="+ ar.get(j).getMap());		
+			System.out.println("20."+j+") FindHeadSet(xid,<obj>,*,<obj>,String.class) using domain="+ar.get(j).getDomain()+" range="+ ar.get(j).getMap());		
 			it = RelatrixTransaction.findHeadSet(xid2,ar.get(j).getDomain(), '*', ar.get(j).getMap(), String.class);
 			while(it.hasNext()) {
 				Object o = it.next();
@@ -287,7 +287,7 @@ public class EmbeddedRetrievalBatteryTransaction2 {
 					System.out.println(displayLine+"="+c);
 			}
 			displayLine =0;
-			System.out.println("21."+j+") FindHeadSet(xid,obj>,<obj>,?,Long.class) using domain="+ar.get(j).getDomain()+" map="+ar.get(j).getMap());		
+			System.out.println("21."+j+") FindHeadSet(xid,obj>,<obj>,*,Long.class) using domain="+ar.get(j).getDomain()+" map="+ar.get(j).getMap());		
 			it = RelatrixTransaction.findHeadSet(xid2,ar.get(j).getDomain(), ar.get(j).getMap(), '*',Long.class);
 			while(it.hasNext()) {
 				Object o = it.next();

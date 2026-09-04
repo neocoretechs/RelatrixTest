@@ -144,7 +144,7 @@ public class EmbeddedRetrievalBattery3 {
 			for(int j = 0; j < ar.size(); j++) {
 				displayLine = 0;
 				Comparable[] nexc = ((Result)ar.get(j)).toArray();
-				System.out.println("8."+j+") FindTailSet(?,?,?,<obj>,<obj>,<obj>) using domain="+nexc[0]+",map="+nexc[1]+",range="+nexc[2]);
+				System.out.println("8."+j+") FindTailSet(*,*,*,<obj>,<obj>,<obj>) using domain="+nexc[0]+",map="+nexc[1]+",range="+nexc[2]);
 				it = Relatrix.findTailSet('*','*','*',nexc[0],nexc[1],nexc[2]);
 				while(it.hasNext()) {
 					Object o = it.next();
@@ -156,7 +156,7 @@ public class EmbeddedRetrievalBattery3 {
 				displayLine=0;
 				//RelatrixTailSetIterator.DEBUG = true;
 				System.out.println("Should retrieve none, since range is specified as String and we only stored Long...");
-				System.out.println("8A."+j+") FindTailSet(?,*,*,<obj>,String.class, String.class) using domain="+nexc[0]);		
+				System.out.println("8A."+j+") FindTailSet(*,*,*,<obj>,String.class, String.class) using domain="+nexc[0]);		
 				it = Relatrix.findTailSet('*','*', '*', nexc[0], String.class, String.class);
 				while(it.hasNext()) {
 					Object o = it.next();
@@ -281,7 +281,7 @@ public class EmbeddedRetrievalBattery3 {
 			for(int j = 0; j < ar.size(); j++) {
 				displayLine=0;
 				Comparable[] nexc = ((Result)ar.get(j)).toArray();
-				System.out.println("16."+j+") FindTailSet(?,?,<obj>, String.class, String.class) using range="+nexc[2]);		
+				System.out.println("16."+j+") FindTailSet(*,*,<obj>, String.class, String.class) using range="+nexc[2]);		
 				it = Relatrix.findTailSet('*', '*', nexc[2], String.class, String.class);
 				while(it.hasNext()) {
 					Object o = it.next();
@@ -296,7 +296,7 @@ public class EmbeddedRetrievalBattery3 {
 			for(int j = 0; j < ar.size(); j++) {
 				displayLine=0;
 				Comparable[] nexc = ((Result)ar.get(j)).toArray();
-				System.out.println("17."+j+") FindTailSet(?,<obj>,?, String.class, Long.class) using map="+nexc[1]);		
+				System.out.println("17."+j+") FindTailSet(*,<obj>,*, String.class, Long.class) using map="+nexc[1]);		
 				it = Relatrix.findTailSet('*', nexc[1], '*', String.class, Long.class);
 				while(it.hasNext()) {
 					Object o = it.next();
@@ -311,7 +311,7 @@ public class EmbeddedRetrievalBattery3 {
 			for(int j = 0; j < ar.size(); j++) {
 				displayLine=0;
 				Comparable[] nexc = ((Result)ar.get(j)).toArray();
-				System.out.println("18."+j+") FindTailSet(<obj>,?,?, String.class, Long.class) using domain="+nexc[0]);		
+				System.out.println("18."+j+") FindTailSet(<obj>,*,*, String.class, Long.class) using domain="+nexc[0]);		
 				it = Relatrix.findTailSet(nexc[0], '*', '*', String.class, Long.class);
 				while(it.hasNext()) {
 					Object o = it.next();
@@ -326,7 +326,7 @@ public class EmbeddedRetrievalBattery3 {
 			for(int j = 0; j < ar.size(); j++) {
 				displayLine=0;
 				Comparable[] nexc = ((Result)ar.get(j)).toArray();
-				System.out.println("19."+j+") FindTailSet(?,<obj>,<obj>, String.class) using map="+nexc[1]+" range="+nexc[2]);		
+				System.out.println("19."+j+") FindTailSet(*,<obj>,<obj>, String.class) using map="+nexc[1]+" range="+nexc[2]);		
 				it = Relatrix.findTailSet('*', nexc[1], nexc[2], String.class);
 				while(it.hasNext()) {
 					Object o = it.next();
@@ -341,7 +341,7 @@ public class EmbeddedRetrievalBattery3 {
 			for(int j = 0; j < ar.size(); j++) {
 				displayLine=0;
 				Comparable[] nexc = ((Result)ar.get(j)).toArray();
-				System.out.println("20."+j+") FindTailSet(<obj>,?,<obj>,String.class) using domain="+nexc[0]+" range="+ nexc[2]);		
+				System.out.println("20."+j+") FindTailSet(<obj>,*,<obj>,String.class) using domain="+nexc[0]+" range="+ nexc[2]);		
 				it = Relatrix.findTailSet(nexc[0], '*', nexc[2], String.class);
 				while(it.hasNext()) {
 					Object o = it.next();
@@ -356,7 +356,7 @@ public class EmbeddedRetrievalBattery3 {
 			for(int j = 0; j < ar.size(); j++) {
 				displayLine=0;
 				Comparable[] nexc = ((Result)ar.get(j)).toArray();
-				System.out.println("21."+j+") FindTailSet(<obj>,<obj>,?,Long.class) using domain="+nexc[0]+" map="+nexc[1]);		
+				System.out.println("21."+j+") FindTailSet(<obj>,<obj>,*,Long.class) using domain="+nexc[0]+" map="+nexc[1]);		
 				it = Relatrix.findTailSet(nexc[0], nexc[1], '*',Long.class);
 				while(it.hasNext()) {
 					Object o = it.next();

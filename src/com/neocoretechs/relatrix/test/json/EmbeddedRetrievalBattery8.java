@@ -182,7 +182,7 @@ public class EmbeddedRetrievalBattery8 {
 				System.out.println(displayLine+"="+Arrays.toString(RelatrixJsonTransaction.tupleResolver(c)));
 		});
 		displayLine = 0;
-		System.out.println("2.) findHeadStream(*,*,?,"+xoClass+","+xfClass+","+xo50Class+")...");		
+		System.out.println("2.) findHeadStream(*,*,*,"+xoClass+","+xfClass+","+xo50Class+")...");		
 		it = RelatrixJsonTransaction.findHeadStream(xid, '*', '*', '*',xoClass, xfClass, xo50Class);
 		it.forEachOrdered(o-> {
 			Result c = (Result)o;
@@ -194,7 +194,7 @@ public class EmbeddedRetrievalBattery8 {
 			}
 		});
 		displayLine = 0;
-		System.out.println("3.) findHeadStream(*,?,*,"+xoClass+","+xfClass+","+xo50Class+")...");		
+		System.out.println("3.) findHeadStream(*,*,*,"+xoClass+","+xfClass+","+xo50Class+")...");		
 		it = RelatrixJsonTransaction.findHeadStream(xid, '*', '*', '*',xoClass, xfClass, xo50Class);
 		it.forEachOrdered(o-> {
 			Result  c = (Result )o;
@@ -206,7 +206,7 @@ public class EmbeddedRetrievalBattery8 {
 			}
 		});
 		displayLine = 0;
-		System.out.println("4.) findHeadStream(?,*,*."+xoClass+","+xfClass+","+xo50Class+")...");		
+		System.out.println("4.) findHeadStream(*,*,*."+xoClass+","+xfClass+","+xo50Class+")...");		
 		it = RelatrixJsonTransaction.findHeadStream(xid, '*', '*', '*',xoClass, xfClass, xo50Class);
 		it.forEachOrdered(o-> {
 			Result  c = (Result )o;
@@ -218,7 +218,7 @@ public class EmbeddedRetrievalBattery8 {
 			}
 		});
 		displayLine=0;
-		System.out.println("5.) findHeadStream(*,?,?,"+xoClass+","+xfClass+","+xo50Class+")...");		
+		System.out.println("5.) findHeadStream(*,*,*,"+xoClass+","+xfClass+","+xo50Class+")...");		
 		it = RelatrixJsonTransaction.findHeadStream(xid, '*', '*', '*',xoClass, xfClass, xo50Class);
 		it.forEachOrdered(o-> {
 			Result1 c = (Result1)o; // Result1
@@ -230,7 +230,7 @@ public class EmbeddedRetrievalBattery8 {
 			}
 		});
 		displayLine = 0;
-		System.out.println("6.) findHeadStream(?,*,?,"+xoClass+","+xfClass+","+xo50Class+")...");		
+		System.out.println("6.) findHeadStream(*,*,*,"+xoClass+","+xfClass+","+xo50Class+")...");		
 		it = RelatrixJsonTransaction.findHeadStream(xid, '*', '*', '*',xoClass, xfClass, xo50Class);
 		it.forEachOrdered(o-> {
 			Result1 c = (Result1)o;
@@ -242,7 +242,7 @@ public class EmbeddedRetrievalBattery8 {
 			}
 		});
 		displayLine = 0;
-		System.out.println("7.) findHeadStream(?,?,*,"+xoClass+","+xfClass+","+xo50Class+")...");		
+		System.out.println("7.) findHeadStream(*,*,*,"+xoClass+","+xfClass+","+xo50Class+")...");		
 		it = RelatrixJsonTransaction.findHeadStream(xid, '*', '*', '*',xoClass, xfClass, xo50Class);
 		it.forEachOrdered(o-> {
 			Result1 c = (Result1)o;
@@ -254,7 +254,7 @@ public class EmbeddedRetrievalBattery8 {
 			}
 		});
 		displayLine = 0;
-		System.out.println("8.) findHeadStream(?,?,?,"+xoClass+","+xfClass+","+xo50Class+")...");		
+		System.out.println("8.) findHeadStream(*,*,*,"+xoClass+","+xfClass+","+xo50Class+")...");		
 		it = RelatrixJsonTransaction.findHeadStream(xid, '*', '*', '*',xoClass, xfClass, xo50Class);
 		it.forEachOrdered(o-> {
 			Result c = (Result)o;
@@ -267,7 +267,7 @@ public class EmbeddedRetrievalBattery8 {
 		});
 		for(int j = 0; j < ar3.size(); j++) {
 			displayLine = 0;
-			System.out.println("8."+j+") findHeadStream(?,?,?,<obj>,<obj>,<obj>) using domain="+
+			System.out.println("8."+j+") findHeadStream(*,*,*,<obj>,<obj>,<obj>) using domain="+
 					RelatrixKVJsonTransaction.getData(ar.get(j).getDomain())+
 					",map="+
 					RelatrixKVJsonTransaction.getData(ar.get(j).getMap())+
@@ -282,7 +282,7 @@ public class EmbeddedRetrievalBattery8 {
 			});
 			displayLine=0;
 			//RelatrixHeadsetStream.DEBUG = true;
-			System.out.println("8A."+j+") findHeadStream(?,*,*,<obj>,"+xoClass+","+xfClass+","+") using domain="+RelatrixKVJsonTransaction.getData(ar.get(j).getDomain()));		
+			System.out.println("8A."+j+") findHeadStream(*,*,*,<obj>,"+xoClass+","+xfClass+","+") using domain="+RelatrixKVJsonTransaction.getData(ar.get(j).getDomain()));		
 			it = RelatrixJsonTransaction.findHeadStream(xid, '*','*', '*', ar.get(j).getDomain(), xfClass, xo50Class);
 			it.forEachOrdered(o-> {
 				Result c = (Result)o;
@@ -381,7 +381,7 @@ public class EmbeddedRetrievalBattery8 {
 		}
 		for(int j = 0; j < ar.size(); j++) {
 			displayLine=0;
-			System.out.println("16."+j+") findHeadStream(?,?,<obj>, "+xoClass+","+xfClass+","+") using range="+RelatrixKVJsonTransaction.getData(ar.get(j).getDomain()));		
+			System.out.println("16."+j+") findHeadStream(*,*,<obj>, "+xoClass+","+xfClass+","+") using range="+RelatrixKVJsonTransaction.getData(ar.get(j).getDomain()));		
 			it = RelatrixJsonTransaction.findHeadStream(xid, '*', '*', ar.get(j).getDomain(), xoClass, xfClass);
 			it.forEachOrdered(o-> {		
 				Result c = (Result)o;
@@ -390,7 +390,7 @@ public class EmbeddedRetrievalBattery8 {
 					System.out.println(displayLine+"="+Arrays.toString(RelatrixJsonTransaction.tupleResolver(c)));
 			});
 			displayLine=0;
-			System.out.println("17."+j+") findHeadStream(?,<obj>,?, "+xfClass+","+xo50Class+","+") using map="+RelatrixKVJsonTransaction.getData(ar.get(j).getDomain()));		
+			System.out.println("17."+j+") findHeadStream(*,<obj>,*, "+xfClass+","+xo50Class+","+") using map="+RelatrixKVJsonTransaction.getData(ar.get(j).getDomain()));		
 			it = RelatrixJsonTransaction.findHeadStream(xid, '*', ar.get(j).getDomain(), '*', xfClass, xo50Class);
 			it.forEachOrdered(o-> {	
 				Result1 c = (Result1)o;
@@ -399,7 +399,7 @@ public class EmbeddedRetrievalBattery8 {
 					System.out.println(displayLine+"="+Arrays.toString(RelatrixJsonTransaction.tupleResolver(c)));
 			});
 			displayLine=0;
-			System.out.println("18."+j+") findHeadStream(<obj>,?,?,"+xfClass+","+xo50Class+","+") using domain="+RelatrixKVJsonTransaction.getData(ar.get(j).getDomain()));		
+			System.out.println("18."+j+") findHeadStream(<obj>,*,*,"+xfClass+","+xo50Class+","+") using domain="+RelatrixKVJsonTransaction.getData(ar.get(j).getDomain()));		
 			it = RelatrixJsonTransaction.findHeadStream(xid, ar.get(j).getDomain(), '*', '*', xfClass, xo50Class);
 			it.forEachOrdered(o-> {		
 				Result c = (Result)o;
@@ -410,7 +410,7 @@ public class EmbeddedRetrievalBattery8 {
 		}
 		for(int j = 0; j < ar.size(); j++) {
 			displayLine=0;
-			System.out.println("19."+j+") findHeadStream(?,<obj>,<obj>,"+xoClass+") using map="+
+			System.out.println("19."+j+") findHeadStream(*,<obj>,<obj>,"+xoClass+") using map="+
 					RelatrixKVJsonTransaction.getData(ar.get(j).getDomain())+
 					" range="+
 					RelatrixKVJsonTransaction.getData(ar.get(j).getMap()));		
@@ -422,7 +422,7 @@ public class EmbeddedRetrievalBattery8 {
 					System.out.println(displayLine+"="+Arrays.toString(RelatrixJsonTransaction.tupleResolver(c)));
 			});
 			displayLine =0;
-			System.out.println("20."+j+") findHeadStream(<obj>,?,<obj>,"+xo50Class+") using domain="+
+			System.out.println("20."+j+") findHeadStream(<obj>,*,<obj>,"+xo50Class+") using domain="+
 					RelatrixKVJsonTransaction.getData(ar.get(j).getDomain())+
 					" range="+
 					RelatrixKVJsonTransaction.getData(ar.get(j).getMap()));		
@@ -434,7 +434,7 @@ public class EmbeddedRetrievalBattery8 {
 					System.out.println(displayLine+"="+Arrays.toString(RelatrixJsonTransaction.tupleResolver(c)));
 			});
 			displayLine =0;
-			System.out.println("21."+j+") findHeadStream(<obj>,<obj>,?,"+xo50Class+") using domain="+
+			System.out.println("21."+j+") findHeadStream(<obj>,<obj>,*,"+xo50Class+") using domain="+
 					RelatrixKVJsonTransaction.getData(ar.get(j).getDomain())+
 					" map="+
 					RelatrixKVJsonTransaction.getData(ar.get(j).getMap()));		
@@ -481,7 +481,7 @@ public class EmbeddedRetrievalBattery8 {
 		});
 		it.close();
 		displayLine = 0;
-		System.out.println("2.) findTailStream(*,*,?,"+xoClass+","+xfClass+","+xo50Class+")...");		
+		System.out.println("2.) findTailStream(*,*,*,"+xoClass+","+xfClass+","+xo50Class+")...");		
 		it = RelatrixJsonTransaction.findTailStream(xid, '*', '*', '*',xoClass, xfClass, xo50Class);
 		it.forEachOrdered(o-> {	
 			Result c = (Result)o;
@@ -494,7 +494,7 @@ public class EmbeddedRetrievalBattery8 {
 		});
 		it.close();
 		displayLine = 0;
-		System.out.println("3.) findTailStream(*,?,*,"+xoClass+","+xfClass+","+xo50Class+")...");		
+		System.out.println("3.) findTailStream(*,*,*,"+xoClass+","+xfClass+","+xo50Class+")...");		
 		it = RelatrixJsonTransaction.findTailStream(xid, '*', '*', '*',xoClass, xfClass, xo50Class);
 		it.forEachOrdered(o-> {	
 			Result  c = (Result )o;
@@ -507,7 +507,7 @@ public class EmbeddedRetrievalBattery8 {
 		});
 		it.close();
 		displayLine = 0;
-		System.out.println("4.) findTailStream(?,*,*."+xoClass+","+xfClass+","+xo50Class+")...");		
+		System.out.println("4.) findTailStream(*,*,*."+xoClass+","+xfClass+","+xo50Class+")...");		
 		it = RelatrixJsonTransaction.findTailStream(xid, '*', '*', '*',xoClass, xfClass, xo50Class);
 		it.forEachOrdered(o-> {
 			Result  c = (Result )o;
@@ -520,7 +520,7 @@ public class EmbeddedRetrievalBattery8 {
 		});
 		it.close();
 		displayLine=0;
-		System.out.println("5.) findTailStream(*,?,?,"+xoClass+","+xfClass+","+xo50Class+")...");		
+		System.out.println("5.) findTailStream(*,*,*,"+xoClass+","+xfClass+","+xo50Class+")...");		
 		it = RelatrixJsonTransaction.findTailStream(xid, '*', '*', '*',xoClass, xfClass, xo50Class);
 		it.forEachOrdered(o-> {
 			Result1 c = (Result1)o; // Result1
@@ -533,7 +533,7 @@ public class EmbeddedRetrievalBattery8 {
 		});
 		it.close();
 		displayLine = 0;
-		System.out.println("6.) findTailStream(?,*,?,"+xoClass+","+xfClass+","+xo50Class+")...");		
+		System.out.println("6.) findTailStream(*,*,*,"+xoClass+","+xfClass+","+xo50Class+")...");		
 		it = RelatrixJsonTransaction.findTailStream(xid, '*', '*', '*',xoClass, xfClass, xo50Class);
 		it.forEachOrdered(o-> {
 			Result1 c = (Result1)o;
@@ -546,7 +546,7 @@ public class EmbeddedRetrievalBattery8 {
 		});
 		it.close();
 		displayLine = 0;
-		System.out.println("7.) findTailStream(?,?,*,"+xoClass+","+xfClass+","+xo50Class+")...");		
+		System.out.println("7.) findTailStream(*,*,*,"+xoClass+","+xfClass+","+xo50Class+")...");		
 		it = RelatrixJsonTransaction.findTailStream(xid, '*', '*', '*',xoClass, xfClass, xo50Class);
 		it.forEachOrdered(o-> {
 			Result1 c = (Result1)o;
@@ -559,7 +559,7 @@ public class EmbeddedRetrievalBattery8 {
 		});
 		it.close();
 		displayLine = 0;
-		System.out.println("8.) findTailStream(?,?,?,"+xoClass+","+xfClass+","+xo50Class+")...");		
+		System.out.println("8.) findTailStream(*,*,*,"+xoClass+","+xfClass+","+xo50Class+")...");		
 		it = RelatrixJsonTransaction.findTailStream(xid, '*', '*', '*',xoClass, xfClass, xo50Class);
 		it.forEachOrdered(o-> {
 			Result c = (Result)o;
@@ -573,7 +573,7 @@ public class EmbeddedRetrievalBattery8 {
 		it.close();
 		for(int j = 0; j < ar3.size(); j++) {
 			displayLine = 0;
-			System.out.println("8."+j+") findTailStream(?,?,?,<obj>,<obj>,<obj>) using domain="+
+			System.out.println("8."+j+") findTailStream(*,*,*,<obj>,<obj>,<obj>) using domain="+
 					RelatrixKVJsonTransaction.getData(ar.get(j).getDomain())+
 					",map="+
 					RelatrixKVJsonTransaction.getData(ar.get(j).getMap())+
@@ -589,7 +589,7 @@ public class EmbeddedRetrievalBattery8 {
 			it.close();
 			displayLine=0;
 			//RelatrixHeadsetStream.DEBUG = true;
-			System.out.println("8A."+j+") findTailStream(?,*,*,<obj>,"+xoClass+","+xfClass+","+") using domain="+RelatrixKVJsonTransaction.getData(ar.get(j).getDomain()));		
+			System.out.println("8A."+j+") findTailStream(*,*,*,<obj>,"+xoClass+","+xfClass+","+") using domain="+RelatrixKVJsonTransaction.getData(ar.get(j).getDomain()));		
 			it = RelatrixJsonTransaction.findTailStream(xid, '*','*', '*', ar.get(j).getDomain(), xfClass, xo50Class);
 			it.forEachOrdered(o-> {		
 				Result c = (Result)o;
@@ -706,7 +706,7 @@ public class EmbeddedRetrievalBattery8 {
 		}
 		for(int j = 0; j < ar.size(); j++) {
 			displayLine=0;
-			System.out.println("16."+j+") findTailStream(?,?,<obj>, "+xoClass+","+xfClass+","+") using range="+
+			System.out.println("16."+j+") findTailStream(*,*,<obj>, "+xoClass+","+xfClass+","+") using range="+
 					RelatrixKVJsonTransaction.getData(ar.get(j).getDomain()));		
 			it = RelatrixJsonTransaction.findTailStream(xid, '*', '*', ar.get(j).getDomain(), xoClass, xfClass);
 			it.forEachOrdered(o-> {	
@@ -717,7 +717,7 @@ public class EmbeddedRetrievalBattery8 {
 			});
 			it.close();
 			displayLine=0;
-			System.out.println("17."+j+") findTailStream(?,<obj>,?, "+xfClass+","+xo50Class+","+") using map="+
+			System.out.println("17."+j+") findTailStream(*,<obj>,*, "+xfClass+","+xo50Class+","+") using map="+
 					RelatrixKVJsonTransaction.getData(ar.get(j).getDomain()));		
 			it = RelatrixJsonTransaction.findTailStream(xid, '*', ar.get(j).getDomain(), '*', xfClass, xo50Class);
 			it.forEachOrdered(o-> {	
@@ -728,7 +728,7 @@ public class EmbeddedRetrievalBattery8 {
 			});
 			it.close();
 			displayLine=0;
-			System.out.println("18."+j+") findTailStream(<obj>,?,?,"+xfClass+","+xo50Class+","+") using domain="+
+			System.out.println("18."+j+") findTailStream(<obj>,*,*,"+xfClass+","+xo50Class+","+") using domain="+
 					RelatrixKVJsonTransaction.getData(ar.get(j).getDomain()));		
 			it = RelatrixJsonTransaction.findTailStream(xid, ar.get(j).getDomain(), '*', '*', xfClass, xo50Class);
 			it.forEachOrdered(o-> {
@@ -741,7 +741,7 @@ public class EmbeddedRetrievalBattery8 {
 		}
 		for(int j = 0; j < ar.size(); j++) {
 			displayLine=0;
-			System.out.println("19."+j+") findTailStream(?,<obj>,<obj>,"+xoClass+") using map="+
+			System.out.println("19."+j+") findTailStream(*,<obj>,<obj>,"+xoClass+") using map="+
 					RelatrixKVJsonTransaction.getData(ar.get(j).getDomain())+
 					" range="+
 					RelatrixKVJsonTransaction.getData(ar.get(j).getMap()));		
@@ -754,7 +754,7 @@ public class EmbeddedRetrievalBattery8 {
 			});
 			it.close();
 			displayLine =0;
-			System.out.println("20."+j+") findTailStream(<obj>,?,<obj>,"+xo50Class+") using domain="+
+			System.out.println("20."+j+") findTailStream(<obj>,*,<obj>,"+xo50Class+") using domain="+
 					RelatrixKVJsonTransaction.getData(ar.get(j).getDomain())+
 					" range="+
 					RelatrixKVJsonTransaction.getData(ar.get(j).getMap()));		
@@ -767,7 +767,7 @@ public class EmbeddedRetrievalBattery8 {
 			});
 			it.close();
 			displayLine =0;
-			System.out.println("21."+j+") findTailStream(<obj>,<obj>,?,"+xo50Class+") using domain="+
+			System.out.println("21."+j+") findTailStream(<obj>,<obj>,*,"+xo50Class+") using domain="+
 					RelatrixKVJsonTransaction.getData(ar.get(j).getDomain())+
 					" map="+
 					RelatrixKVJsonTransaction.getData(ar.get(j).getMap()));		
