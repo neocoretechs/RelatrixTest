@@ -1,34 +1,23 @@
-package com.neocoretechs.relatrix.test.transaction;
+package com.neocoretechs.relatrix.test.kv.transaction;
 
 import java.io.IOException;
 import java.util.Iterator;
-import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
-
-import org.rocksdb.RocksDBException;
+import java.util.concurrent.ThreadLocalRandom;
 
 import com.neocoretechs.relatrix.DuplicateKeyException;
-import com.neocoretechs.relatrix.MapDomainRange;
-import com.neocoretechs.relatrix.MapRangeDomain;
 import com.neocoretechs.relatrix.AbstractRelation;
 import com.neocoretechs.relatrix.AbstractRelation.displayLevels;
 import com.neocoretechs.rocksack.Alias;
-import com.neocoretechs.relatrix.RangeDomainMap;
-import com.neocoretechs.relatrix.RangeMapDomain;
-import com.neocoretechs.relatrix.Relation;
 import com.neocoretechs.relatrix.RelatrixKVTransaction;
-import com.neocoretechs.relatrix.DomainRangeMap;
-import com.neocoretechs.relatrix.RelatrixTransaction;
-import com.neocoretechs.relatrix.Result;
-import com.neocoretechs.rocksack.TransactionId;
-import com.neocoretechs.relatrix.key.DBKey;
 import com.neocoretechs.relatrix.key.IndexResolver;
-import com.neocoretechs.relatrix.key.PrimaryKeySet;
+import com.neocoretechs.rocksack.TransactionId;
+
 import com.neocoretechs.relatrix.parallel.ExecutionContextHolder;
 import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 
 /**
- * The set of tests verifies the delete functions in the {@link  RelatrixTransaction}<p>
+ * The set of tests verifies the delete functions in the {@link  RelatrixKVTransaction}<p>
  * Create a series of nested relations and then verify that they are properly deleted when a reference to them was previously deleted.<p>
  * This represents sets deeply nested relations introducing a heavy demand on a series of aliased databases. 
  * NOTES:
@@ -36,7 +25,7 @@ import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2024
  *
  */
-public class BatteryRelatrixTransactionDeleteAlias {
+public class BatteryRelatrixKVTransactionDeleteAlias {
 	public static boolean DEBUG = false;
 	static String key = "This is a test"; // holds the base random key string for tests
 	static String val = "Of a Relatrix element!"; // holds base random value string
@@ -47,26 +36,28 @@ public class BatteryRelatrixTransactionDeleteAlias {
 	static int i = 0;
 	private static long timx;
 	private static TransactionId xid,xid2,xid3;
-	private static Random rando = new Random();
 	static Alias alias1 = new Alias("ALIAS1");
 	static Alias alias2 = new Alias("ALIAS2");
 	static Alias alias3 = new Alias("ALIAS3");
+	//static Alias alias2 = new Alias("ALIAS2");
+	//static Alias alias3 = new Alias("ALIAS3");
 	private static int MAX_RETRIES = 10;
 	/**
 	* Main test fixture driver
 	*/
 	public static void main(String[] argv) throws Exception {
+		System.out.println("Begin BatteryRelatrixKVTransactionDeleteAlias");
 		IndexResolver indexResolver = new IndexResolver();
 		ParallelExecutionContext pec = new ParallelExecutionContext(indexResolver, new ConcurrentHashMap<String,Object>());
 		ScopedValue.where(ExecutionContextHolder.CONTEXT, pec).run(() -> {
 			try {
-				RelatrixTransaction.getInstance();
-				RelatrixTransaction.setAlias(alias1,RelatrixTransaction.getTableSpace()+alias1);
-				RelatrixTransaction.setAlias(alias2,RelatrixTransaction.getTableSpace()+alias2);
-				RelatrixTransaction.setAlias(alias3,RelatrixTransaction.getTableSpace()+alias3);
-				xid = RelatrixTransaction.getTransactionId();
-				xid2 = RelatrixTransaction.getTransactionId();
-				xid3 = RelatrixTransaction.getTransactionId();
+				RelatrixKVTransaction.getInstance();
+				RelatrixKVTransaction.setAlias(alias1,RelatrixKVTransaction.getTableSpace()+alias1);
+				RelatrixKVTransaction.setAlias(alias2,RelatrixKVTransaction.getTableSpace()+alias2);
+				RelatrixKVTransaction.setAlias(alias3,RelatrixKVTransaction.getTableSpace()+alias3);
+				xid = RelatrixKVTransaction.getTransactionId();
+				xid2 = RelatrixKVTransaction.getTransactionId();
+				xid3 = RelatrixKVTransaction.getTransactionId();
 				AbstractRelation.displayLevel = displayLevels.VERBOSE;
 				if(argv.length > 0 && argv[0].equals("max")) {
 					System.out.println("Setting max items to "+argv[1]);
@@ -80,12 +71,13 @@ public class BatteryRelatrixTransactionDeleteAlias {
 						System.exit(0);
 					}
 				}
-				if(RelatrixTransaction.size(alias1,xid) == 0 ) {//&& RelatrixTransaction.size(alias2,xid2) == 0 && RelatrixTransaction.size(alias3,xid3) == 0) {
+				long siz = RelatrixKVTransaction.size(alias1, xid, String.class);
+				if(siz == 0 ) {//&& RelatrixTransaction.size(alias2,xid2) == 0 && RelatrixTransaction.size(alias3,xid3) == 0) {
 					if(DEBUG)
 						System.out.println("Zero items, Begin insertion test from "+min+" to "+max);
 					battery1(alias1, xid);
 					battery1(alias2, xid2);
-					battery1(alias3, xid3);
+					battery1(alias1, xid3);
 					// MUST OBTAIN NEW TRANSACTION ID AFTER INSERT!
 					RelatrixKVTransaction.endTransaction(xid);
 					RelatrixKVTransaction.endTransaction(xid2);
@@ -103,8 +95,16 @@ public class BatteryRelatrixTransactionDeleteAlias {
 					//battery11(alias1, xid);
 					//battery11(alias2, xid);
 					//battery11(alias3, xid);
-				}			
+				} else {
+					System.out.println("Size is "+siz+" items, proceed to delete...");
+					battery1AR6(alias1, xid);
+					battery1AR6(alias2, xid2);
+					battery1AR6(alias3, xid3);
+				}	
 
+				RelatrixKVTransaction.endTransaction(xid);
+				RelatrixKVTransaction.endTransaction(xid2);
+				RelatrixKVTransaction.endTransaction(xid3);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -129,19 +129,7 @@ public class BatteryRelatrixTransactionDeleteAlias {
 		for(int i = min; i < max; i++) {
 			fkey = key + String.format(uniqKeyFmt, i);
 			try {
-				Relation dmr1 = RelatrixTransaction.store(alias12, xid2, fkey, "Has unit "+alias12, Long.valueOf(i));
-				++recs;
-				Relation dmr2 = RelatrixTransaction.store(alias12, xid2, dmr1, "Has related "+alias12, rando.nextLong());
-				++recs;	
-				Relation dmr3 = RelatrixTransaction.store(alias12, xid2,  dmr1, dmr2, rando.nextLong());
-				++recs;
-				Relation dmr4 = RelatrixTransaction.store(alias12, xid2, dmr3, dmr2, dmr3);
-				++recs;
-				Relation dmr5 = RelatrixTransaction.store(alias12, xid2, dmr4, "Is related "+alias12, rando.nextLong());
-				++recs;
-				Relation dmr6 = RelatrixTransaction.store(alias12, xid2, dmr5, "Is related "+alias12, rando.nextLong());
-				++recs;
-				Relation dmr7 = RelatrixTransaction.store(alias12, xid2, dmr6, dmr5, rando.nextLong());
+				RelatrixKVTransaction.store(alias12, xid2, fkey, Long.valueOf(i));
 				++recs;
 				if((System.currentTimeMillis()-tims) > 1000) {
 					System.out.println("storing "+recs+" "+fkey);
@@ -149,7 +137,7 @@ public class BatteryRelatrixTransactionDeleteAlias {
 				}
 			} catch(DuplicateKeyException dke) { ++dupes; }
 		}
-		RelatrixTransaction.commit(alias12, xid2);
+		RelatrixKVTransaction.commit(alias12, xid2);
 		System.out.println("BATTERY1 SUCCESS in "+(System.currentTimeMillis()-timt)+" ms. Stored "+recs+" records, rejected "+dupes+" dupes.");
 	}
 	
@@ -171,19 +159,7 @@ public class BatteryRelatrixTransactionDeleteAlias {
 		for(int i = min; i < max; i++) {
 			fkey = key + String.format(uniqKeyFmt, i);
 			try {
-				Relation dmr1 = RelatrixTransaction.store(alias12, xid2, fkey, "Has unit "+alias12, Long.valueOf(i));
-				++recs;
-				Relation dmr2 = RelatrixTransaction.store(alias12, xid2, dmr1, "Has related "+alias12, rando.nextLong());
-				++recs;
-				Relation dmr3 = RelatrixTransaction.store(alias12, xid2,  dmr1, dmr2, rando.nextLong());
-				++recs;
-				Relation dmr4 = RelatrixTransaction.store(alias12, xid2, dmr3, dmr2, dmr3);
-				++recs;
-				Relation dmr5 = RelatrixTransaction.store(alias12, xid2, dmr4, "Is related "+alias12, rando.nextLong());
-				++recs;
-				Relation dmr6 = RelatrixTransaction.store(alias12, xid2, dmr5, "Is related "+alias12, rando.nextLong());
-				++recs;
-				Relation dmr7 = RelatrixTransaction.store(alias12, xid2, dmr6, dmr5, rando.nextLong());
+				RelatrixKVTransaction.store(alias12, xid2, fkey, Long.valueOf(i));
 				++recs;
 				if((System.currentTimeMillis()-tims) > 1000) {
 					System.out.println("SHOULD NOT BE storing "+recs+" "+fkey);
@@ -192,7 +168,7 @@ public class BatteryRelatrixTransactionDeleteAlias {
 			} catch(DuplicateKeyException dke) { ++dupes; }
 		}
 		if( recs > 0) {
-			RelatrixTransaction.commit(alias12, xid2);
+			RelatrixKVTransaction.commit(alias12, xid2);
 			throw new DuplicateKeyException(alias12+" BATTERY11 FAIL, stored "+recs+" when zero should have been stored");
 		} else {
 			System.out.println("BATTERY11 SUCCESS in "+(System.currentTimeMillis()-timt)+" ms. Stored "+recs+" records, rejected "+dupes+" dupes.");
@@ -207,15 +183,15 @@ public class BatteryRelatrixTransactionDeleteAlias {
 	 * @param xid2 
 	 * @throws Exception
 	 */
-	public static void battery1AR6(Alias alias12, TransactionId xid2) throws Exception {
+	public static void battery1AR6x(Alias alias12, TransactionId xid2) throws Exception {
 		i = min;
 		long tims = System.currentTimeMillis();
 		System.out.println(xid2+" Battery1AR6 "+alias12);
 		for(int i = min; i < max; i++) {
-			Long irec = Long.valueOf(i);
-			RelatrixTransaction.remove(alias12, xid2, irec);
+			String fkey = key + String.format(uniqKeyFmt, i);
+			RelatrixKVTransaction.remove(alias12, xid2, fkey);
 			if((System.currentTimeMillis()-tims) > 1000) {
-				System.out.println("deleting "+irec);
+				System.out.println("deleting "+fkey);
 				tims = System.currentTimeMillis();
 			}
 			/*
@@ -240,7 +216,7 @@ public class BatteryRelatrixTransactionDeleteAlias {
 		int attempts = 0;
 		while (true) {
 		  try {
-		    RelatrixTransaction.commit(alias12, xid2);
+		    RelatrixKVTransaction.commit(alias12, xid2);
 		    break;
 		  } catch (Exception e) {
 		    if ((e.getMessage().contains("Busy") || e.getCause().getMessage().contains("Busy")) && attempts < MAX_RETRIES) {
@@ -250,21 +226,90 @@ public class BatteryRelatrixTransactionDeleteAlias {
 		      continue;
 		    } else {
 		    	System.out.println("Unhandled commit exception:"+e.getMessage());
-		      RelatrixTransaction.rollback(alias12, xid2);
+		      RelatrixKVTransaction.rollback(alias12, xid2);
 		      return;
 		    }
 		  }
 		}
-
+		long siz = RelatrixKVTransaction.size(alias12, xid2, String.class);
 		// when finished, all records should theoretically be deleted
-		if( RelatrixTransaction.size(alias12, xid2, Relation.class) > 0) {
-			System.out.println("BATTERY1AR6 unexpected number of keys "+RelatrixTransaction.size(alias12, xid2, Relation.class));
-			RelatrixTransaction.findStream(alias12, xid2,'*', '*', '*').forEach(e->{
+		if(siz  > 0) {
+			System.out.println("BATTERY1AR6 unexpected number of keys "+siz);
+			RelatrixKVTransaction.keySetStream(alias12, xid2, String.class).forEach(e->{
 				System.out.println("Del fault:"+e);
 			});
-			throw new Exception("BATTERY1AR6 unexpected number of keys "+RelatrixTransaction.size(alias12, xid2, Relation.class));
+			throw new Exception("BATTERY1AR6 unexpected number of keys "+siz);
 		}
 		 System.out.println("BATTERY1AR6 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
+	}
+
+	public static void battery1AR6(Alias alias12, TransactionId xid2) throws Exception {
+	    long tims = System.currentTimeMillis();
+	    System.out.println("Starting delete phase for " + xid2 + " " + alias12);
+
+	    int attempts = 0;
+	    final int MAX_RETRIES_LOCAL = MAX_RETRIES;
+
+	    // We will replay the delete loop into a fresh transaction on each attempt.
+	    while (true) {
+	        // Use the provided xid2 for the first attempt, otherwise obtain a fresh one
+	        TransactionId localXid = (attempts == 0) ? xid2 : RelatrixKVTransaction.getTransactionId();
+	        i = min;
+	        long loopStart = System.currentTimeMillis();
+
+	        try {
+	            for (int i = min; i < max; i++) {
+	                String fkey = key + String.format(uniqKeyFmt, i);
+	                RelatrixKVTransaction.remove(alias12, localXid, fkey);
+	                if ((System.currentTimeMillis() - loopStart) > 1000) {
+	                    System.out.println("deleting " + fkey);
+	                    loopStart = System.currentTimeMillis();
+	                }
+	            }
+
+	            // Attempt commit for this transaction context
+	            RelatrixKVTransaction.commit(alias12, localXid);
+
+	            // success: break out of retry loop
+	            break;
+
+	        } catch (Exception e) {
+	            // Robustly detect Busy (guard against null cause/message)
+	            String msg = (e.getMessage() == null) ? "" : e.getMessage();
+	            String causeMsg = (e.getCause() != null && e.getCause().getMessage() != null) ? e.getCause().getMessage() : "";
+	            boolean isBusy = msg.contains("Busy") || causeMsg.contains("Busy");
+
+	            // Ensure we release transaction resources BEFORE sleeping/retrying
+	            try { RelatrixKVTransaction.rollback(alias12, localXid); } catch (Exception ignore) {}
+
+	            if (isBusy && attempts < MAX_RETRIES_LOCAL) {
+	                attempts++;
+	                long backoffMs = Math.min(50L * (1L << (attempts - 1)), 5000L);
+	                long jitter = ThreadLocalRandom.current().nextLong(0, 100);
+	                long sleepMs = backoffMs + jitter;
+	                System.out.println("Commit Busy for " + alias12 + " attempt " + attempts + ", sleeping " + sleepMs + "ms before retry");
+	                Thread.sleep(sleepMs);
+	                // loop will retry with a fresh transaction id and replay deletes
+	                continue;
+	            } else {
+	                System.out.println("Unhandled commit exception for " + alias12 + ": " + e);
+	                // best effort cleanup and return so caller can inspect state
+	                try { RelatrixKVTransaction.rollback(alias12, localXid); } catch (Exception ignore) {}
+	                return;
+	            }
+	        }
+	    }
+
+	    // Verify deletion result
+	    long siz = RelatrixKVTransaction.size(alias12, xid2, String.class);
+	    if (siz > 0) {
+	        System.out.println("BATTERY1AR6 unexpected number of keys " + siz);
+	        RelatrixKVTransaction.keySetStream(alias12, xid2, String.class).forEach(e -> {
+	            System.out.println("Del fault:" + e);
+	        });
+	        throw new Exception("BATTERY1AR6 unexpected number of keys " + siz);
+	    }
+	    System.out.println("BATTERY1AR6 SUCCESS in " + (System.currentTimeMillis() - tims) + " ms.");
 	}
 
 	/**
@@ -276,19 +321,13 @@ public class BatteryRelatrixTransactionDeleteAlias {
 	 */
 	public static void battery1AR17(Alias alias12, TransactionId xid2) throws Exception {
 		long tims = System.currentTimeMillis();
-		System.out.println(xid+" CleanDB DMR size="+RelatrixTransaction.size(alias12, xid, Relation.class));
-		System.out.println("CleanDB DRM size="+RelatrixTransaction.size(alias12, xid, DomainRangeMap.class));
-		System.out.println("CleanDB MDR size="+RelatrixTransaction.size(alias12, xid, MapDomainRange.class));
-		System.out.println("CleanDB MDR size="+RelatrixTransaction.size(alias12, xid, MapRangeDomain.class));
-		System.out.println("CleanDB RDM size="+RelatrixTransaction.size(alias12, xid, RangeDomainMap.class));
-		System.out.println("CleanDB RMD size="+RelatrixTransaction.size(alias12, xid, RangeMapDomain.class));
+		System.out.println(xid+" CleanDB DMR size="+RelatrixKVTransaction.size(alias12, xid, String.class));
 		AbstractRelation.displayLevel = AbstractRelation.displayLevels.MINIMAL;
-		Iterator<?> it = RelatrixTransaction.findSet(alias12, xid, '*','*','*');
+		Iterator<?> it = RelatrixKVTransaction.keySet(alias12, xid, String.class);
 		timx = System.currentTimeMillis();
 		it.forEachRemaining(fkey-> {
-			Relation dmr = (Relation)((Result)fkey).get(0);
 			try {
-				RelatrixTransaction.remove(alias12, xid, dmr);
+				RelatrixKVTransaction.remove(alias12, xid, (Comparable) it.next());
 			} catch (IllegalArgumentException | ClassNotFoundException | IllegalAccessException | IOException e) {
 				throw new RuntimeException(e);
 			}
@@ -298,92 +337,16 @@ public class BatteryRelatrixTransactionDeleteAlias {
 				timx = System.currentTimeMillis();
 			}
 		});
-		Iterator<?> its = RelatrixTransaction.findSet(alias12, xid, '*','*','*');
+		Iterator<?> its = RelatrixKVTransaction.keySet(alias12, xid, String.class);
 		while(its.hasNext()) {
-			Result nex = (Result) its.next();
+			Comparable c = (Comparable) its.next();
 			//System.out.println(i+"="+nex);
 			if(DEBUG)
-				System.out.println("KV RANGE 1AR17 KEY SHOULD BE DELETED:"+nex);
+				System.out.println("KV RANGE 1AR17 KEY SHOULD BE DELETED:"+c);
 			else
-				throw new Exception("KV RANGE 1AR17 KEY SHOULD BE DELETED:"+nex);
+				throw new Exception("KV RANGE 1AR17 KEY SHOULD BE DELETED:"+c);
 		}
-		long siz = RelatrixTransaction.size(alias12, xid);
-		if(siz > 0) {
-			if(DEBUG)
-				System.out.println("KV RANGE 1AR17 KEY MISMATCH:"+siz+" > 0 after all deleted and committed");
-			else
-				throw new Exception("KV RANGE 1AR17 KEY MISMATCH:"+siz+" > 0 after delete/commit");
-		}
-		if(DEBUG) {
-			it = RelatrixTransaction.entrySet(alias12, xid, Relation.class);
-			while(it.hasNext()) {
-				Comparable<?> nex = (Comparable<?>) it.next();
-				System.out.println("Relation:"+nex);
-			}
-		}
-		if(DEBUG) {
-			it = RelatrixTransaction.entrySet(alias12, xid, DomainRangeMap.class);
-			while(it.hasNext()) {
-				Comparable<?> nex = (Comparable<?>) it.next();
-				System.out.println("DomainRangeMap:"+nex);
-			}
-		}
-		if(DEBUG) {
-			it = RelatrixTransaction.entrySet(alias12, xid, MapDomainRange.class);
-			while(it.hasNext()) {
-				Comparable<?> nex = (Comparable<?>) it.next();
-				System.out.println("MapDomainRange:"+nex);
-			}
-		}
-		siz = RelatrixTransaction.size(alias12, xid, MapDomainRange.class);
-		if(siz > 0) {
-			if(DEBUG)
-				System.out.println("KV RANGE 1AR17 MapDomainRange MISMATCH:"+siz+" > 0 after all deleted and committed");
-			else
-				throw new Exception("KV RANGE 1AR17 MapDomainRange MISMATCH:"+siz+" > 0 after delete/commit");
-		}
-		if(DEBUG) {
-			it = RelatrixTransaction.entrySet(alias12, xid, MapRangeDomain.class);
-			while(it.hasNext()) {
-				Comparable<?> nex = (Comparable<?>) it.next();
-				System.out.println("MapRangeDomain:"+nex);
-			}
-		}
-		siz = RelatrixTransaction.size(alias12,xid,  MapRangeDomain.class);
-		if(siz > 0) {
-			if(DEBUG)
-				System.out.println("KV RANGE 1AR17 MapRangeDomain MISMATCH:"+siz+" > 0 after all deleted and committed");
-			else
-				throw new Exception("KV RANGE 1AR17 MapRangeDomain MISMATCH:"+siz+" > 0 after delete/commit");
-		}
-		if(DEBUG) {
-			it = RelatrixTransaction.entrySet(alias12, xid, RangeDomainMap.class);
-			while(it.hasNext()) {
-				Comparable<?> nex = (Comparable<?>) it.next();
-				System.out.println("RangeDomainMap:"+nex);
-			}
-		}
-		siz = RelatrixTransaction.size(alias12, xid, RangeDomainMap.class);
-		if(siz > 0) {
-			if(DEBUG)
-				System.out.println("KV RANGE 1AR17 RangeDomainMap MISMATCH:"+siz+" > 0 after all deleted and committed");
-			else
-				throw new Exception("KV RANGE 1AR17 RangeDomainMap MISMATCH:"+siz+" > 0 after delete/commit");
-		}
-		if(DEBUG) {
-			it = RelatrixTransaction.entrySet(alias12, xid, RangeMapDomain.class);
-			while(it.hasNext()) {
-				Comparable<?> nex = (Comparable<?>) it.next();
-				System.out.println("RangeMapDomain:"+nex);
-			}
-		}
-		siz = RelatrixTransaction.size(alias12, xid, RangeMapDomain.class);
-		if(siz > 0) {
-			if(DEBUG)
-				System.out.println("KV RANGE 1AR17 RangeMapDomain MISMATCH:"+siz+" > 0 after all deleted and committed");
-			else
-				throw new Exception("KV RANGE 1AR17 RangeMapDomain MISMATCH:"+siz+" > 0 after delete/commit");
-		}
+	
 		System.out.println("BATTERY1AR17 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
 	

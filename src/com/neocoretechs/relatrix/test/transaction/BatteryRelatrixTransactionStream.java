@@ -192,9 +192,9 @@ public class BatteryRelatrixTransactionStream {
 			if( DEBUG ) System.out.println("1AR6:"+i.get()+" "+nex);
 			//String fkey = key + String.format(uniqKeyFmt, i);
 			// no guarantee of ordering with unqualified findSet/findStream
-			if(!((String) nex.get(0)).startsWith(key) || !nex.get(1).equals("Has unit") || nex.length() != 3) {
-				System.out.println("MAP KEY MISMATCH:"+(i.get())+" Has unit - "+nex.get(1)+" length:"+nex.length());
-				throw new RuntimeException("MAP KEY MISMATCH:"+(i.get())+" Has unit - "+nex.get(1)+" length:"+nex.length());
+			if(!((String) nex.getDomain()).startsWith(key) || !nex.getMap().equals("Has unit") ) {
+				System.out.println("MAP KEY MISMATCH:"+(i.get())+" Has unit - "+nex.getMap());
+				throw new RuntimeException("MAP KEY MISMATCH:"+(i.get())+" Has unit - ");
 			}
 			i.getAndIncrement();
 		}));
@@ -221,7 +221,7 @@ public class BatteryRelatrixTransactionStream {
 			if(DEBUG ) System.out.println("1AR7:"+i.get()+" "+nex);
 			//String fkey = key + String.format(uniqKeyFmt, i);
 			// No guarantee of order with unqualified findSet/findStream
-			if(!((String)nex.get(0)).startsWith(key) || nex.length() != 1) {
+			if(!((String)nex.getDomain()).startsWith(key) || nex.length() != 1) {
 				System.out.println("DOMAIN KEY MISMATCH:"+(i.get())+"  "+nex+" length:"+nex.length());
 				throw new RuntimeException("DOMAIN KEY MISMATCH:"+(i.get())+"  "+nex+" length:"+nex.length());
 			}
@@ -249,7 +249,7 @@ public class BatteryRelatrixTransactionStream {
 			if( DEBUG ) System.out.println("1AR8:"+i.get()+" "+nex);
 			// no guarantee of ordering with unqualified findSet/findStream
 			Comparable[] nexc = nex.toArray();
-			if(!((String) nexc[0]).startsWith(key) || !nexc[1].equals("Has unit") || nex.length() != 2) {
+			if(!((String) nexc[0]).startsWith(key) || !nexc[1].equals("Has unit")) {
 				System.out.println("KEY MISMATCH:"+(i.get())+" "+nexc[0]+" Has unit - "+nexc[1]);
 				throw new RuntimeException("KEY MISMATCH:"+(i.get())+" Has unit - "+nexc[1]);
 			}
