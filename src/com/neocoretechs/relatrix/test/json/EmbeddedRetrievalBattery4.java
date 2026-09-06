@@ -3,6 +3,7 @@ package com.neocoretechs.relatrix.test.json;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.json.JSONObject;
 
@@ -18,6 +19,9 @@ import com.neocoretechs.relatrix.RelatrixJson;
 import com.neocoretechs.relatrix.RelatrixKV;
 import com.neocoretechs.relatrix.RelatrixKVJson;
 import com.neocoretechs.relatrix.Result;
+import com.neocoretechs.relatrix.key.IndexResolver;
+import com.neocoretechs.relatrix.parallel.ExecutionContextHolder;
+import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 
 
 /**
@@ -73,18 +77,26 @@ public class EmbeddedRetrievalBattery4 {
 	public static void main(String[] argv) throws Exception {
 		System.out.println("Subset Provides a persistent collection iterator of keys 'from' element inclusive, 'to' element exclusive of the keys specified");
 		RelatrixJson.getInstance();
-		AbstractRelation.displayLevel = AbstractRelation.displayLevels.MINIMAL;
-		xfClass = RelatrixKVJson.getClassType(xf);
-		x50Class = RelatrixKVJson.getClassType(xo50);
-		xClass = RelatrixKVJson.getClassType(xo);
-		if(argv.length == 2 && argv[1].equals("init")) {
-				battery1AR17(argv);
-		}
-		if(RelatrixJson.size() == 0) {
-			battery0(argv);
-		}
-		battery1(argv);
-		System.out.println("TEST BATTERY COMPLETE.");	
+		AbstractRelation.displayLevel = AbstractRelation.displayLevels.VERBOSE;
+		IndexResolver indexResolver = new IndexResolver(true);
+		ParallelExecutionContext pec = new ParallelExecutionContext(indexResolver, new ConcurrentHashMap<String,Object>());
+		ScopedValue.where(ExecutionContextHolder.CONTEXT, pec).run(() -> {
+			try {
+				xfClass = RelatrixKVJson.getClassType(xf);
+				x50Class = RelatrixKVJson.getClassType(xo50);
+				xClass = RelatrixKVJson.getClassType(xo);
+				if(argv.length == 2 && argv[1].equals("init")) {
+					battery1AR17(argv);
+				}
+				if(RelatrixJson.size() == 0) {
+					battery0(argv);
+				}
+				battery1(argv);
+			}catch(Exception e) {
+				e.printStackTrace();
+			}
+		});
+		System.out.println("TEST BATTERY COMPLETE.");
 		System.exit(1);
 	}
 	
@@ -220,7 +232,7 @@ public class EmbeddedRetrievalBattery4 {
 		for(int j = 0; j < ar.size(); j++) {
 			displayLine = 0;
 			//RelatrixHeadsetIterator.DEBUG = true;
-			System.out.println("11."+j+") findSubSet(*,<obj>,*,"+xClass+","+x50Class+") using map="+(Result)ar.get(j).getMap());		
+			System.out.println("11."+j+") findSubSet(*,<obj>,*,"+xClass+","+x50Class+") using map="+ar.get(j).getMap());		
 			it = RelatrixJson.findSubSet('*', ar.get(j).getMap(), '*',xClass, x50Class);
 			while(it.hasNext()) {
 				Object o = it.next();

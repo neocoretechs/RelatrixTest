@@ -70,7 +70,7 @@ public class EmbeddedRetrievalBattery2 {
 		//System.out.println("Analysis of all");
 		RelatrixJson.getInstance();
 		AbstractRelation.displayLevel = AbstractRelation.displayLevels.VERBOSE;
-		IndexResolver indexResolver = new IndexResolver();
+		IndexResolver indexResolver = new IndexResolver(true);
 		ParallelExecutionContext pec = new ParallelExecutionContext(indexResolver, new ConcurrentHashMap<String,Object>());
 		ScopedValue.where(ExecutionContextHolder.CONTEXT, pec).run(() -> {
 			try {
