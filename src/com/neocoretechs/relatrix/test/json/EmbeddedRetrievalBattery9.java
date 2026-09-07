@@ -3,6 +3,7 @@ package com.neocoretechs.relatrix.test.json;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 
 import org.json.JSONObject;
@@ -20,7 +21,9 @@ import com.neocoretechs.relatrix.RangeMapDomain;
 
 import com.neocoretechs.relatrix.Result;
 import com.neocoretechs.relatrix.Result1;
-
+import com.neocoretechs.relatrix.key.IndexResolver;
+import com.neocoretechs.relatrix.parallel.ExecutionContextHolder;
+import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 import com.neocoretechs.rocksack.TransactionId;
 
 /**
@@ -78,21 +81,29 @@ public class EmbeddedRetrievalBattery9 {
 		System.out.println("Sub Provides a persistent collection stream of keys 'from' element inclusive, 'to' element exclusive of the keys specified");
 		RelatrixJsonTransaction.getInstance();
 		xid = RelatrixJsonTransaction.getTransactionId();
-		AbstractRelation.displayLevel = AbstractRelation.displayLevels.MINIMAL;
-		xfClass = RelatrixKVJsonTransaction.getClassType(xf, xid);
-		x50Class = RelatrixKVJsonTransaction.getClassType(xo50, xid);
-		xClass = RelatrixKVJsonTransaction.getClassType(xo, xid);
-		if(argv.length == 2 && argv[1].equals("init")) {
-				battery1AR17(argv);
-		}
-		if(RelatrixJsonTransaction.size(xid) == 0) {
-			battery0(argv);
-		}
-		battery1(argv);
+		AbstractRelation.displayLevel = AbstractRelation.displayLevels.VERBOSE;
+		IndexResolver indexResolver = new IndexResolver(true);
+		ParallelExecutionContext pec = new ParallelExecutionContext(indexResolver, new ConcurrentHashMap<String,Object>());
+		ScopedValue.where(ExecutionContextHolder.CONTEXT, pec).run(() -> {
+			try {
+				xfClass = RelatrixKVJsonTransaction.getClassType(xf, xid);
+				x50Class = RelatrixKVJsonTransaction.getClassType(xo50, xid);
+				xClass = RelatrixKVJsonTransaction.getClassType(xo, xid);
+				if(argv.length == 2 && argv[1].equals("init")) {
+					battery1AR17(argv);
+				}
+				if(RelatrixJsonTransaction.size(xid) == 0) {
+					battery0(argv);
+				}
+				battery1(argv);
+			}catch(Exception e) {
+				e.printStackTrace();
+			}
+		});
 		System.out.println("TEST BATTERY COMPLETE.");	
 		System.exit(1);
 	}
-	
+
 	public static void displayCtrl() {
 		if(displayLine == 0)
 			displayLineCtr = 0;
@@ -175,7 +186,7 @@ public class EmbeddedRetrievalBattery9 {
 			Result c = (Result)o;
 			displayCtrl();
 			if(DISPLAY || DISPLAYALL)
-				System.out.println(displayLine+"="+Arrays.toString(RelatrixJsonTransaction.tupleResolver(c)));
+				System.out.println(displayLine+"="+c);
 			//ar.add(c[0]);
 		});
 		// return range, domainclass, mapclass, range lo/hi, use it to build our one-element ar range sample array for later
@@ -186,7 +197,7 @@ public class EmbeddedRetrievalBattery9 {
 			Result c = (Result)o;
 			displayCtrl();
 			if(DISPLAY || DISPLAYALL)
-				System.out.println(displayLine+"="+Arrays.toString(RelatrixJsonTransaction.tupleResolver(c)));
+				System.out.println(displayLine+"="+c);
 			// samplesize is dictated by hi and low range
 			ar.add(c);
 		});
@@ -198,7 +209,7 @@ public class EmbeddedRetrievalBattery9 {
 			Result c = (Result)o;
 			displayCtrl();
 			if(DISPLAY || DISPLAYALL)
-				System.out.println(displayLine+"="+Arrays.toString(RelatrixJsonTransaction.tupleResolver(c)));
+				System.out.println(displayLine+"="+c);
 			// samplesize is dictated by hi and low range
 			am.add(c);
 		});
@@ -210,7 +221,7 @@ public class EmbeddedRetrievalBattery9 {
 			Result c = (Result)o;
 			displayCtrl();
 			if(DISPLAY || DISPLAYALL)
-				System.out.println(displayLine+"="+Arrays.toString(RelatrixJsonTransaction.tupleResolver(c)));
+				System.out.println(displayLine+"="+c);
 			// samplesize is dictated by hi and low range
 			ad.add(c);
 		});
@@ -222,7 +233,7 @@ public class EmbeddedRetrievalBattery9 {
 			Result1 c = (Result1)o;
 			displayCtrl();
 			if(DISPLAY || DISPLAYALL)
-				System.out.println(displayLine+"="+Arrays.toString(RelatrixJsonTransaction.tupleResolver(c)));
+				System.out.println(displayLine+"="+c);
 			// samplesize is dictated by hi and low range
 			ar2.add(c);
 		});
@@ -234,7 +245,7 @@ public class EmbeddedRetrievalBattery9 {
 			Result1 c = (Result1)o;
 			displayCtrl();
 			if(DISPLAY || DISPLAYALL)
-				System.out.println(displayLine+"="+Arrays.toString(RelatrixJsonTransaction.tupleResolver(c)));
+				System.out.println(displayLine+"="+c);
 			// samplesize is dictated by hi and low range
 			ar2dr.add(c);
 		});
@@ -246,7 +257,7 @@ public class EmbeddedRetrievalBattery9 {
 			Result1 c = (Result1)o;
 			displayCtrl();
 			if(DISPLAY || DISPLAYALL)
-				System.out.println(displayLine+"="+Arrays.toString(RelatrixJsonTransaction.tupleResolver(c)));
+				System.out.println(displayLine+"="+c);
 			// samplesize is dictated by hi and low range
 			ar2dm.add(c);
 		});
@@ -258,7 +269,7 @@ public class EmbeddedRetrievalBattery9 {
 			Result c = (Result)o;
 			displayCtrl();
 			if(DISPLAY || DISPLAYALL)
-				System.out.println(displayLine+"="+Arrays.toString(RelatrixJsonTransaction.tupleResolver(c)));
+				System.out.println(displayLine+"="+c);
 			// samplesize is dictated by hi and low range
 			ar3.add(c);
 		});
@@ -270,7 +281,7 @@ public class EmbeddedRetrievalBattery9 {
 		for(int j = 0; j < ar3.size(); j++) {
 			displayLine = 0;
 			System.out.println("9."+j+") findSubStream(xid,<obj>,<obj>,<obj>) using ="+
-					Arrays.toString(RelatrixJsonTransaction.tupleResolver((Result)ar3.get(j)))+
+					ar.get(j)+
 					"("+ar.get(j).getDomain().getClass().getName()+"),"+
 					",("+ar.get(j).getMap().getClass().getName()+"),"+
 					",("+ar.get(j).getRange().getClass().getName());
@@ -279,17 +290,17 @@ public class EmbeddedRetrievalBattery9 {
 				Result c = (Result)o;
 				displayCtrl();
 				if(DISPLAY)
-					System.out.println(displayLine+"="+Arrays.toString(RelatrixJsonTransaction.tupleResolver(c)));
+					System.out.println(displayLine+"="+c);
 			});
 			displayLine=0;
 			//RelatrixHeadsetIterator.DEBUG = true;
-			System.out.println("10."+j+") findSubStream(xid,*,*,<obj>,"+xClass+"," +xfClass+") using range="+Arrays.toString(RelatrixJsonTransaction.tupleResolver((Result)ar3.get(j))));		
+			System.out.println("10."+j+") findSubStream(xid,*,*,<obj>,"+xClass+"," +xfClass+") using range="+ar.get(j));		
 			it = RelatrixJsonTransaction.findSubStream(xid,'*', '*', ((Result)ar3.get(j)).get(3), xClass, xfClass);
 			it.forEachOrdered(o->  {
 				Result c = (Result)o;
 				displayCtrl();
 				if(DISPLAY || DISPLAYALL)
-					System.out.println(displayLine+"="+Arrays.toString(RelatrixJsonTransaction.tupleResolver(c)));
+					System.out.println(displayLine+"="+c);
 			});
 		}
 		
@@ -298,22 +309,22 @@ public class EmbeddedRetrievalBattery9 {
 		for(int j = 0; j < ar.size(); j++) {
 			displayLine = 0;
 			//RelatrixHeadsetIterator.DEBUG = true;
-			System.out.println("11."+j+") findSubStream(xid,*,<obj>,*,"+xClass+","+x50Class+") using map="+Arrays.toString(RelatrixJsonTransaction.tupleResolver((Result)am.get(j))));		
+			System.out.println("11."+j+") findSubStream(xid,*,<obj>,*,"+xClass+","+x50Class+") using map="+ar.get(j));		
 			it = RelatrixJsonTransaction.findSubStream(xid,'*', ar.get(j).getDomain(), '*',xClass, x50Class);
 			it.forEachOrdered(o->  {
 				Result c = (Result)o;
 				displayCtrl();
 				if(DISPLAY || DISPLAYALL)
-					System.out.println(displayLine+"="+Arrays.toString(RelatrixJsonTransaction.tupleResolver(c)));
+					System.out.println(displayLine+"="+c);
 			});
 			displayLine =0;
-			System.out.println("12."+j+") findSubStream(xid,<obj>,*,*,"+ xfClass+","+x50Class+") using domain="+Arrays.toString(RelatrixJsonTransaction.tupleResolver((Result)ad.get(j))));		
+			System.out.println("12."+j+") findSubStream(xid,<obj>,*,*,"+ xfClass+","+x50Class+") using domain="+ad.get(j));		
 			it = RelatrixJsonTransaction.findSubStream(xid,ar.get(j).getDomain(), '*', '*', xfClass, x50Class);
 			it.forEachOrdered(o->  {
 				Result c = (Result)o;
 				displayCtrl();
 				if(DISPLAY || DISPLAYALL)
-					System.out.println(displayLine+"="+Arrays.toString(RelatrixJsonTransaction.tupleResolver(c)));
+					System.out.println(displayLine+"="+c);
 			});
 		}
 
@@ -328,7 +339,7 @@ public class EmbeddedRetrievalBattery9 {
 				Result c = (Result)o;
 				displayCtrl();
 				if(DISPLAY || DISPLAYALL)
-					System.out.println(displayLine+"="+Arrays.toString(RelatrixJsonTransaction.tupleResolver(c)));
+					System.out.println(displayLine+"="+c);
 			});
 			displayLine = 0;
 			System.out.println("14."+j+") findSubStream(xid,<obj>,*,<obj>,"+xfClass+") using ="+RelatrixKVJsonTransaction.getData(ar.get(j).getDomain())+", "+RelatrixKVJsonTransaction.getData(ar.get(j).getMap()));		
@@ -337,7 +348,7 @@ public class EmbeddedRetrievalBattery9 {
 				Result c = (Result)o;
 				displayCtrl();
 				if(DISPLAY || DISPLAYALL)
-					System.out.println(displayLine+"="+Arrays.toString(RelatrixJsonTransaction.tupleResolver(c)));
+					System.out.println(displayLine+"="+c);
 			});
 			displayLine =0;
 			System.out.println("15."+j+") findSubStream(xid,<obj>,<obj>,*,"+x50Class+") using domain="+RelatrixKVJsonTransaction.getData(ar.get(j).getDomain())+", map="+RelatrixKVJsonTransaction.getData(ar.get(j).getMap()));		
@@ -346,7 +357,7 @@ public class EmbeddedRetrievalBattery9 {
 				Result c = (Result)o;
 				displayCtrl();
 				if(DISPLAY || DISPLAYALL)
-					System.out.println(displayLine+"="+Arrays.toString(RelatrixJsonTransaction.tupleResolver(c)));
+					System.out.println(displayLine+"="+c);
 			});
 		}
 		
@@ -354,31 +365,31 @@ public class EmbeddedRetrievalBattery9 {
 		System.out.println("Begin return 2 element Result set from: match 1 object instance, 2 class types");
 		for(int j = 0; j < ar.size(); j++) {
 			displayLine =0;
-			System.out.println("16."+j+") findSubStream(xid,*,*,<obj>,"+xClass+","+xfClass+") using range="+Arrays.toString(RelatrixJsonTransaction.tupleResolver(((Result)ar.get(j)))));		
+			System.out.println("16."+j+") findSubStream(xid,*,*,<obj>,"+xClass+","+xfClass+") using range="+ar.get(j));		
 			it = RelatrixJsonTransaction.findSubStream(xid,'*', '*', ar.get(j).getDomain(), xClass, xfClass);
 			it.forEachOrdered(o->  {
 				Result c = (Result)o;
 				displayCtrl();
 				if(DISPLAY || DISPLAYALL)
-					System.out.println(displayLine+"="+Arrays.toString(RelatrixJsonTransaction.tupleResolver(c)));
+					System.out.println(displayLine+"="+c);
 			});
 			displayLine =0;
-			System.out.println("17."+j+") findSubStream(xid,*,<obj>,*,"+xClass+","+x50Class+") using map="+Arrays.toString(RelatrixJsonTransaction.tupleResolver(((Result)am.get(j)))));		
+			System.out.println("17."+j+") findSubStream(xid,*,<obj>,*,"+xClass+","+x50Class+") using map="+ar.get(j));		
 			it = RelatrixJsonTransaction.findSubStream(xid,'*', ar.get(j).getDomain(), '*', xClass, x50Class);
 			it.forEachOrdered(o->  {
 				Result1 c = (Result1)o;
 				displayCtrl();
 				if(DISPLAY || DISPLAYALL)
-					System.out.println(displayLine+"="+Arrays.toString(RelatrixJsonTransaction.tupleResolver(c)));
+					System.out.println(displayLine+"="+c);
 			});
 			displayLine =0;
-			System.out.println("18."+j+") findSubStream(xid,<obj>,*,*,"+xfClass+","+x50Class+") using domain="+Arrays.toString(RelatrixJsonTransaction.tupleResolver(((Result)ad.get(j)))));		
+			System.out.println("18."+j+") findSubStream(xid,<obj>,*,*,"+xfClass+","+x50Class+") using domain="+ar.get(j));		
 			it = RelatrixJsonTransaction.findSubStream(xid,ar.get(j).getDomain(), '*', '*', xfClass, x50Class);
 			it.forEachOrdered(o->  {
 				Result1 c = (Result1)o;
 				displayCtrl();
 				if(DISPLAY || DISPLAYALL)
-					System.out.println(displayLine+"="+Arrays.toString(RelatrixJsonTransaction.tupleResolver(c)));
+					System.out.println(displayLine+"="+c);
 			});
 		}
 		System.out.println("----------");
@@ -391,7 +402,7 @@ public class EmbeddedRetrievalBattery9 {
 				Result c = (Result)o;
 				displayCtrl();
 				if(DISPLAY || DISPLAYALL)
-					System.out.println(displayLine+"="+Arrays.toString(RelatrixJsonTransaction.tupleResolver(c)));
+					System.out.println(displayLine+"="+c);
 			});
 			displayLine=0;
 			System.out.println("20."+j+") findSubStream(xid,<obj>,*,<obj>,+"+xfClass+") using domain="+RelatrixKVJsonTransaction.getData(ar.get(j).getDomain())+" range="+ RelatrixKVJsonTransaction.getData(ar.get(j).getMap()));		
@@ -400,7 +411,7 @@ public class EmbeddedRetrievalBattery9 {
 				Result c = (Result)o;
 				displayCtrl();
 				if(DISPLAY || DISPLAYALL)
-					System.out.println(displayLine+"="+Arrays.toString(RelatrixJsonTransaction.tupleResolver(c)));
+					System.out.println(displayLine+"="+c);
 			});
 			displayLine=0;
 			System.out.println("21."+j+") findSubStream(xid,<obj>,<obj>,*,"+x50Class+") using domain="+RelatrixKVJsonTransaction.getData(ar.get(j).getDomain())+" map="+RelatrixKVJsonTransaction.getData(ar.get(j).getMap()));		
@@ -409,7 +420,7 @@ public class EmbeddedRetrievalBattery9 {
 				Result c = (Result)o;
 				displayCtrl();
 				if(DISPLAY || DISPLAYALL)
-					System.out.println(displayLine+"="+Arrays.toString(RelatrixJsonTransaction.tupleResolver(c)));
+					System.out.println(displayLine+"="+c);
 			});
 		}
 		//
@@ -426,7 +437,7 @@ public class EmbeddedRetrievalBattery9 {
 				Result c = (Result)o;
 				displayCtrl();
 				if(DISPLAY || DISPLAYALL)
-					System.out.println(displayLine+"="+Arrays.toString(RelatrixJsonTransaction.tupleResolver(c)));
+					System.out.println(displayLine+"="+c);
 			});
 			long l = xo50lo.getLong("timestamp");
 			l+=increment;                                                                      
@@ -441,7 +452,7 @@ public class EmbeddedRetrievalBattery9 {
 				Result c = (Result)o;
 				displayCtrl();
 				if(DISPLAY || DISPLAYALL)
-					System.out.println(displayLine+"="+Arrays.toString(RelatrixJsonTransaction.tupleResolver(c)));
+					System.out.println(displayLine+"="+c);
 			});
 			l = xo50lo.getLong("timestamp");
 			l+=increment;
@@ -456,7 +467,7 @@ public class EmbeddedRetrievalBattery9 {
 				Result c = (Result)o;
 				displayCtrl();
 				if(DISPLAY || DISPLAYALL)
-					System.out.println(displayLine+"="+Arrays.toString(RelatrixJsonTransaction.tupleResolver(c)));
+					System.out.println(displayLine+"="+c);
 			});
 		}
 		

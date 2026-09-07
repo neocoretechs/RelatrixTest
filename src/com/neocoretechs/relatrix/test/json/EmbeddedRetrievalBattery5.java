@@ -3,6 +3,7 @@ package com.neocoretechs.relatrix.test.json;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 
 import org.json.JSONObject;
@@ -19,6 +20,9 @@ import com.neocoretechs.relatrix.RelatrixJson;
 import com.neocoretechs.relatrix.RelatrixKV;
 import com.neocoretechs.relatrix.RelatrixKVJson;
 import com.neocoretechs.relatrix.Result;
+import com.neocoretechs.relatrix.key.IndexResolver;
+import com.neocoretechs.relatrix.parallel.ExecutionContextHolder;
+import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 
 /**
  * This series of tests loads up arrays to create a cascading set of retrievals mostly checking
@@ -74,17 +78,25 @@ public class EmbeddedRetrievalBattery5 {
 	public static void main(String[] argv) throws Exception {
 		System.out.println("Sub Provides a persistent collection stream of keys 'from' element inclusive, 'to' element exclusive of the keys specified");
 		RelatrixJson.getInstance();
-		AbstractRelation.displayLevel = AbstractRelation.displayLevels.MINIMAL;
-		xfClass = RelatrixKVJson.getClassType(xf);
-		x50Class = RelatrixKVJson.getClassType(xo50);
-		xClass = RelatrixKVJson.getClassType(xo);
-		if(argv.length == 2 && argv[1].equals("init")) {
-				battery1AR17(argv);
-		}
-		if(RelatrixJson.size() == 0) {
-			battery0(argv);
-		}
-		battery1(argv);
+		AbstractRelation.displayLevel = AbstractRelation.displayLevels.VERBOSE;
+		IndexResolver indexResolver = new IndexResolver(true);
+		ParallelExecutionContext pec = new ParallelExecutionContext(indexResolver, new ConcurrentHashMap<String,Object>());
+		ScopedValue.where(ExecutionContextHolder.CONTEXT, pec).run(() -> {
+			try {
+				xfClass = RelatrixKVJson.getClassType(xf);
+				x50Class = RelatrixKVJson.getClassType(xo50);
+				xClass = RelatrixKVJson.getClassType(xo);
+				if(argv.length == 2 && argv[1].equals("init")) {
+					battery1AR17(argv);
+				}
+				if(RelatrixJson.size() == 0) {
+					battery0(argv);
+				}
+				battery1(argv);
+			}catch(Exception e) {
+				e.printStackTrace();
+			}
+		});
 		System.out.println("TEST BATTERY COMPLETE.");	
 		System.exit(1);
 	}
@@ -155,12 +167,7 @@ public class EmbeddedRetrievalBattery5 {
 		// this list will store an object used to test subsequent queries where a named object is needed
 		// it will be extracted from the wildcard queries, typically the elements will be Result result set instances of Result, Result2, Result3
 		ArrayList<Result> ar = new ArrayList<Result>(); // range
-		ArrayList<Comparable> am = new ArrayList<Comparable>(); // map
-		ArrayList<Comparable> ad = new ArrayList<Comparable>(); // domain
-		ArrayList<Comparable> ar2 = new ArrayList<Comparable>(); // will store 2 element result sets map, range
-		ArrayList<Comparable> ar2dr = new ArrayList<Comparable>(); // will store 2 element result sets domain,range
-		ArrayList<Comparable> ar2dm = new ArrayList<Comparable>(); // will store 2 element result sets domain,map
-		ArrayList<Comparable> ar3 = new ArrayList<Comparable>(); // will store 3 element result sets
+	
 		Stream<?> it = null;
 		System.out.println("Wildcard queries:");
 		displayLine = 0;
@@ -186,87 +193,15 @@ public class EmbeddedRetrievalBattery5 {
 			// samplesize is dictated by hi and low range
 			ar.add(c);
 		});
-		// return map, domainclass, mapclass, range lo/hi, use it to build our one-element am map sample array for later
-		displayLine = 0;
-		System.out.println("3.) findSubStream(*,*,*,"+xClass+","+ xflo+","+ xfhi+","+x50Class+")");
-		it = RelatrixJson.findSubStream('*', '*', '*',xClass, RelatrixKVJson.getObject(xflo), RelatrixKVJson.getObject(xfhi), x50Class);
-		it.forEachOrdered(o->  {
-			Result c = (Result)o;
-			displayCtrl();
-			if(DISPLAY || DISPLAYALL)
-				System.out.println(displayLine+"="+c);
-			// samplesize is dictated by hi and low range
-			am.add(c);
-		});
-		// return domain, mapclass, rangeclass, domain lo/hi, use it to build our one-element ad domain sample array for later
-		displayLine = 0;
-		System.out.println("4.) findSubStream(*,*,*,"+xlo+","+xhi+","+ xfClass+","+x50Class+")");
-		it = RelatrixJson.findSubStream('*', '*', '*',RelatrixKVJson.getObject(xolo), RelatrixKVJson.getObject(xohi), xfClass, x50Class);
-		it.forEachOrdered(o->  {
-			Result c = (Result)o;
-			displayCtrl();
-			if(DISPLAY || DISPLAYALL)
-				System.out.println(displayLine+"="+c);
-			// samplesize is dictated by hi and low range
-			ad.add(c);
-		});
-		// return map and range. domainclass, mapclass, range lo/hi to build our two-element ar2 sample array for later
-		displayLine = 0;
-		System.out.println("5.) findSubStream(*,*,*,"+xClass+","+ xfClass+","+ x50klo+","+ x50khi+")");
-		it = RelatrixJson.findSubStream('*', '*', '*',xClass, xfClass, RelatrixKVJson.getObject(xo50lo), RelatrixKVJson.getObject(xo50hi));
-		it.forEachOrdered(o->  {
-			Result c = (Result)o;
-			displayCtrl();
-			if(DISPLAY || DISPLAYALL)
-				System.out.println(displayLine+"="+c);
-			// samplesize is dictated by hi and low range
-			ar2.add(c);
-		});
-		// return domain and range. domainclass, mapclass, range lo/hi to build our two-element ar2dr sample array for later
-		displayLine = 0;
-		System.out.println("6.) findSubStream(*,*,*,"+xClass+","+ xfClass+","+ x50klo+","+ x50khi+")");
-		it = RelatrixJson.findSubStream('*', '*', '*',xClass, xfClass, RelatrixKVJson.getObject(xo50lo), RelatrixKVJson.getObject(xo50hi));
-		it.forEachOrdered(o->  {
-			Result c = (Result)o;
-			displayCtrl();
-			if(DISPLAY || DISPLAYALL)
-				System.out.println(displayLine+"="+c);
-			// samplesize is dictated by hi and low range
-			ar2dr.add(c);
-		});
-		// return domain and map. domainclass, mapclass, range lo/hi to build our two-element ar2dm sample array for later
-		displayLine = 0;
-		System.out.println("7.) findSubStream(*,*,*,"+xClass+","+ xfClass+","+ x50klo+","+ x50khi+")");
-		it = RelatrixJson.findSubStream('*', '*', '*',xClass, xfClass, RelatrixKVJson.getObject(xo50lo), RelatrixKVJson.getObject(xo50hi));
-		it.forEachOrdered(o->  {
-			Result c = (Result)o;
-			displayCtrl();
-			if(DISPLAY || DISPLAYALL)
-				System.out.println(displayLine+"="+c);
-			// samplesize is dictated by hi and low range
-			ar2dm.add(c);
-		});
-		// return domain, map, and range, domainclass, mapclass, range lo/hi to build our three-element ar3 sample array for later
-		displayLine = 0;
-		System.out.println("8.) findSubStream(*,*,*,"+xClass+","+ xfClass+","+ x50klo+","+ x50khi+")");
-		it = RelatrixJson.findSubStream('*', '*', '*',xClass, xfClass, RelatrixKVJson.getObject(xo50lo), RelatrixKVJson.getObject(xo50hi));
-		it.forEachOrdered(o->  {
-			Result c = (Result)o;
-			displayCtrl();
-			if(DISPLAY || DISPLAYALL)
-				System.out.println(displayLine+"="+c);
-			// samplesize is dictated by hi and low range
-			ar3.add(c);
-		});
 
 		// Now that we have built our sample arrays from retrieval, use the elements therein to retrieve further subsets based on the sample data and the concrete instances.
 		// This demonstrates how we use object instances in retrieval to retrieve subsets. In these cases identity Relations are being retrieved
 		System.out.println("----------");
 		System.out.println("Above are all the wildcard permutations. Now retrieve those identity Relations with object references using the wildcard results.");
-		for(int j = 0; j < ar3.size(); j++) {
+		for(int j = 0; j < ar.size(); j++) {
 			displayLine = 0;
 			System.out.println("9."+j+") findSubStream(<obj>,<obj>,<obj>) using ="+
-					(Result)ar3.get(j)+
+					(Result)ar.get(j)+
 					"("+ar.get(j).getDomain().getClass().getName()+"),"+
 					",("+ar.get(j).getMap().getClass().getName()+"),"+
 					",("+ar.get(j).getRange().getClass().getName());
@@ -413,7 +348,7 @@ public class EmbeddedRetrievalBattery5 {
 		//
 		System.out.println("----------");
 		System.out.println("Begin hi/lo range testing");
-		for(int j = 0; j < ar2dm.size(); j++) {
+		for(int j = 0; j < ar.size(); j++) {
 			displayLine =0;
 			System.out.println("22."+j+") findSubStream(*,*,*,<class>,<class>,<obj>,<obj>) using domain="+ar.get(j).getDomain().getClass()+" map="+ar.get(j).getMap().getClass()+
 					" range="+RelatrixKVJson.getData(RelatrixKVJson.getObject(xo50lo))+" to "+ RelatrixKVJson.getData(RelatrixKVJson.getObject(xo50hi)));		

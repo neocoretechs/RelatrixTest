@@ -5,6 +5,7 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 
 import org.json.JSONObject;
@@ -24,6 +25,9 @@ import com.neocoretechs.relatrix.Result;
 import com.neocoretechs.relatrix.Result1;
 
 import com.neocoretechs.relatrix.AbstractRelation.displayLevels;
+import com.neocoretechs.relatrix.key.IndexResolver;
+import com.neocoretechs.relatrix.parallel.ExecutionContextHolder;
+import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
 import com.neocoretechs.rocksack.TransactionId;
 
 
@@ -68,32 +72,40 @@ public class EmbeddedRetrievalBattery8 {
 	/**
 	*/
 	public static void main(String[] argv) throws Exception {
-		 //System.out.println("Analysis of all");
+		//System.out.println("Analysis of all");
 		RelatrixJsonTransaction.getInstance();
 		xid = RelatrixJsonTransaction.getTransactionId();
 		AbstractRelation.displayLevel = AbstractRelation.displayLevels.VERBOSE;
-		xfClass = RelatrixKVJsonTransaction.getClassType(xf, xid);
-		xo50Class = RelatrixKVJsonTransaction.getClassType(xo50, xid);
-		xoClass = RelatrixKVJsonTransaction.getClassType(xo, xid);
-		if(argv.length > 2 && argv[1].equals("max")) {
-			System.out.println("Setting max items to "+argv[2]);
-			max = Integer.parseInt(argv[2]);
-		} else {
-			if(argv.length > 1 && argv[1].equals("init")) {
-				System.out.println("Initialize database to zero items, then terminate...");
-				battery1AR17(argv);
-				System.exit(0);
+		IndexResolver indexResolver = new IndexResolver(true);
+		ParallelExecutionContext pec = new ParallelExecutionContext(indexResolver, new ConcurrentHashMap<String,Object>());
+		ScopedValue.where(ExecutionContextHolder.CONTEXT, pec).run(() -> {
+			try {
+				xfClass = RelatrixKVJsonTransaction.getClassType(xf, xid);
+				xo50Class = RelatrixKVJsonTransaction.getClassType(xo50, xid);
+				xoClass = RelatrixKVJsonTransaction.getClassType(xo, xid);
+				if(argv.length > 2 && argv[1].equals("max")) {
+					System.out.println("Setting max items to "+argv[2]);
+					max = Integer.parseInt(argv[2]);
+				} else {
+					if(argv.length > 1 && argv[1].equals("init")) {
+						System.out.println("Initialize database to zero items, then terminate...");
+						battery1AR17(argv);
+						System.exit(0);
+					}
+				}
+				long siz = RelatrixJsonTransaction.size(xid);
+				if(siz == 0) {
+					if(DEBUG)
+						System.out.println("Zero items, Begin insertion from "+min+" to "+max);
+					battery0(argv);
+				} else
+					System.out.println("size="+siz);
+				battery1(argv);
+				battery2(argv);
+			}catch(Exception e) {
+				e.printStackTrace();
 			}
-		}
-		long siz = RelatrixJsonTransaction.size(xid);
-		if(siz == 0) {
-			if(DEBUG)
-				System.out.println("Zero items, Begin insertion from "+min+" to "+max);
-			battery0(argv);
-		} else
-			System.out.println("size="+siz);
-		battery1(argv);
-		battery2(argv);
+		});
 		System.out.println("TEST BATTERY COMPLETE.");	
 		System.exit(0);
 	}
@@ -165,12 +177,7 @@ public class EmbeddedRetrievalBattery8 {
 		// this list will store an object used to test subsequent queries where a named object is needed
 		// it will be extracted from the wildcard queries
 		ArrayList<Result> ar = new ArrayList<Result>();
-		ArrayList<Comparable> ad = new ArrayList<Comparable>();
-		ArrayList<Comparable> am = new ArrayList<Comparable>();
-		ArrayList<Comparable> ar2 = new ArrayList<Comparable>(); // will store 2 element result sets map range
-		ArrayList<Comparable> ar2dm = new ArrayList<Comparable>(); // will store 2 element result sets domain map
-		ArrayList<Comparable> ar2dr = new ArrayList<Comparable>(); // will store 2 element result sets domain range
-		ArrayList<Comparable> ar3 = new ArrayList<Comparable>(); // will store 3 element result sets
+	
 		System.out.println("Wildcard queries:");
 		displayLine = 0;
 		System.out.println("1.) findHeadStream(*,*,*,"+xoClass+","+xfClass+","+xo50Class+")...");
@@ -179,7 +186,7 @@ public class EmbeddedRetrievalBattery8 {
 			Result c = (Result)o;
 			displayCtrl();
 			if(DISPLAY || DISPLAYALL)
-				System.out.println(displayLine+"="+Arrays.toString(RelatrixJsonTransaction.tupleResolver(c)));
+				System.out.println(displayLine+"="+c);
 		});
 		displayLine = 0;
 		System.out.println("2.) findHeadStream(*,*,*,"+xoClass+","+xfClass+","+xo50Class+")...");		
@@ -188,84 +195,13 @@ public class EmbeddedRetrievalBattery8 {
 			Result c = (Result)o;
 			displayCtrl();
 			if(DISPLAY || DISPLAYALL)
-				System.out.println(displayLine+"="+Arrays.toString(RelatrixJsonTransaction.tupleResolver(c)));
+				System.out.println(displayLine+"="+c);
 			if(ar.size() < SAMPLESIZE ) {
 				ar.add(c);
 			}
 		});
-		displayLine = 0;
-		System.out.println("3.) findHeadStream(*,*,*,"+xoClass+","+xfClass+","+xo50Class+")...");		
-		it = RelatrixJsonTransaction.findHeadStream(xid, '*', '*', '*',xoClass, xfClass, xo50Class);
-		it.forEachOrdered(o-> {
-			Result  c = (Result )o;
-			displayCtrl();
-			if(DISPLAY || DISPLAYALL)
-				System.out.println(displayLine+"="+Arrays.toString(RelatrixJsonTransaction.tupleResolver(c)));
-			if(am.size() < SAMPLESIZE ) {
-				am.add(c);
-			}
-		});
-		displayLine = 0;
-		System.out.println("4.) findHeadStream(*,*,*."+xoClass+","+xfClass+","+xo50Class+")...");		
-		it = RelatrixJsonTransaction.findHeadStream(xid, '*', '*', '*',xoClass, xfClass, xo50Class);
-		it.forEachOrdered(o-> {
-			Result  c = (Result )o;
-			displayCtrl();
-			if(DISPLAY || DISPLAYALL)
-				System.out.println(displayLine+"="+Arrays.toString(RelatrixJsonTransaction.tupleResolver(c)));
-			if(ad.size() < SAMPLESIZE) {
-				ad.add(c);
-			}
-		});
-		displayLine=0;
-		System.out.println("5.) findHeadStream(*,*,*,"+xoClass+","+xfClass+","+xo50Class+")...");		
-		it = RelatrixJsonTransaction.findHeadStream(xid, '*', '*', '*',xoClass, xfClass, xo50Class);
-		it.forEachOrdered(o-> {
-			Result1 c = (Result1)o; // Result1
-			displayCtrl();
-			if(DISPLAY || DISPLAYALL)
-				System.out.println(displayLine+"="+Arrays.toString(RelatrixJsonTransaction.tupleResolver(c)));
-			if(ar.size() < SAMPLESIZE) {
-				ar2.add(c);
-			}
-		});
-		displayLine = 0;
-		System.out.println("6.) findHeadStream(*,*,*,"+xoClass+","+xfClass+","+xo50Class+")...");		
-		it = RelatrixJsonTransaction.findHeadStream(xid, '*', '*', '*',xoClass, xfClass, xo50Class);
-		it.forEachOrdered(o-> {
-			Result1 c = (Result1)o;
-			displayCtrl();
-			if(DISPLAY || DISPLAYALL)
-				System.out.println(displayLine+"="+Arrays.toString(RelatrixJsonTransaction.tupleResolver(c)));
-			if(ar2dr.size() < SAMPLESIZE) {
-				ar2dr.add(c);
-			}
-		});
-		displayLine = 0;
-		System.out.println("7.) findHeadStream(*,*,*,"+xoClass+","+xfClass+","+xo50Class+")...");		
-		it = RelatrixJsonTransaction.findHeadStream(xid, '*', '*', '*',xoClass, xfClass, xo50Class);
-		it.forEachOrdered(o-> {
-			Result1 c = (Result1)o;
-			displayCtrl();
-			if(DISPLAY || DISPLAYALL)
-				System.out.println(displayLine+"="+Arrays.toString(RelatrixJsonTransaction.tupleResolver(c)));
-			if(ar2dm.size() < SAMPLESIZE) {
-				ar2dm.add(c);
-			}
-		});
-		displayLine = 0;
-		System.out.println("8.) findHeadStream(*,*,*,"+xoClass+","+xfClass+","+xo50Class+")...");		
-		it = RelatrixJsonTransaction.findHeadStream(xid, '*', '*', '*',xoClass, xfClass, xo50Class);
-		it.forEachOrdered(o-> {
-			Result c = (Result)o;
-			displayCtrl();
-			if(DISPLAY || DISPLAYALL)
-				System.out.println(displayLine+"="+Arrays.toString(RelatrixJsonTransaction.tupleResolver(c)));
-			if(ar3.size() < SAMPLESIZE) {
-				ar3.add(c);
-			}
-		});
-		for(int j = 0; j < ar3.size(); j++) {
+
+		for(int j = 0; j < ar.size(); j++) {
 			displayLine = 0;
 			System.out.println("8."+j+") findHeadStream(*,*,*,<obj>,<obj>,<obj>) using domain="+
 					RelatrixKVJsonTransaction.getData(ar.get(j).getDomain())+
@@ -278,7 +214,7 @@ public class EmbeddedRetrievalBattery8 {
 				Result c = (Result)o;
 				displayCtrl();
 				if(DISPLAY || DISPLAYALL)
-					System.out.println(displayLine+"="+Arrays.toString(RelatrixJsonTransaction.tupleResolver(c)));
+					System.out.println(displayLine+"="+c);
 			});
 			displayLine=0;
 			//RelatrixHeadsetStream.DEBUG = true;
@@ -288,12 +224,12 @@ public class EmbeddedRetrievalBattery8 {
 				Result c = (Result)o;
 				displayCtrl();
 				if(DISPLAY || DISPLAYALL)
-					System.out.println(displayLine+"="+Arrays.toString(RelatrixJsonTransaction.tupleResolver(c)));
+					System.out.println(displayLine+"="+c);
 			});
 		}
 		System.out.println("----------\r\nAbove are wildcard permutations. Now retrieve those with object references using the");
 		System.out.println("wildcard results. Recall headstream is strictly less than 'to' element...");
-		for(int j = 0; j < ar3.size(); j++) {
+		for(int j = 0; j < ar.size(); j++) {
 			displayLine = 0;
 			System.out.println("9."+j+") findHeadStream(<obj>,<obj>,<obj>) using domain="+				
 					RelatrixKVJsonTransaction.getData(ar.get(j).getDomain())+
@@ -306,7 +242,7 @@ public class EmbeddedRetrievalBattery8 {
 				Result c = (Result)o;
 				displayCtrl();
 				if(DISPLAY || DISPLAYALL)
-					System.out.println(displayLine+"="+Arrays.toString(RelatrixJsonTransaction.tupleResolver(c)));
+					System.out.println(displayLine+"="+c);
 			});
 			displayLine=0;
 			//RelatrixHeadsetStream.DEBUG = true;
@@ -316,7 +252,7 @@ public class EmbeddedRetrievalBattery8 {
 				Result c = (Result)o;
 				displayCtrl();
 				if(DISPLAY || DISPLAYALL)
-					System.out.println(displayLine+"="+Arrays.toString(RelatrixJsonTransaction.tupleResolver(c)));
+					System.out.println(displayLine+"="+c);
 			});
 		}
 		for(int j = 0; j < ar.size(); j++) {
@@ -328,7 +264,7 @@ public class EmbeddedRetrievalBattery8 {
 				Result c = (Result)o;
 				displayCtrl();
 				if(DISPLAY || DISPLAYALL)
-					System.out.println(displayLine+"="+Arrays.toString(RelatrixJsonTransaction.tupleResolver(c)));
+					System.out.println(displayLine+"="+c);
 			});
 			displayLine =0;
 			System.out.println("12."+j+") findHeadStream(<obj>,*,*,"+xfClass+","+xo50Class+","+") using domain="+RelatrixKVJsonTransaction.getData(ar.get(j).getDomain()));		
@@ -337,7 +273,7 @@ public class EmbeddedRetrievalBattery8 {
 				Result c = (Result)o;
 				displayCtrl();
 				if(DISPLAY || DISPLAYALL)
-					System.out.println(displayLine+"="+Arrays.toString(RelatrixJsonTransaction.tupleResolver(c)));
+					System.out.println(displayLine+"="+c);
 			});
 		}
 		for(int j = 0; j < ar.size(); j++) {
@@ -352,7 +288,7 @@ public class EmbeddedRetrievalBattery8 {
 				Result c = (Result)o;
 				displayCtrl();
 				if(DISPLAY || DISPLAYALL)
-					System.out.println(displayLine+"="+Arrays.toString(RelatrixJsonTransaction.tupleResolver(c)));
+					System.out.println(displayLine+"="+c);
 			});
 			displayLine = 0;
 			System.out.println("14."+j+") findHeadStream(<obj>,*,<obj>,+"+xfClass+") using domain="+RelatrixKVJsonTransaction.getData(ar.get(j).getDomain())+
@@ -363,7 +299,7 @@ public class EmbeddedRetrievalBattery8 {
 				Result c = (Result)o;
 				displayCtrl();
 				if(DISPLAY || DISPLAYALL)
-					System.out.println(displayLine+"="+Arrays.toString(RelatrixJsonTransaction.tupleResolver(c)));
+					System.out.println(displayLine+"="+c);
 			});
 		}
 		for(int j = 0; j < ar.size(); j++) {
@@ -376,7 +312,7 @@ public class EmbeddedRetrievalBattery8 {
 				Result c = (Result)o;
 				displayCtrl();
 				if(DISPLAY || DISPLAYALL)
-					System.out.println(displayLine+"="+Arrays.toString(RelatrixJsonTransaction.tupleResolver(c)));
+					System.out.println(displayLine+"="+c);
 			});
 		}
 		for(int j = 0; j < ar.size(); j++) {
@@ -387,7 +323,7 @@ public class EmbeddedRetrievalBattery8 {
 				Result c = (Result)o;
 				displayCtrl();
 				if(DISPLAY || DISPLAYALL)
-					System.out.println(displayLine+"="+Arrays.toString(RelatrixJsonTransaction.tupleResolver(c)));
+					System.out.println(displayLine+"="+c);
 			});
 			displayLine=0;
 			System.out.println("17."+j+") findHeadStream(*,<obj>,*, "+xfClass+","+xo50Class+","+") using map="+RelatrixKVJsonTransaction.getData(ar.get(j).getDomain()));		
@@ -396,7 +332,7 @@ public class EmbeddedRetrievalBattery8 {
 				Result1 c = (Result1)o;
 				displayCtrl();
 				if(DISPLAY || DISPLAYALL)
-					System.out.println(displayLine+"="+Arrays.toString(RelatrixJsonTransaction.tupleResolver(c)));
+					System.out.println(displayLine+"="+c);
 			});
 			displayLine=0;
 			System.out.println("18."+j+") findHeadStream(<obj>,*,*,"+xfClass+","+xo50Class+","+") using domain="+RelatrixKVJsonTransaction.getData(ar.get(j).getDomain()));		
@@ -405,7 +341,7 @@ public class EmbeddedRetrievalBattery8 {
 				Result c = (Result)o;
 				displayCtrl();
 				if(DISPLAY || DISPLAYALL)
-					System.out.println(displayLine+"="+Arrays.toString(RelatrixJsonTransaction.tupleResolver(c)));
+					System.out.println(displayLine+"="+c);
 			});
 		}
 		for(int j = 0; j < ar.size(); j++) {
@@ -419,7 +355,7 @@ public class EmbeddedRetrievalBattery8 {
 				Result c = (Result)o; 
 				displayCtrl();
 				if(DISPLAY || DISPLAYALL)
-					System.out.println(displayLine+"="+Arrays.toString(RelatrixJsonTransaction.tupleResolver(c)));
+					System.out.println(displayLine+"="+c);
 			});
 			displayLine =0;
 			System.out.println("20."+j+") findHeadStream(<obj>,*,<obj>,"+xo50Class+") using domain="+
@@ -431,7 +367,7 @@ public class EmbeddedRetrievalBattery8 {
 				Result c = (Result)o;
 				displayCtrl();
 				if(DISPLAY || DISPLAYALL)
-					System.out.println(displayLine+"="+Arrays.toString(RelatrixJsonTransaction.tupleResolver(c)));
+					System.out.println(displayLine+"="+c);
 			});
 			displayLine =0;
 			System.out.println("21."+j+") findHeadStream(<obj>,<obj>,*,"+xo50Class+") using domain="+
@@ -444,7 +380,7 @@ public class EmbeddedRetrievalBattery8 {
 				Result c = (Result)o;
 				displayCtrl();
 				if(DISPLAY || DISPLAYALL)
-					System.out.println(displayLine+"="+Arrays.toString(RelatrixJsonTransaction.tupleResolver(c)));
+					System.out.println(displayLine+"="+c);
 			});
 		}
 		System.out.println("BATTERY1 SUCCESS in "+(System.currentTimeMillis()-tims));
@@ -461,12 +397,6 @@ public class EmbeddedRetrievalBattery8 {
 		// this list will store an object used to test subsequent queries where a named object is needed
 		// it will be extracted from the wildcard queries
 		ArrayList<Result> ar = new ArrayList<Result>();
-		ArrayList<Comparable> ad = new ArrayList<Comparable>();
-		ArrayList<Comparable> am = new ArrayList<Comparable>();
-		ArrayList<Comparable> ar2 = new ArrayList<Comparable>(); // will store 2 element result sets map range
-		ArrayList<Comparable> ar2dm = new ArrayList<Comparable>(); // will store 2 element result sets domain map
-		ArrayList<Comparable> ar2dr = new ArrayList<Comparable>(); // will store 2 element result sets domain range
-		ArrayList<Comparable> ar3 = new ArrayList<Comparable>(); // will store 3 element result sets
 		Stream<?> itx = null;
 		System.out.println("Wildcard queries:");
 		displayLine = 0;
@@ -493,85 +423,7 @@ public class EmbeddedRetrievalBattery8 {
 			}
 		});
 		it.close();
-		displayLine = 0;
-		System.out.println("3.) findTailStream(*,*,*,"+xoClass+","+xfClass+","+xo50Class+")...");		
-		it = RelatrixJsonTransaction.findTailStream(xid, '*', '*', '*',xoClass, xfClass, xo50Class);
-		it.forEachOrdered(o-> {	
-			Result  c = (Result )o;
-			displayCtrl();
-			if(DISPLAY || DISPLAYALL)
-				System.out.println(displayLine+"="+RelatrixKVJsonTransaction.getData(c.get()));
-			if(am.size() < SAMPLESIZE ) {
-				am.add(c);
-			}
-		});
-		it.close();
-		displayLine = 0;
-		System.out.println("4.) findTailStream(*,*,*."+xoClass+","+xfClass+","+xo50Class+")...");		
-		it = RelatrixJsonTransaction.findTailStream(xid, '*', '*', '*',xoClass, xfClass, xo50Class);
-		it.forEachOrdered(o-> {
-			Result  c = (Result )o;
-			displayCtrl();
-			if(DISPLAY || DISPLAYALL)
-				System.out.println(displayLine+"="+RelatrixKVJsonTransaction.getData(c.get()));
-			if(ad.size() < SAMPLESIZE) {
-				ad.add(c);
-			}
-		});
-		it.close();
-		displayLine=0;
-		System.out.println("5.) findTailStream(*,*,*,"+xoClass+","+xfClass+","+xo50Class+")...");		
-		it = RelatrixJsonTransaction.findTailStream(xid, '*', '*', '*',xoClass, xfClass, xo50Class);
-		it.forEachOrdered(o-> {
-			Result1 c = (Result1)o; // Result1
-			displayCtrl();
-			if(DISPLAY || DISPLAYALL)
-				System.out.println(displayLine+"="+RelatrixKVJsonTransaction.getData(c.get(0))+"->"+RelatrixKVJsonTransaction.getData(c.get(1)));
-			if(ar.size() < SAMPLESIZE) {
-				ar2.add(c);
-			}
-		});
-		it.close();
-		displayLine = 0;
-		System.out.println("6.) findTailStream(*,*,*,"+xoClass+","+xfClass+","+xo50Class+")...");		
-		it = RelatrixJsonTransaction.findTailStream(xid, '*', '*', '*',xoClass, xfClass, xo50Class);
-		it.forEachOrdered(o-> {
-			Result1 c = (Result1)o;
-			displayCtrl();
-			if(DISPLAY || DISPLAYALL)
-				System.out.println(displayLine+"="+RelatrixKVJsonTransaction.getData(c.get(0))+"->"+RelatrixKVJsonTransaction.getData(c.get(1)));
-			if(ar2dr.size() < SAMPLESIZE) {
-				ar2dr.add(c);
-			}
-		});
-		it.close();
-		displayLine = 0;
-		System.out.println("7.) findTailStream(*,*,*,"+xoClass+","+xfClass+","+xo50Class+")...");		
-		it = RelatrixJsonTransaction.findTailStream(xid, '*', '*', '*',xoClass, xfClass, xo50Class);
-		it.forEachOrdered(o-> {
-			Result1 c = (Result1)o;
-			displayCtrl();
-			if(DISPLAY || DISPLAYALL)
-				System.out.println(displayLine+"="+RelatrixKVJsonTransaction.getData(c.get(0))+"->"+RelatrixKVJsonTransaction.getData(c.get(1)));
-			if(ar2dm.size() < SAMPLESIZE) {
-				ar2dm.add(c);
-			}
-		});
-		it.close();
-		displayLine = 0;
-		System.out.println("8.) findTailStream(*,*,*,"+xoClass+","+xfClass+","+xo50Class+")...");		
-		it = RelatrixJsonTransaction.findTailStream(xid, '*', '*', '*',xoClass, xfClass, xo50Class);
-		it.forEachOrdered(o-> {
-			Result c = (Result)o;
-			displayCtrl();
-			if(DISPLAY || DISPLAYALL)
-				System.out.println(displayLine+"="+RelatrixKVJsonTransaction.getData(c.get(0))+"->"+RelatrixKVJsonTransaction.getData(c.get(1))+"->"+RelatrixKVJsonTransaction.getData(c.get(2)));
-			if(ar3.size() < SAMPLESIZE) {
-				ar3.add(c);
-			}
-		});
-		it.close();
-		for(int j = 0; j < ar3.size(); j++) {
+		for(int j = 0; j < ar.size(); j++) {
 			displayLine = 0;
 			System.out.println("8."+j+") findTailStream(*,*,*,<obj>,<obj>,<obj>) using domain="+
 					RelatrixKVJsonTransaction.getData(ar.get(j).getDomain())+
@@ -602,7 +454,7 @@ public class EmbeddedRetrievalBattery8 {
 		it.close();
 		System.out.println("----------\r\nAbove are wildcard permutations. Now retrieve those with object references using the");
 		System.out.println("wildcard results. Recall tailstream is strictly greater or equal to 'from' element...");
-		for(int j = 0; j < ar3.size(); j++) {
+		for(int j = 0; j < ar.size(); j++) {
 			displayLine = 0;
 			System.out.println("9."+j+") findTailStream(<obj>,<obj>,<obj>) "+
 					"using domain="+
@@ -616,7 +468,7 @@ public class EmbeddedRetrievalBattery8 {
 				Result c = (Result)o;
 				displayCtrl();
 				if(DISPLAY || DISPLAYALL)
-					System.out.println(displayLine+"="+Arrays.toString(RelatrixJsonTransaction.tupleResolver(c)));
+					System.out.println(displayLine+"="+c);
 			});
 			it.close();
 			displayLine=0;
