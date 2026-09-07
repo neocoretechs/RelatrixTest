@@ -9,6 +9,7 @@ import org.json.JSONObject;
 
 import com.neocoretechs.relatrix.Relation;
 import com.neocoretechs.relatrix.RelatrixJsonTransaction;
+import com.neocoretechs.relatrix.RelatrixKVJson;
 import com.neocoretechs.relatrix.DomainRangeMap;
 import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.MapDomainRange;
@@ -82,9 +83,9 @@ public class EmbeddedRetrievalBattery7 {
 			try {
 				RelatrixJsonTransaction.getInstance();
 				xid = RelatrixJsonTransaction.getTransactionId();
-				xfClass = RelatrixKVJsonTransaction.getClassType(xf, xid);
-				x50Class = RelatrixKVJsonTransaction.getClassType(xo50, xid);
-				xClass = RelatrixKVJsonTransaction.getClassType(xo, xid);
+				xfClass = RelatrixKVJsonTransaction.getClassType(RelatrixKVJson.parseJson(xf), xid);
+				x50Class = RelatrixKVJsonTransaction.getClassType(RelatrixKVJson.parseJson(xo50), xid);
+				xClass = RelatrixKVJsonTransaction.getClassType(RelatrixKVJson.parseJson(xo), xid);
 				if(argv.length == 2 && argv[1].equals("init")) {
 					battery1AR17(argv);
 				}
@@ -172,7 +173,7 @@ public class EmbeddedRetrievalBattery7 {
 		displayLine = 0;
 		// return relation domainclass, mapclass, range lo/hi. this is just an example of returning the identity
 		System.out.println("1.) findSubSet(*,*,*,"+xClass+","+ xfClass+","+ x50klo+","+ x50khi+")");
-		it =  RelatrixJsonTransaction.findSubSet(xid, '*', '*', '*',xClass, xfClass, RelatrixKVJsonTransaction.getObject(xo50lo,xid), RelatrixKVJsonTransaction.getObject(xo50hi,xid));
+		it =  RelatrixJsonTransaction.findSubSet(xid, '*', '*', '*',xClass, xfClass, RelatrixKVJsonTransaction.getObject(RelatrixKVJson.parseJson(xo50lo),xid), RelatrixKVJsonTransaction.getObject(RelatrixKVJson.parseJson(xo50hi),xid));
 		while(it.hasNext()) {
 			Object o = it.next();
 			Result c = (Result)o;
@@ -184,7 +185,7 @@ public class EmbeddedRetrievalBattery7 {
 		// return range, domainclass, mapclass, range lo/hi, use it to build our one-element ar range sample array for later
 		displayLine = 0;
 		System.out.println("2.) findSubSet(*,*,*,"+xClass+","+ xfClass+","+ x50klo+","+ x50khi+")");
-		it = RelatrixJsonTransaction.findSubSet(xid,'*', '*', '*',xClass, xfClass, RelatrixKVJsonTransaction.getObject(xo50lo,xid), RelatrixKVJsonTransaction.getObject(xo50hi,xid));
+		it = RelatrixJsonTransaction.findSubSet(xid,'*', '*', '*',xClass, xfClass, RelatrixKVJsonTransaction.getObject(RelatrixKVJson.parseJson(xo50lo),xid), RelatrixKVJsonTransaction.getObject(RelatrixKVJson.parseJson(xo50hi),xid));
 		while(it.hasNext()) {
 			Object o = it.next();
 			Result c = (Result)o;
@@ -346,8 +347,8 @@ public class EmbeddedRetrievalBattery7 {
 		for(int j = 0; j < ar.size(); j++) {
 			displayLine =0;
 			System.out.println("22."+j+") findSubSet(*,*,*,<class>,<class>,<obj>,<obj>) using domain="+ar.get(j).getDomain().getClass()+" map="+ar.get(j).getMap().getClass()+
-					" range="+RelatrixKVJsonTransaction.getData(RelatrixKVJsonTransaction.getObject(xo50lo,xid))+" to "+ RelatrixKVJsonTransaction.getData(RelatrixKVJsonTransaction.getObject(xo50hi,xid)));		
-			it = RelatrixJsonTransaction.findSubSet(xid,'*','*','*',ar.get(j).getDomain().getClass(), ar.get(j).getMap().getClass(),RelatrixKVJsonTransaction.getObject(xo50lo,xid),RelatrixKVJsonTransaction.getObject(xo50hi,xid));
+					" range="+RelatrixKVJsonTransaction.getData(RelatrixKVJsonTransaction.getObject(RelatrixKVJson.parseJson(xo50lo),xid))+" to "+ RelatrixKVJsonTransaction.getData(RelatrixKVJsonTransaction.getObject(RelatrixKVJson.parseJson(xo50hi),xid)));		
+			it = RelatrixJsonTransaction.findSubSet(xid,'*','*','*',ar.get(j).getDomain().getClass(), ar.get(j).getMap().getClass(),RelatrixKVJsonTransaction.getObject(RelatrixKVJson.parseJson(xo50lo),xid),RelatrixKVJsonTransaction.getObject(RelatrixKVJson.parseJson(xo50hi),xid));
 			while(it.hasNext()) {
 				Object o = it.next();
 				Result c = (Result)o;
@@ -362,8 +363,8 @@ public class EmbeddedRetrievalBattery7 {
 			l+=increment;
 			xo50hi.put("timestamp", l);
 			System.out.println("23."+j+") findSubSet(*,*,*,<class>,<class>,<obj>,<obj>) using domain="+ar.get(j).getDomain().getClass()+" map="+ar.get(j).getMap().getClass()+
-					" range="+RelatrixKVJsonTransaction.getData(RelatrixKVJsonTransaction.getObject(xo50lo,xid))+" to "+ RelatrixKVJsonTransaction.getData(RelatrixKVJsonTransaction.getObject(xo50hi,xid)));	
-			it = RelatrixJsonTransaction.findSubSet(xid,'*','*','*',ar.get(j).getDomain().getClass(), ar.get(j).getMap().getClass(),RelatrixKVJsonTransaction.getObject(xo50lo,xid),RelatrixKVJsonTransaction.getObject(xo50hi,xid));
+					" range="+RelatrixKVJsonTransaction.getData(RelatrixKVJsonTransaction.getObject(RelatrixKVJson.parseJson(xo50lo),xid))+" to "+ RelatrixKVJsonTransaction.getData(RelatrixKVJsonTransaction.getObject(RelatrixKVJson.parseJson(xo50hi),xid)));	
+			it = RelatrixJsonTransaction.findSubSet(xid,'*','*','*',ar.get(j).getDomain().getClass(), ar.get(j).getMap().getClass(),RelatrixKVJsonTransaction.getObject(RelatrixKVJson.parseJson(xo50lo),xid),RelatrixKVJsonTransaction.getObject(RelatrixKVJson.parseJson(xo50hi),xid));
 			while(it.hasNext()) {
 				Object o = it.next();
 				Result c = (Result)o;
@@ -378,8 +379,8 @@ public class EmbeddedRetrievalBattery7 {
 			l+=increment;
 			xo50hi.put("timestamp", l);
 			System.out.println("24."+j+") findSubSet(*,*,*,<class>,<class>,<obj>,<obj>) using domain="+ar.get(j).getDomain().getClass()+" map="+ar.get(j).getMap().getClass()+
-					" range="+RelatrixKVJsonTransaction.getData(RelatrixKVJsonTransaction.getObject(xo50lo,xid))+" to "+ RelatrixKVJsonTransaction.getData(RelatrixKVJsonTransaction.getObject(xo50hi,xid)));	
-			it = RelatrixJsonTransaction.findSubSet(xid,'*','*','*',ar.get(j).getDomain().getClass(), ar.get(j).getMap().getClass(),RelatrixKVJsonTransaction.getObject(xo50lo,xid),RelatrixKVJsonTransaction.getObject(xo50hi,xid));
+					" range="+RelatrixKVJsonTransaction.getData(RelatrixKVJsonTransaction.getObject(RelatrixKVJson.parseJson(xo50lo),xid))+" to "+ RelatrixKVJsonTransaction.getData(RelatrixKVJsonTransaction.getObject(RelatrixKVJson.parseJson(xo50hi),xid)));	
+			it = RelatrixJsonTransaction.findSubSet(xid,'*','*','*',ar.get(j).getDomain().getClass(), ar.get(j).getMap().getClass(),RelatrixKVJsonTransaction.getObject(RelatrixKVJson.parseJson(xo50lo),xid),RelatrixKVJsonTransaction.getObject(RelatrixKVJson.parseJson(xo50hi),xid));
 			while(it.hasNext()) {
 				Object o = it.next();
 				Result c = (Result)o;

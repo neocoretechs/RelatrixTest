@@ -11,6 +11,7 @@ import org.json.JSONObject;
 import com.neocoretechs.relatrix.Relation;
 import com.neocoretechs.relatrix.RelatrixJson;
 import com.neocoretechs.relatrix.RelatrixJsonTransaction;
+import com.neocoretechs.relatrix.RelatrixKVJson;
 import com.neocoretechs.relatrix.DomainRangeMap;
 import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.MapDomainRange;
@@ -78,9 +79,9 @@ public class EmbeddedRetrievalBattery6 {
 		ParallelExecutionContext pec = new ParallelExecutionContext(indexResolver, new ConcurrentHashMap<String,Object>());
 		ScopedValue.where(ExecutionContextHolder.CONTEXT, pec).run(() -> {
 			try {
-				xfClass = RelatrixKVJsonTransaction.getClassType(xf, xid);
-				xo50Class = RelatrixKVJsonTransaction.getClassType(xo50, xid);
-				xoClass = RelatrixKVJsonTransaction.getClassType(xo, xid);
+				xfClass = RelatrixKVJsonTransaction.getClassType(RelatrixKVJson.parseJson(xf), xid);
+				xo50Class = RelatrixKVJsonTransaction.getClassType(RelatrixKVJson.parseJson(xo50), xid);
+				xoClass = RelatrixKVJsonTransaction.getClassType(RelatrixKVJson.parseJson(xo), xid);
 				if(argv.length > 2 && argv[1].equals("max")) {
 					System.out.println("Setting max items to "+argv[2]);
 					max = Integer.parseInt(argv[2]);

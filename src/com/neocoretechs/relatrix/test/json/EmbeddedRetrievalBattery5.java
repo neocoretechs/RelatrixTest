@@ -83,9 +83,9 @@ public class EmbeddedRetrievalBattery5 {
 		ParallelExecutionContext pec = new ParallelExecutionContext(indexResolver, new ConcurrentHashMap<String,Object>());
 		ScopedValue.where(ExecutionContextHolder.CONTEXT, pec).run(() -> {
 			try {
-				xfClass = RelatrixKVJson.getClassType(xf);
-				x50Class = RelatrixKVJson.getClassType(xo50);
-				xClass = RelatrixKVJson.getClassType(xo);
+				xfClass = RelatrixKVJson.getClassType(RelatrixKVJson.parseJson(xf));
+				x50Class = RelatrixKVJson.getClassType(RelatrixKVJson.parseJson(xo50));
+				xClass = RelatrixKVJson.getClassType(RelatrixKVJson.parseJson(xo));
 				if(argv.length == 2 && argv[1].equals("init")) {
 					battery1AR17(argv);
 				}
@@ -173,7 +173,7 @@ public class EmbeddedRetrievalBattery5 {
 		displayLine = 0;
 		// return relation domainclass, mapclass, range lo/hi. this is just an example of returning the identity
 		System.out.println("1.) findSubStream(*,*,*,"+xClass+","+ xfClass+","+ x50klo+","+ x50khi+")");
-		it =  RelatrixJson.findSubStream('*', '*', '*',xClass, xfClass, RelatrixKVJson.getObject(xo50lo), RelatrixKVJson.getObject(xo50hi));
+		it =  RelatrixJson.findSubStream('*', '*', '*',xClass, xfClass, RelatrixKVJson.getObject(RelatrixKVJson.parseJson(xo50lo)), RelatrixKVJson.getObject(RelatrixKVJson.parseJson(xo50hi)));
 		it.forEachOrdered(o-> {
 			Result c = (Result)o;
 			displayCtrl();
@@ -184,7 +184,7 @@ public class EmbeddedRetrievalBattery5 {
 		// return range, domainclass, mapclass, range lo/hi, use it to build our one-element ar range sample array for later
 		displayLine = 0;
 		System.out.println("2.) findSubStream(*,*,*,"+xClass+","+ xfClass+","+ x50klo+","+ x50khi+")");
-		it = RelatrixJson.findSubStream('*', '*', '*',xClass, xfClass, RelatrixKVJson.getObject(xo50lo), RelatrixKVJson.getObject(xo50hi));
+		it = RelatrixJson.findSubStream('*', '*', '*',xClass, xfClass, RelatrixKVJson.getObject(RelatrixKVJson.parseJson(xo50lo)), RelatrixKVJson.getObject(RelatrixKVJson.parseJson(xo50hi)));
 		it.forEachOrdered(o->  {
 			Result c = (Result)o;
 			displayCtrl();
@@ -351,8 +351,8 @@ public class EmbeddedRetrievalBattery5 {
 		for(int j = 0; j < ar.size(); j++) {
 			displayLine =0;
 			System.out.println("22."+j+") findSubStream(*,*,*,<class>,<class>,<obj>,<obj>) using domain="+ar.get(j).getDomain().getClass()+" map="+ar.get(j).getMap().getClass()+
-					" range="+RelatrixKVJson.getData(RelatrixKVJson.getObject(xo50lo))+" to "+ RelatrixKVJson.getData(RelatrixKVJson.getObject(xo50hi)));		
-			it = RelatrixJson.findSubStream('*','*','*',ar.get(j).getDomain().getClass(), ar.get(j).getMap().getClass(),RelatrixKVJson.getObject(xo50lo),RelatrixKVJson.getObject(xo50hi));
+					" range="+RelatrixKVJson.getData(RelatrixKVJson.getObject(RelatrixKVJson.parseJson(xo50lo)))+" to "+ RelatrixKVJson.getData(RelatrixKVJson.getObject(RelatrixKVJson.parseJson(xo50hi))));		
+			it = RelatrixJson.findSubStream('*','*','*',ar.get(j).getDomain().getClass(), ar.get(j).getMap().getClass(),RelatrixKVJson.getObject(RelatrixKVJson.parseJson(xo50lo)),RelatrixKVJson.getObject(RelatrixKVJson.parseJson(xo50hi)));
 			it.forEachOrdered(o->  {
 				Result c = (Result)o;
 				displayCtrl();
@@ -366,8 +366,8 @@ public class EmbeddedRetrievalBattery5 {
 			l+=increment;
 			xo50hi.put("timestamp", l);
 			System.out.println("23."+j+") findSubStream(*,*,*,<class>,<class>,<obj>,<obj>) using domain="+ar.get(j).getDomain().getClass()+" map="+ar.get(j).getMap().getClass()+
-					" range="+RelatrixKVJson.getData(RelatrixKVJson.getObject(xo50lo))+" to "+ RelatrixKVJson.getData(RelatrixKVJson.getObject(xo50hi)));	
-			it = RelatrixJson.findSubStream('*','*','*',ar.get(j).getDomain().getClass(), ar.get(j).getMap().getClass(),RelatrixKVJson.getObject(xo50lo),RelatrixKVJson.getObject(xo50hi));
+					" range="+RelatrixKVJson.getData(RelatrixKVJson.getObject(RelatrixKVJson.parseJson(xo50lo)))+" to "+ RelatrixKVJson.getData(RelatrixKVJson.getObject(RelatrixKVJson.parseJson(xo50hi))));	
+			it = RelatrixJson.findSubStream('*','*','*',ar.get(j).getDomain().getClass(), ar.get(j).getMap().getClass(),RelatrixKVJson.getObject(RelatrixKVJson.parseJson(xo50lo)),RelatrixKVJson.getObject(RelatrixKVJson.parseJson(xo50hi)));
 			it.forEachOrdered(o->  {
 				Result c = (Result)o;
 				displayCtrl();
@@ -381,8 +381,8 @@ public class EmbeddedRetrievalBattery5 {
 			l+=increment;
 			xo50hi.put("timestamp", l);
 			System.out.println("24."+j+") findSubStream(*,*,*,<class>,<class>,<obj>,<obj>) using domain="+ar.get(j).getDomain().getClass()+" map="+ar.get(j).getMap().getClass()+
-					" range="+RelatrixKVJson.getData(RelatrixKVJson.getObject(xo50lo))+" to "+ RelatrixKVJson.getData(RelatrixKVJson.getObject(xo50hi)));	
-			it = RelatrixJson.findSubStream('*','*','*',ar.get(j).getDomain().getClass(), ar.get(j).getMap().getClass(),RelatrixKVJson.getObject(xo50lo),RelatrixKVJson.getObject(xo50hi));
+					" range="+RelatrixKVJson.getData(RelatrixKVJson.getObject(RelatrixKVJson.parseJson(xo50lo)))+" to "+ RelatrixKVJson.getData(RelatrixKVJson.getObject(RelatrixKVJson.parseJson(xo50hi))));	
+			it = RelatrixJson.findSubStream('*','*','*',ar.get(j).getDomain().getClass(), ar.get(j).getMap().getClass(),RelatrixKVJson.getObject(RelatrixKVJson.parseJson(xo50lo)),RelatrixKVJson.getObject(RelatrixKVJson.parseJson(xo50hi)));
 			it.forEachOrdered(o->  {
 				Result c = (Result)o;
 				displayCtrl();

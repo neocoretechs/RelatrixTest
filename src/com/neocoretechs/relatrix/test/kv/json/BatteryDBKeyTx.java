@@ -10,6 +10,7 @@ import org.json.JSONObject;
 
 import com.neocoretechs.relatrix.DuplicateKeyException;
 import com.neocoretechs.relatrix.RelatrixJson;
+import com.neocoretechs.relatrix.RelatrixKVJson;
 import com.neocoretechs.relatrix.RelatrixKVJsonTransaction;
 import com.neocoretechs.relatrix.key.IndexResolver;
 import com.neocoretechs.relatrix.parallel.ParallelExecutionContext;
@@ -106,7 +107,7 @@ public class BatteryDBKeyTx {
 	public static void battery1AR4(String[] argv) throws Exception {
 		long tims = System.currentTimeMillis();
 		JSONObject jo = new JSONObject(x);
-		Class<?> c = RelatrixKVJsonTransaction.getClassType(jo, xid);
+		Class<?> c = RelatrixKVJsonTransaction.getClassType(RelatrixKVJson.parseJson(jo), xid);
 		long siz = RelatrixKVJsonTransaction.size(xid, c);
 		// set up previous key as first key, insert to key map
 		Object o =  RelatrixKVJsonTransaction.firstKey(xid,c);
@@ -408,7 +409,7 @@ public class BatteryDBKeyTx {
 	public static void battery1AR17(String[] argv) throws Exception {
 		long tims = System.currentTimeMillis();
 		JSONObject jo = new JSONObject(x);
-		Class<?> c = RelatrixKVJsonTransaction.getClassType(jo, xid);
+		Class<?> c = RelatrixKVJsonTransaction.getClassType(RelatrixKVJson.parseJson(jo), xid);
 		long s = RelatrixKVJsonTransaction.size(xid, c);
 		System.out.println("Cleaning DB "+c+" of "+s+" elements.");
 		Iterator<?> it = RelatrixKVJsonTransaction.keySet(xid, c);

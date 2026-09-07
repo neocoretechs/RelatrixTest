@@ -103,7 +103,7 @@ public class BatteryDBKey {
 	public static void battery1AR4() throws Exception {
 		long tims = System.currentTimeMillis();
 		JSONObject jo = new JSONObject(x);
-		Class<?> c = RelatrixKVJson.getClassType(jo);
+		Class<?> c = RelatrixKVJson.getClassType(RelatrixKVJson.parseJson(jo));
 		long siz = RelatrixKVJson.size(c);
 		// set up previous key as first key, insert to key map
 		Object o =  RelatrixKVJson.firstKey(c);
@@ -430,7 +430,7 @@ public class BatteryDBKey {
 	public static void battery1AR17() throws Exception {
 		long tims = System.currentTimeMillis();
 		JSONObject jo = new JSONObject(x);
-		Class<?> c = RelatrixKVJson.getClassType(jo);
+		Class<?> c = RelatrixKVJson.getClassType(RelatrixKVJson.parseJson(jo));
 		int j = min;
 		long s = RelatrixKVJson.size(c);
 		System.out.println("Cleaning DB "+c+" of "+s+" elements.");

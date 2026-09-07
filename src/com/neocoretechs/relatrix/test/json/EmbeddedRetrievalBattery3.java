@@ -76,9 +76,9 @@ public class EmbeddedRetrievalBattery3 {
 		ParallelExecutionContext pec = new ParallelExecutionContext(indexResolver, new ConcurrentHashMap<String,Object>());
 		ScopedValue.where(ExecutionContextHolder.CONTEXT, pec).run(() -> {
 			try {
-				xfClass = RelatrixKVJson.getClassType(xf);
-				xo50Class = RelatrixKVJson.getClassType(xo50);
-				xoClass = RelatrixKVJson.getClassType(xo);
+				xfClass = RelatrixKVJson.getClassType(RelatrixKVJson.parseJson(xf));
+				xo50Class = RelatrixKVJson.getClassType(RelatrixKVJson.parseJson(xo50));
+				xoClass = RelatrixKVJson.getClassType(RelatrixKVJson.parseJson(xo));
 				if(argv.length > 2 && argv[1].equals("max")) {
 					System.out.println("Setting max items to "+argv[2]);
 					max = Integer.parseInt(argv[2]);

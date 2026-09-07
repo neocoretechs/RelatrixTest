@@ -23,7 +23,6 @@ import com.neocoretechs.relatrix.RelatrixJson;
 import com.neocoretechs.relatrix.RelatrixKVJson;
 import com.neocoretechs.relatrix.Result;
 
-
 /**
  * The set of tests verifies the higher level 'findSet' functions in the {@link  RelatrixJson}, which can be used
  * as examples of {@link RelatrixJson} processing. In general the tests compare the number of items retrieved 
@@ -210,7 +209,9 @@ public class BatteryRelatrix {
 			long tim = jo.getLong("timestamp");
 			++tim;
 			jo.put("timestamp",tim);
-			Iterator<?> its = RelatrixJson.findSet(RelatrixKVJson.getObject(jo), RelatrixKVJson.getObject(xf), RelatrixKVJson.getObject(jo2));
+			Iterator<?> its = RelatrixJson.findSet(RelatrixKVJson.getObject(RelatrixKVJson.parseJson(jo)), 
+													RelatrixKVJson.getObject(RelatrixKVJson.parseJson(xf)), 
+													RelatrixKVJson.getObject(RelatrixKVJson.parseJson(jo2)));
 			while(its.hasNext()) {
 				// 3 question marks = dimension 3 in return array
 				Relation re = ((Relation)((Result)its.next()).get());
@@ -319,7 +320,7 @@ public class BatteryRelatrix {
 			long tim = jo.getLong("timestamp");
 			++tim;
 			jo.put("timestamp",tim);
-			Iterator<?> its = RelatrixJson.findSet(RelatrixKVJson.getObject(jo), '*', '*');
+			Iterator<?> its = RelatrixJson.findSet(RelatrixKVJson.getObject(RelatrixKVJson.parseJson(jo)), '*', '*');
 			while(its.hasNext()) {
 				Result nex = (Result) its.next();
 				AbstractRelation re = (AbstractRelation) nex.get();
