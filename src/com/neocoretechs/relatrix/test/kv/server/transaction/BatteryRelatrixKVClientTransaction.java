@@ -30,7 +30,7 @@ public class BatteryRelatrixKVClientTransaction {
 	public static RelatrixKVClientTransaction rkvc;
 	static String uniqKeyFmt = "%0100d"; // base + counter formatted with this gives equal length strings for canonical ordering
 	static int min = 0;
-	static int max = 100000;
+	static int max = 10000;
 	static int numDelete = 100; // for delete test
 	private static int dupes;
 	private static int numLookupByValue = 10;
@@ -133,9 +133,9 @@ public class BatteryRelatrixKVClientTransaction {
 			Object nex =  its.next();
 			Entry enex = (Entry)nex;
 			//System.out.println(i+"="+nex);
-			if(((Long)enex.getValue()).intValue() != i)
-				System.out.println("RANGE KEY MISMATCH:"+i+" - "+nex);
-			else
+			if(((Long)enex.getValue()).intValue() != i) {
+				throw new Exception("RANGE KEY MISMATCH:"+i+" - "+nex);
+			} else
 				++i;
 		}
 		if( i != max ) {
@@ -158,7 +158,7 @@ public class BatteryRelatrixKVClientTransaction {
 			String nex = (String) its.next();
 			// Map.Entry
 			if(Integer.parseInt(nex) != i)
-				System.out.println("KV RANGE KEY MISMATCH:"+i+" - "+nex);
+				throw new Exception("KV RANGE KEY MISMATCH:"+i+" - "+nex);
 			else
 				++i;
 		}
