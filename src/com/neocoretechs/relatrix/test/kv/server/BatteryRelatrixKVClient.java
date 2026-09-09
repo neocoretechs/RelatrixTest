@@ -130,13 +130,13 @@ public class BatteryRelatrixKVClient {
 			Entry enex = (Entry)nex;
 			//System.out.println(i+"="+nex);
 			if(((Long)enex.getValue()).intValue() != i)
-				System.out.println("RANGE KEY MISMATCH:"+i+" - "+nex);
+				throw new Exception("RANGE KEY MISMATCH:"+i+" - "+nex);
 			else
 				++i;
 		}
 		if( i != max ) {
 			System.out.println("BATTERY1AR6 unexpected number of keys "+i);
-			//throw new Exception("BATTERY1AR6 unexpected number of keys "+i);
+			throw new Exception("BATTERY1AR6 unexpected number of keys "+i);
 		}
 		 System.out.println("BATTERY1AR6 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
@@ -153,13 +153,13 @@ public class BatteryRelatrixKVClient {
 		while(its.hasNext()) {
 			String nex = (String) its.next();
 			if(Integer.parseInt(nex) != i)
-				System.out.println("KV RANGE KEY MISMATCH:"+i+" - "+nex);
+				throw new Exception("KV RANGE KEY MISMATCH:"+i+" - "+nex);
 			else
 				++i;
 		}
 		if( i != max ) {
 			System.out.println("KV BATTERY1AR7 unexpected number of keys "+i);
-			//throw new Exception("KV BATTERY1AR7 unexpected number of keys "+i);
+			throw new Exception("KV BATTERY1AR7 unexpected number of keys "+i);
 		}
 		 System.out.println("KV BATTERY1AR7 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
@@ -175,7 +175,7 @@ public class BatteryRelatrixKVClient {
 			boolean bits = rkvc.contains(fkey);
 			if( !bits ) {
 				System.out.println("KV BATTERY1A8 cant find contains key "+j);
-				//throw new Exception("KV BATTERY1AR8 unexpected cant find contains of key "+fkey);
+				throw new Exception("KV BATTERY1AR8 unexpected cant find contains of key "+fkey);
 			}
 		}
 		 System.out.println("KV BATTERY1AR8 FORWARD CONTAINS KEY TOOK "+(System.currentTimeMillis()-tims)+" ms.");
@@ -185,7 +185,7 @@ public class BatteryRelatrixKVClient {
 				boolean bits = rkvc.contains(fkey);
 				if( !bits ) {
 					System.out.println("KV BATTERY1A8 cant find contains key "+j);
-					//throw new Exception("KV BATTERY1AR8 unexpected cant find contains of key "+fkey);
+					throw new Exception("KV BATTERY1AR8 unexpected cant find contains of key "+fkey);
 				}
 			}
 			 System.out.println("KV BATTERY1AR8 REVERSE CONTAINS KEY TOOK "+(System.currentTimeMillis()-tims)+" ms." );
@@ -196,7 +196,7 @@ public class BatteryRelatrixKVClient {
 			boolean bits = rkvc.containsValue(String.class, (long)j);
 			if( !bits ) {
 				System.out.println("KV BATTERY1AR8 unexpected cant find contains value "+j);
-				//throw new Exception("KV BATTERY1AR8 unexpected number cant find contains of value "+i);
+				throw new Exception("KV BATTERY1AR8 unexpected number cant find contains of value "+i);
 			}
 		}
 		System.out.println("KV BATTERY1AR8 FORWARD "+numLookupByValue+" CONTAINS VALUE TOOK "+(System.currentTimeMillis()-tims)+" ms.");
@@ -206,7 +206,7 @@ public class BatteryRelatrixKVClient {
 				boolean bits = rkvc.containsValue(String.class, (long)j);
 				if( !bits ) {
 					System.out.println("KV BATTERY1AR8 unexpected cant find contains value "+j);
-					//throw new Exception("KV BATTERY1AR8 unexpected number cant find contains of value "+i);
+					throw new Exception("KV BATTERY1AR8 unexpected number cant find contains of value "+i);
 				}
 		}
 		System.out.println("KV BATTERY1AR8 REVERSE "+numLookupByValue+" CONTAINS VALUE TOOK "+(System.currentTimeMillis()-tims)+" ms.");
@@ -223,12 +223,12 @@ public class BatteryRelatrixKVClient {
 		System.out.println("KV Battery1AR9");
 		if( Integer.parseInt((String)k) != i ) {
 			System.out.println("KV BATTERY1A9 cant find contains key "+i);
-			//throw new Exception("KV BATTERY1AR9 unexpected cant find contains of key "+i);
+			throw new Exception("KV BATTERY1AR9 unexpected cant find contains of key "+i);
 		}
 		long ks = (long) rkvc.firstValue(String.class);
 		if( ks != i) {
 			System.out.println("KV BATTERY1A9 cant find contains value "+i);
-			//throw new Exception("KV BATTERY1AR9 unexpected cant find contains of value "+i);
+			throw new Exception("KV BATTERY1AR9 unexpected cant find contains of value "+i);
 		}
 		System.out.println("KV BATTERY1AR9 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
@@ -245,12 +245,12 @@ public class BatteryRelatrixKVClient {
 		System.out.println("KV Battery1AR10");
 		if( Long.parseLong((String) k) != (long)i ) {
 			System.out.println("KV BATTERY1AR10 cant find last key "+i);
-			//throw new Exception("KV BATTERY1AR10 unexpected cant find last of key "+i);
+			throw new Exception("KV BATTERY1AR10 unexpected cant find last of key "+i);
 		}
 		long ks = (long)rkvc.lastValue(String.class);
 		if( ks != i) {
 			System.out.println("KV BATTERY1AR10 cant find last value "+i);
-			//throw new Exception("KV BATTERY1AR10 unexpected cant find last of key "+i);
+			throw new Exception("KV BATTERY1AR10 unexpected cant find last of key "+i);
 		}
 		System.out.println("KV BATTERY1AR10 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
@@ -266,7 +266,7 @@ public class BatteryRelatrixKVClient {
 		long bits = rkvc.size(String.class);
 		if( bits != i ) {
 			System.out.println("KV BATTERY1AR101 size mismatch "+bits+" should be:"+i);
-			//throw new Exception("KV BATTERY1AR101 size mismatch "+bits+" should be "+i);
+			throw new Exception("KV BATTERY1AR101 size mismatch "+bits+" should be "+i);
 		}
 		System.out.println("BATTERY1AR101 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms.");
 	}
@@ -285,7 +285,7 @@ public class BatteryRelatrixKVClient {
 			String nex = (String) its.next();
 			if(Integer.parseInt(nex) != i) {
 				System.out.println("KV RANGE KEY MISMATCH:"+i+" - "+nex);
-				//throw new Exception("KV RANGE KEY MISMATCH:"+i+" - "+nex);
+				throw new Exception("KV RANGE KEY MISMATCH:"+i+" - "+nex);
 			}
 			++i;
 		}
@@ -308,7 +308,7 @@ public class BatteryRelatrixKVClient {
 			if(Integer.parseInt(nexe.getKey()) != i) {
 			// Map.Entry
 				System.out.println("KV RANGE KEY MISMATCH:"+i+" - "+nex);
-				//throw new Exception("KV RANGE KEY MISMATCH:"+i+" - "+nex);
+				throw new Exception("KV RANGE KEY MISMATCH:"+i+" - "+nex);
 			}
 			++i;
 		}
@@ -333,7 +333,7 @@ public class BatteryRelatrixKVClient {
 			if(Integer.parseInt(nex) != i) {
 			// Map.Entry
 				System.out.println("KV RANGE 1AR13 KEY MISMATCH:"+i+" - "+nex);
-				//throw new Exception("KV RANGE 1AR13 KEY MISMATCH:"+i+" - "+nex);
+				throw new Exception("KV RANGE 1AR13 KEY MISMATCH:"+i+" - "+nex);
 			}
 			++i;
 		}
@@ -358,7 +358,7 @@ public class BatteryRelatrixKVClient {
 			if(Integer.parseInt(nexe.getKey()) != i) {
 			// Map.Entry
 				System.out.println("KV RANGE KEY MISMATCH:"+i+" - "+nex);
-				//throw new Exception("KV RANGE KEY MISMATCH:"+i+" - "+nex);
+				throw new Exception("KV RANGE KEY MISMATCH:"+i+" - "+nex);
 			}
 			++i;
 		}
@@ -384,7 +384,7 @@ public class BatteryRelatrixKVClient {
 			String nex = (String) its.next();
 			if(Integer.parseInt(nex) != i) {
 				System.out.println("KV RANGE 1AR15 KEY MISMATCH:"+i+" - "+nex);
-				//throw new Exception("KV RANGE 1AR15 KEY MISMATCH:"+i+" - "+nex);
+				throw new Exception("KV RANGE 1AR15 KEY MISMATCH:"+i+" - "+nex);
 			}
 			++i;
 		}
@@ -411,7 +411,7 @@ public class BatteryRelatrixKVClient {
 			if(Integer.parseInt(nexe.getKey()) != i) {
 			// Map.Entry
 				System.out.println("KV RANGE 1AR16 KEY MISMATCH:"+i+" - "+nexe);
-				//throw new Exception("KV RANGE 1AR16 KEY MISMATCH:"+i+" - "+nexe);
+				throw new Exception("KV RANGE 1AR16 KEY MISMATCH:"+i+" - "+nexe);
 			}
 			++i;
 		}
