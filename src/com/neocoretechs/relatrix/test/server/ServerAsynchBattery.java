@@ -1,4 +1,4 @@
-package com.neocoretechs.relatrix.test.server.transaction;
+package com.neocoretechs.relatrix.test.server;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -10,23 +10,23 @@ import java.util.concurrent.ExecutionException;
 import com.neocoretechs.relatrix.Relation;
 import com.neocoretechs.relatrix.AbstractRelation;
 import com.neocoretechs.relatrix.Result;
+import com.neocoretechs.relatrix.client.asynch.AsynchRelatrixClient;
 import com.neocoretechs.relatrix.type.RelationList;
 
-import com.neocoretechs.relatrix.client.asynch.AsynchRelatrixClientTransaction;
 import com.neocoretechs.rocksack.TransactionId;
 
 /**
  * This series of tests loads up arrays to create a cascading set of retrievals mostly checking
- * and verifying findSet retrieval using the client to a remote {@link com.neocoretechs.relatrix.server.RelatrixTransactionServer}.
+ * and verifying findSet retrieval using the client to a remote {@link com.neocoretechs.relatrix.server.RelatrixServer}.
  * We also test the asynchronous client and parallel query function therein.
  * NOTES:
  * program arguments are remote_node remote_port_for_database
  * @author Jonathan Groff Copyright (C) NeoCoreTechs 2024
  *
  */
-public class ServerAsynchBatteryTransaction {
+public class ServerAsynchBattery {
 	public static boolean DEBUG = false;
-	private static AsynchRelatrixClientTransaction rkvc ;
+	private static AsynchRelatrixClient rkvc ;
 		public static int displayLinesOn[]= {0,1000,5000,9990,15000,20000,30000,40000,50000,60000,70000,80000,90000,99000};
 		public static int displayLinesOff[]= {100,1100,5100,9999,15999,20999,30999,40999,50999,60999,70999,80999,90999,100000};
 		public static int displayLine = 0;
@@ -39,7 +39,7 @@ public class ServerAsynchBatteryTransaction {
 		static String uniqKeyFmt = "%0100d";
 		private static boolean DISPLAY = false;
 		private static boolean DISPLAYALL = true;
-		private static TransactionId xid;
+	
 		/**
 		*/
 		public static void main(String[] argv) throws Exception {
@@ -48,13 +48,13 @@ public class ServerAsynchBatteryTransaction {
 				System.out.println("Usage: <remoteNode> <remotePort> [init]");
 				System.exit(1);
 			}
-			rkvc = new AsynchRelatrixClientTransaction(argv[0], Integer.parseInt(argv[1]) );
+			rkvc = new AsynchRelatrixClient(argv[0], Integer.parseInt(argv[1]) );
 			AbstractRelation.displayLevel = AbstractRelation.displayLevels.VERBOSE;
-			xid = rkvc.getTransactionId();
+		
 			if(argv.length == 3 && argv[3].equals("init")) {
 					battery1AR17(argv);
 			}
-			CompletableFuture<Long> siz = rkvc.size(xid);
+			CompletableFuture<Long> siz = rkvc.size();
 			if(siz.get() == 0) {
 				battery0(argv);
 			}
@@ -93,11 +93,11 @@ public class ServerAsynchBatteryTransaction {
 			CompletableFuture<Relation> dmr = null;
 			for(int i = min; i < max; i++) {
 				fkey = key + String.format(uniqKeyFmt, i);
-				dmr = rkvc.store(xid, fkey, "Has unit", Long.valueOf(i));
+				dmr = rkvc.store(fkey, "Has unit", Long.valueOf(i));
 				dmr.get();
 				++recs;
 			}
-			rkvc.commit(xid);
+		
 			 System.out.println("BATTERY0 SUCCESS in "+(System.currentTimeMillis()-tims)+" ms. Stored "+recs+" records");
 		}
 
@@ -116,7 +116,7 @@ public class ServerAsynchBatteryTransaction {
 			System.out.println("Wildcard queries:");
 			displayLine = 0;
 			System.out.println("1.) findSet(*,*,*)...");
-			CompletableFuture<Iterator> itc = rkvc.findSet(xid, '*', '*', '*');
+			CompletableFuture<Iterator> itc = rkvc.findSet('*', '*', '*');
 			it =  itc.get();
 			while(it.hasNext()) {
 				Object o = it.next();
@@ -140,7 +140,7 @@ public class ServerAsynchBatteryTransaction {
 						arel[2]+",("+arel[2].getClass().getName());
 				if(it != null)
 					rkvc.setIterator(it);
-				itc = rkvc.findSet(xid, arel[0], arel[1], arel[2]);
+				itc = rkvc.findSet(arel[0], arel[1], arel[2]);
 				it = itc.get();
 				while(it.hasNext()) {
 					Object o = it.next();
@@ -201,7 +201,7 @@ public class ServerAsynchBatteryTransaction {
 				System.out.println("6."+j+") FindSet(<obj>,*,*) using domain="+arel[0]);
 				if(it != null)
 					rkvc.setIterator(it);
-				itc = rkvc.findSet(xid, arel[0], '*', '*');
+				itc = rkvc.findSet(arel[0], '*', '*');
 				it = itc.get();
 				while(it.hasNext()) {
 					Object o = it.next();
@@ -219,7 +219,7 @@ public class ServerAsynchBatteryTransaction {
 				System.out.println("7."+j+") findSet(*,<obj>,<obj>) using map="+arel[1]+" range="+arel[2]);
 				if(it != null)
 					rkvc.setIterator(it);
-				itc = rkvc.findSet(xid, '*', arel[1], arel[2]);
+				itc = rkvc.findSet('*', arel[1], arel[2]);
 				it = itc.get();
 				while(it.hasNext()) {
 					Object o = it.next();
@@ -236,7 +236,7 @@ public class ServerAsynchBatteryTransaction {
 				System.out.println("8."+j+") findSet(<obj>,*,<obj>) using ="+arel[0]+", "+arel[2]);
 				if(it != null)
 					rkvc.setIterator(it);
-				itc = rkvc.findSet(xid, arel[0], '*', arel[2]);
+				itc = rkvc.findSet(arel[0], '*', arel[2]);
 				it = itc.get();
 				while(it.hasNext()) {
 					Object o = it.next();
@@ -253,7 +253,7 @@ public class ServerAsynchBatteryTransaction {
 				System.out.println("9."+j+") findSet(<obj>,<obj>,*) using domain="+arel[0]+", map="+arel[1]);
 				if(it != null)
 					rkvc.setIterator(it);
-				itc = rkvc.findSet(xid, arel[0], arel[1], '*');
+				itc = rkvc.findSet(arel[0], arel[1], '*');
 				it = itc.get();
 				while(it.hasNext()) {
 					Object o = it.next();
@@ -266,26 +266,26 @@ public class ServerAsynchBatteryTransaction {
 
 			System.out.println("ServerRetrievalBattery0 SUCCESS in "+(System.currentTimeMillis()-tims));
 		}
-		public static RelationList queryParallelDomain(AsynchRelatrixClientTransaction client, List<Object> query) throws IllegalArgumentException, ClassNotFoundException, IllegalAccessException, IOException, InterruptedException, ExecutionException {
+		public static RelationList queryParallelDomain(AsynchRelatrixClient client, List<Object> query) throws IllegalArgumentException, ClassNotFoundException, IllegalAccessException, IOException, InterruptedException, ExecutionException {
 			RelationList res = null;
 			//try (var _ = Timer.log("Querying combined hash for List of "+query.size())) {
-				CompletableFuture<List> cres = client.findSetParallel(xid, query, '*', '*');
+				CompletableFuture<List> cres = client.findSetParallel(query, '*', '*');
 				res = (RelationList) cres.get();
 			//}
 			return res;
 		}	
-		public static RelationList queryParallelMap(AsynchRelatrixClientTransaction client, List<Object> query) throws IllegalArgumentException, ClassNotFoundException, IllegalAccessException, IOException, InterruptedException, ExecutionException {
+		public static RelationList queryParallelMap(AsynchRelatrixClient client, List<Object> query) throws IllegalArgumentException, ClassNotFoundException, IllegalAccessException, IOException, InterruptedException, ExecutionException {
 			RelationList res = null;
 			//try (var _ = Timer.log("Querying combined hash for List of "+query.size())) {
-				CompletableFuture<List> cres = client.findSetParallel(xid, '*', query, '*');
+				CompletableFuture<List> cres = client.findSetParallel('*', query, '*');
 				res = (RelationList) cres.get();
 			//}
 			return res;
 		}
-		public static RelationList queryParallelRange(AsynchRelatrixClientTransaction client, List<Object> query) throws IllegalArgumentException, ClassNotFoundException, IllegalAccessException, IOException, InterruptedException, ExecutionException {
+		public static RelationList queryParallelRange(AsynchRelatrixClient client, List<Object> query) throws IllegalArgumentException, ClassNotFoundException, IllegalAccessException, IOException, InterruptedException, ExecutionException {
 			RelationList res = null;
 			//try (var _ = Timer.log("Querying combined hash for List of "+query.size())) {
-				CompletableFuture<List> cres = client.findSetParallel(xid, '*', '*', query);
+				CompletableFuture<List> cres = client.findSetParallel('*', '*', query);
 				res = (RelationList) cres.get();
 			//}
 			return res;
@@ -299,14 +299,14 @@ public class ServerAsynchBatteryTransaction {
 		public static void battery1AR17(String[] argv) throws Exception {
 			long tims = System.currentTimeMillis();
 			System.out.println("CleanDB");
-			CompletableFuture<Iterator> itc = rkvc.findSet(xid, '*','*','*');
+			CompletableFuture<Iterator> itc = rkvc.findSet('*','*','*');
 			Iterator it = itc.get();
 			long timx = System.currentTimeMillis();
 			int i = 0;
 			while(it.hasNext()) {
 				Object fkey = it.next();
 				Relation dmr = (Relation)((Result)fkey).get(0);
-				rkvc.remove(xid, dmr.getDomain(), dmr.getMap());
+				rkvc.remove(dmr.getDomain(), dmr.getMap());
 				++i;
 				if((System.currentTimeMillis()-timx) > 1000) {
 					System.out.println("deleting "+i+" "+fkey);
